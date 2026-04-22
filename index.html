@@ -1,4 +1,4 @@
-1
+2
 
 <!DOCTYPE html>
 <html lang="en">
@@ -45,49 +45,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-
-        /* A4 Constraints */
-        .a4-container {
-            width: 794px;
-            min-height: 1123px;
-            margin: 0 auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            background-color: white;
-        }
-
-        .scale-wrapper {
-            transform-origin: top center;
-            transition: transform 0.2s;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .a4-container { width: 794px; min-height: 1123px; margin: 0 auto; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); background-color: white; }
+        .scale-wrapper { transform-origin: top center; transition: transform 0.2s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-        .slide-in { animation: slideIn 0.3s ease-out forwards; }
-
-        /* Accordion */
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         details[open] summary ~ * { animation: fadeIn 0.2s ease-in-out; }
         .chevron { transition: transform 0.3s ease; }
         details[open] .chevron { transform: rotate(180deg); }
-
-        /* QR Modal Styles */
-        .qr-box img {
-            margin: 0 auto;
-        }
+        .qr-box img { margin: 0 auto; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 h-screen overflow-hidden flex flex-col relative">
@@ -104,29 +74,23 @@
                 <span id="m-ref-container">#<span id="m-inv"></span></span>
                 <span id="m-client" class="text-gray-800 truncate"></span>
             </p>
-            
             <div class="py-6 border-y border-gray-100 mb-8">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Amount</p>
                 <div class="text-4xl font-black text-brand-600 tracking-tighter" id="m-total">₹0</div>
             </div>
-            
             <div class="space-y-3">
                 <button id="btn-m-pdf" class="w-full bg-brand-900 text-white py-4 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-brand-800 transition-colors shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> 
-                    Download PDF
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
                 </button>
                 <button id="btn-m-wa" class="w-full bg-[#25D366] text-white py-4 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-[#1DA851] transition-colors shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> 
-                    Open WhatsApp
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> Open WhatsApp
                 </button>
             </div>
-            <div class="mt-8 opacity-30 text-[10px] font-bold uppercase tracking-widest text-gray-500">ProInvoice SAAS</div>
         </div>
     </div>
 
     <!-- MAIN DESKTOP APP -->
     <div id="app-ui" class="h-screen w-full flex flex-col transition-opacity duration-300">
-        <!-- Top Navigation -->
         <nav class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-30 shrink-0 shadow-sm">
             <div class="flex items-center gap-3">
                 <div class="bg-brand-600 text-white p-2 rounded-lg shadow-sm">
@@ -139,14 +103,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     <span id="notif-badge" class="hidden absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">0</span>
                 </button>
-                <span class="text-xs text-gray-500 mr-2 hidden sm:flex items-center gap-1.5 font-medium bg-gray-100 px-3 py-1.5 rounded-full">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Auto-saved
-                </span>
                 <button onclick="clearData()" class="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors">Reset Data</button>
             </div>
         </nav>
 
-        <!-- Auto Nudge Banner -->
         <div id="auto-nudge-banner" class="hidden bg-red-50 border-b border-red-100 px-6 py-2.5 flex justify-between items-center shrink-0 z-20 shadow-sm fade-in">
             <div class="flex items-center gap-3">
                 <div class="bg-red-100 text-red-600 p-1 rounded-full animate-pulse">
@@ -154,841 +114,352 @@
                 </div>
                 <span class="text-sm font-bold text-red-800"><span id="overdue-count-text">0</span> items require attention</span>
             </div>
-            <button onclick="openNudgeModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm">
-                View Reminders
-            </button>
+            <button onclick="openNudgeModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm">View Reminders</button>
         </div>
 
         <main class="flex flex-1 overflow-hidden h-full">
-            <!-- Left Pane: Editor -->
-            <section class="w-full lg:w-[480px] bg-white border-r border-gray-200 flex flex-col relative z-10 shadow-lg shadow-gray-200/50 h-full">
-                
+            <section class="w-full lg:w-[480px] bg-white border-r border-gray-200 flex flex-col relative z-10 shadow-lg h-full">
                 <div id="tab-switcher" class="flex border-b border-gray-100 shrink-0 bg-white">
-                    <button id="btn-tab-invoice" onclick="setMode('invoice')" class="flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all">Invoice</button>
-                    <button id="btn-tab-contract" onclick="setMode('contract')" class="hidden flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all">Contract Generator</button>
+                    <button id="btn-tab-invoice" onclick="setMode('invoice')" class="flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600">Invoice</button>
+                    <button id="btn-tab-contract" onclick="setMode('contract')" class="flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400">Contract Generator</button>
                 </div>
 
                 <div class="flex-1 overflow-y-auto p-6 space-y-5 pb-48">
-                    <!-- INVOICE FORM WRAPPER -->
+                    <!-- INVOICE FORM -->
                     <div id="invoice-form-section" class="space-y-5">
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
                             <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Invoice Style</h2>
                             <div class="grid grid-cols-3 gap-3">
                                 <label class="cursor-pointer">
                                     <input type="radio" name="style" value="basic" class="peer sr-only" onchange="updateState('style', this.value)">
-                                    <div class="text-center p-2.5 border border-gray-200 rounded-lg peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition-all bg-white shadow-sm hover:shadow-md">
-                                        <div class="text-xs font-bold">Basic</div>
-                                    </div>
+                                    <div class="text-center p-2.5 border border-gray-200 rounded-lg peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 bg-white"><div class="text-xs font-bold">Basic</div></div>
                                 </label>
                                 <label class="cursor-pointer">
                                     <input type="radio" name="style" value="business" class="peer sr-only" onchange="updateState('style', this.value)">
-                                    <div class="text-center p-2.5 border border-gray-200 rounded-lg peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition-all bg-white shadow-sm hover:shadow-md">
-                                        <div class="text-xs font-bold">Business</div>
-                                    </div>
+                                    <div class="text-center p-2.5 border border-gray-200 rounded-lg peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 bg-white"><div class="text-xs font-bold">Business</div></div>
                                 </label>
                                 <label class="cursor-pointer">
                                     <input type="radio" name="style" value="modern" class="peer sr-only" onchange="updateState('style', this.value)">
-                                    <div class="text-center p-2.5 border border-gray-200 rounded-lg peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition-all bg-white shadow-sm hover:shadow-md">
-                                        <div class="text-xs font-bold">Modern</div>
-                                    </div>
+                                    <div class="text-center p-2.5 border border-gray-200 rounded-lg peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 bg-white"><div class="text-xs font-bold">Modern</div></div>
                                 </label>
                             </div>
                         </div>
-
                         <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
                             <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Invoice Basics</h2>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Invoice No.</label>
-                                    <input type="text" id="invNum" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('invNum', this.value)">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Date</label>
-                                    <input type="date" id="invDate" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('invDate', this.value)">
-                                </div>
+                                <input type="text" id="invNum" placeholder="Invoice No." class="w-full text-sm font-bold border-gray-200 rounded-lg p-2.5" oninput="updateState('invNum', this.value)">
+                                <input type="date" id="invDate" class="w-full text-sm font-bold border-gray-200 rounded-lg p-2.5" oninput="updateState('invDate', this.value)">
                             </div>
-                            <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200/50">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
-                                    <select id="paymentTerms" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentTerms', this.value)">
-                                        <option value="receipt">Due on Receipt</option>
-                                        <option value="net3">Net 3 Days</option>
-                                        <option value="net7">Net 7 Days</option>
-                                        <option value="net15">Net 15 Days</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Late Fee (%) <span class="text-gray-400 font-normal ml-1">Opt.</span></label>
-                                    <input type="number" id="lateFee" min="0" step="0.1" placeholder="e.g. 5" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('lateFee', parseFloat(this.value) || 0)">
-                                </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <select id="paymentTerms" class="w-full text-sm font-bold border-gray-200 rounded-lg p-2.5" onchange="updateState('paymentTerms', this.value)">
+                                    <option value="receipt">Due on Receipt</option>
+                                    <option value="net3">Net 3 Days</option>
+                                    <option value="net7" selected>Net 7 Days</option>
+                                    <option value="net15">Net 15 Days</option>
+                                </select>
+                                <input type="number" id="lateFee" placeholder="Late Fee %" class="w-full text-sm font-bold border-gray-200 rounded-lg p-2.5" oninput="updateState('lateFee', parseFloat(this.value) || 0)">
                             </div>
                         </div>
-
-                        <details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                            <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
-                                Tax & GST Registration
-                                <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </summary>
-                            <div class="p-5 border-t border-gray-100">
-                                <div class="space-y-3 mb-5">
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-brand-500 transition-colors">
-                                        <input type="radio" name="userType" value="registered" class="text-brand-600 focus:ring-brand-500 w-4 h-4" onchange="updateState('userType', this.value)">
-                                        <div class="ml-3">
-                                            <span class="block text-sm font-bold text-gray-900">GST Registered</span>
-                                            <span class="block text-xs text-gray-500 mt-0.5">Calculates CGST/SGST/IGST</span>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-brand-500 transition-colors">
-                                        <input type="radio" name="userType" value="composition" class="text-brand-600 focus:ring-brand-500 w-4 h-4" onchange="updateState('userType', this.value)">
-                                        <div class="ml-3">
-                                            <span class="block text-sm font-bold text-gray-900">Composition Scheme</span>
-                                            <span class="block text-xs text-gray-500 mt-0.5">Generates "Bill of Supply"</span>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-brand-500 transition-colors">
-                                        <input type="radio" name="userType" value="not_registered" class="text-brand-600 focus:ring-brand-500 w-4 h-4" onchange="updateState('userType', this.value)">
-                                        <div class="ml-3">
-                                            <span class="block text-sm font-bold text-gray-900">Not Registered</span>
-                                            <span class="block text-xs text-gray-500 mt-0.5">Standard Invoice without tax</span>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div id="gst-extra-settings" class="pt-4 border-t border-gray-100">
-                                    <div class="flex items-center justify-between">
-                                        <label class="text-sm font-bold text-gray-700">Export under LUT?</label>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" id="isExport" class="sr-only peer" onchange="updateState('isExport', this.checked)">
-                                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </details>
-
-                        <details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                            <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
-                                Your Identity
-                                <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </summary>
-                            <div class="p-5 space-y-3 border-t border-gray-100">
-                                <input type="text" id="fName" placeholder="Brand Name / Your Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('fName', this.value)">
-                                <input type="text" id="fEmail" placeholder="Email Address" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('fEmail', this.value)">
-                                <textarea id="fAddress" placeholder="Your Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('fAddress', this.value)"></textarea>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">Your State (For GST)</label>
-                                    <input type="text" id="myState" placeholder="e.g., Maharashtra" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 bg-gray-50 text-gray-900" oninput="updateState('myState', this.value)">
-                                </div>
-                            </div>
-                        </details>
-
-                        <details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                            <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
-                                Billed To (Client)
-                                <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </summary>
-                            <div class="p-5 space-y-3 border-t border-gray-100">
-                                <input type="text" id="cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value)">
-                                <textarea id="cAddress" placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cAddress', this.value)"></textarea>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">Client State (For GST)</label>
-                                    <input type="text" id="clientState" placeholder="e.g., Delhi" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 bg-gray-50 text-gray-900" oninput="updateState('clientState', this.value)">
-                                </div>
-                            </div>
-                        </details>
-
-                        <div class="pt-2">
-                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Line Items</h2>
-                            <div id="items-container" class="space-y-3 mb-3"></div>
-                            <button onclick="addItem()" class="w-full py-3 border-2 border-dashed border-gray-300 text-brand-600 bg-brand-50/50 rounded-lg text-sm font-bold hover:border-brand-500 transition-colors flex items-center justify-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                Add Line Item
-                            </button>
+                        <div class="bg-white border rounded-xl p-5">
+                            <h2 class="text-xs font-bold uppercase tracking-widest mb-3">Client Details</h2>
+                            <input type="text" id="cName" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg p-2.5 mb-2" oninput="updateState('cName', this.value)">
+                            <textarea id="cAddress" placeholder="Client Address" class="w-full text-sm border-gray-200 rounded-lg p-2.5" oninput="updateState('cAddress', this.value)"></textarea>
                         </div>
-
-                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm mt-4">
-                            <h2 class="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-gray-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>
-                                Payment Details
-                            </h2>
-                            <div class="space-y-4">
-                                <div>
-                                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">UPI Setup</h3>
-                                    <input type="text" id="upiId" placeholder="UPI ID (e.g. name@okhdfcbank)" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900 mb-3" oninput="updateState('upiId', this.value)">
-                                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center bg-white hover:bg-gray-50 transition-colors relative cursor-pointer">
-                                        <input type="file" id="qrUpload" accept="image/png, image/jpeg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleQRUpload(event)">
-                                        <div id="qr-placeholder" class="flex flex-col items-center pointer-events-none">
-                                            <div class="bg-gray-100 p-2.5 rounded-full mb-2">
-                                                <svg class="text-gray-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                                            </div>
-                                            <span class="text-xs font-bold text-gray-700">Upload UPI QR</span>
-                                        </div>
-                                        <div id="qr-preview-container" class="hidden flex-col items-center">
-                                            <div class="p-1 border border-gray-200 rounded-lg mb-2 bg-white">
-                                                <img id="qr-preview-img" src="" alt="QR Code" class="h-16 w-16 object-contain">
-                                            </div>
-                                            <span class="text-[11px] font-bold text-brand-600 z-20 relative cursor-pointer hover:underline">Change QR</span>
-                                        </div>
-                                    </div>
-                                    <button onclick="removeQR()" id="remove-qr-btn" class="hidden text-xs font-bold text-red-500 hover:text-red-700 w-full text-center mt-2">Remove QR Code</button>
-                                </div>
-                                <div class="pt-4 border-t border-gray-200">
-                                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Bank Transfer</h3>
-                                    <div class="space-y-3">
-                                        <input type="text" id="bankName" placeholder="Bank Name" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankName', this.value)">
-                                        <input type="text" id="bankAccountName" placeholder="Account Holder Name" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankAccountName', this.value)">
-                                        <input type="text" id="bankAccountNo" placeholder="Account Number" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankAccountNo', this.value)">
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <input type="text" id="bankIfsc" placeholder="IFSC Code" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankIfsc', this.value)">
-                                            <input type="text" id="bankBranch" placeholder="Branch (Opt)" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankBranch', this.value)">
-                                        </div>
-                                    </div>
-                                </div>
+                        <div id="items-container" class="space-y-3"></div>
+                        <button onclick="addItem()" class="w-full py-3 border-2 border-dashed text-brand-600 bg-brand-50 rounded-lg text-sm font-bold">Add Item</button>
+                        <div class="bg-gray-50 p-5 rounded-xl border">
+                            <h2 class="text-xs font-bold uppercase tracking-widest mb-3">Your Identity & UPI</h2>
+                            <input type="text" id="fName" placeholder="Your Name/Brand" class="w-full text-sm font-medium border-gray-200 rounded-lg p-2.5 mb-2" oninput="updateState('fName', this.value)">
+                            <input type="text" id="upiId" placeholder="UPI ID" class="w-full text-sm font-medium border-gray-200 rounded-lg p-2.5 mb-3" oninput="updateState('upiId', this.value)">
+                            <div class="relative border-2 border-dashed p-5 text-center bg-white rounded-xl">
+                                <input type="file" id="qrUpload" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleQRUpload(event)">
+                                <div id="qr-placeholder" class="text-xs font-bold text-gray-500">Upload UPI QR Image</div>
+                                <div id="qr-preview-container" class="hidden"><img id="qr-preview-img" class="h-16 w-16 mx-auto object-contain"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CONTRACT FORM SECTION -->
+                    <!-- CONTRACT FORM -->
                     <div id="contract-form-section" class="hidden space-y-5">
-                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
-                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Contract Basics</h2>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Freelancer Name</label>
-                                    <input type="text" id="contractFreelancer" placeholder="Your Legal Name" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractFreelancer', this.value)">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-                                    <input type="text" id="contractClient" placeholder="Client Legal Name" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractClient', this.value)">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Project Scope / Description</label>
-                                    <textarea id="contractDesc" rows="4" placeholder="Briefly describe the work to be done..." class="w-full text-sm border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractDesc', this.value)"></textarea>
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-600 mb-1.5">Start Date</label>
-                                        <input type="date" id="contractStart" class="w-full text-sm border-gray-200 rounded-lg border p-2.5 bg-white" oninput="updateState('contractStart', this.value)">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-600 mb-1.5">Delivery Date</label>
-                                        <input type="date" id="contractEnd" class="w-full text-sm border-gray-200 rounded-lg border p-2.5 bg-white" oninput="updateState('contractEnd', this.value)">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Total Amount (₹)</label>
-                                    <input type="number" id="contractAmount" placeholder="0" class="w-full text-sm font-black border-gray-200 rounded-lg border p-2.5 bg-white" oninput="updateState('contractAmount', parseFloat(this.value) || 0)">
-                                </div>
-                                <p class="text-[10px] text-gray-400 italic">Note: Payment terms are linked to the Invoice Basics section.</p>
+                        <div class="bg-gray-50 p-5 rounded-xl border">
+                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Contract Details</h2>
+                            <input type="text" id="contractFreelancer" placeholder="Freelancer Legal Name" class="w-full text-sm font-bold border-gray-200 rounded-lg p-2.5 mb-3" oninput="updateState('contractFreelancer', this.value)">
+                            <input type="text" id="contractClient" placeholder="Client Legal Name" class="w-full text-sm font-bold border-gray-200 rounded-lg p-2.5 mb-3" oninput="updateState('contractClient', this.value)">
+                            <textarea id="contractDesc" rows="4" placeholder="Project Scope..." class="w-full text-sm border-gray-200 rounded-lg p-2.5 mb-3" oninput="updateState('contractDesc', this.value)"></textarea>
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="date" id="contractStart" class="w-full text-sm border-gray-200 rounded-lg p-2.5" oninput="updateState('contractStart', this.value)">
+                                <input type="date" id="contractEnd" class="w-full text-sm border-gray-200 rounded-lg p-2.5" oninput="updateState('contractEnd', this.value)">
                             </div>
+                            <input type="number" id="contractAmount" placeholder="Total Amount ₹" class="w-full text-sm font-black border-gray-200 rounded-lg p-2.5 mt-3" oninput="updateState('contractAmount', parseFloat(this.value) || 0)">
                         </div>
                     </div>
 
-                    <!-- QR SHARE SYSTEM -->
-                    <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 shadow-sm mt-4 text-center">
-                        <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700 flex items-center justify-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-                            Send via Phone
-                        </h2>
-                        <p id="share-qr-label" class="text-[10px] text-brand-600/80 mb-4 font-medium">Scan to open invoice on mobile.</p>
-                        <div id="share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100"></div>
+                    <!-- SEND VIA PHONE (QR) -->
+                    <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 text-center">
+                        <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700">Send via Phone</h2>
+                        <div id="share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit"></div>
                     </div>
                 </div>
 
-                <!-- Floating Action Bar -->
-                <div class="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm border-t border-gray-200 p-5 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.1)] z-20">
+                <div class="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm border-t p-5 z-20">
                     <div id="invoice-actions" class="grid grid-cols-2 gap-3 mb-3">
-                        <button onclick="generatePDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
-                        </button>
-                        <button onclick="sendWhatsApp()" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
-                        </button>
+                        <button onclick="generatePDF()" class="bg-brand-600 text-white px-4 py-3 rounded-xl font-bold text-sm">Download PDF</button>
+                        <button onclick="sendWhatsApp()" class="bg-[#25D366] text-white px-4 py-3 rounded-xl font-bold text-sm">WhatsApp</button>
                     </div>
                     <div id="contract-actions" class="hidden grid grid-cols-2 gap-3 mb-3">
-                        <button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> PDF
-                        </button>
-                        <button onclick="sendWhatsApp()" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> Send Contract
-                        </button>
+                        <button onclick="generatePDF()" class="bg-slate-900 text-white px-4 py-3 rounded-xl font-bold text-sm">PDF</button>
+                        <button onclick="sendWhatsApp()" class="bg-[#25D366] text-white px-4 py-3 rounded-xl font-bold text-sm">Send Contract</button>
                     </div>
-                    <div class="grid grid-cols-1">
-                        <button onclick="saveToHistory()" class="bg-brand-50 text-brand-700 hover:bg-brand-100 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save to Tracker
-                        </button>
-                    </div>
+                    <button onclick="saveToHistory()" class="w-full bg-brand-50 text-brand-700 px-4 py-3 rounded-xl font-bold text-sm">Save to Tracker</button>
                 </div>
             </section>
 
-            <!-- Right Pane: Live Preview -->
-            <section class="flex-1 bg-gray-200/80 overflow-y-auto flex justify-center py-10 relative shadow-inner" id="preview-section">
-                <div id="save-toast" class="fixed top-6 right-6 bg-gray-900 text-white px-6 py-3.5 rounded-xl shadow-2xl transition-all duration-300 transform -translate-y-24 opacity-0 z-50 font-bold flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
-                    Saved to tracker history
-                </div>
-
-                <div class="fixed bottom-6 right-6 flex gap-1 bg-white shadow-xl rounded-full p-1.5 z-20 border border-gray-200">
-                    <button onclick="adjustZoom(-0.1)" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
-                    <span id="zoom-level" class="flex items-center text-sm font-bold px-3 text-gray-800 w-16 justify-center">100%</span>
-                    <button onclick="adjustZoom(0.1)" class="p-2 hover:bg-gray-100 rounded-full text-gray-700 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
-                </div>
-
+            <!-- LIVE PREVIEW -->
+            <section class="flex-1 bg-gray-200/80 overflow-y-auto flex justify-center py-10 relative">
+                <div id="save-toast" class="fixed top-6 right-6 bg-gray-900 text-white px-6 py-3.5 rounded-xl opacity-0 transition-all z-50 font-bold">Saved!</div>
                 <div class="scale-wrapper" id="scale-wrapper">
-                    <div id="invoice-target" class="a4-container relative overflow-hidden flex flex-col bg-white"></div>
+                    <div id="invoice-target" class="a4-container relative flex flex-col bg-white"></div>
                 </div>
             </section>
 
-            <!-- Tracker Panel -->
-            <aside id="tracker-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-40 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-gray-200 flex flex-col">
-                <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-brand-600 p-2 rounded-lg text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                        </div>
-                        <h2 class="text-lg font-bold text-gray-900 tracking-tight">Payment Tracker</h2>
-                    </div>
-                    <button onclick="toggleTracker()" class="p-2 hover:bg-gray-200 rounded-full transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
+            <!-- TRACKER PANEL -->
+            <aside id="tracker-panel" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-40 transform translate-x-full transition-transform border-l">
+                <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                    <h2 class="text-lg font-bold">Tracker</h2>
+                    <button onclick="toggleTracker()">✕</button>
                 </div>
                 <div class="flex-1 overflow-y-auto p-4 space-y-4" id="tracker-list"></div>
             </aside>
         </main>
-        
-        <!-- Reminder Modal -->
-        <div id="nudge-modal" class="hidden fixed inset-0 z-50 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="nudge-modal-content">
-                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50/30">
-                    <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
-                        <span class="text-red-500">🔴</span> Overdue & Pending
-                    </h3>
-                    <button onclick="closeNudgeModal()" class="text-gray-400 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
+
+        <!-- REMINDER MODAL -->
+        <div id="nudge-modal" class="hidden fixed inset-0 z-50 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div id="nudge-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform">
+                <div class="px-6 py-4 border-b flex justify-between bg-red-50/30 font-bold">
+                    <h3>🔴 Overdue Reminders (Invoices)</h3>
+                    <button onclick="closeNudgeModal()">✕</button>
                 </div>
-                <div class="p-6 overflow-y-auto max-h-[60vh] bg-gray-50/50 space-y-3" id="nudge-modal-list"></div>
-                <div class="p-6 border-t border-gray-100 bg-white flex justify-between items-center">
-                    <button onclick="closeNudgeModal()" class="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors">Cancel</button>
-                    <button onclick="sendAllReminders()" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                        Send All Reminders
-                    </button>
-                </div>
+                <div class="p-6 space-y-3" id="nudge-modal-list"></div>
             </div>
         </div>
-
     </div>
 
-    <!-- JavaScript Logic -->
     <script>
-        // --- 0. HELPER FUNCTIONS ---
-        function calculateDueDate(dateStr, terms) {
-            if (!dateStr) return '';
-            const [year, month, day] = dateStr.split('-');
-            const date = new Date(year, month - 1, day);
-            let days = 7;
-            if (terms === 'receipt') days = 0;
-            else if (terms === 'net3') days = 3;
-            else if (terms === 'net7') days = 7;
-            else if (terms === 'net15') days = 15;
-            date.setDate(date.getDate() + days);
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
+        // --- HELPERS ---
+        const formatINR = (a) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(a);
+        const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
-        // NEW: Reminder Message Engine
+        // --- PART 3: SMART REMINDER MESSAGE (REPLACE ENTIRE FUNCTION) ---
         function generateReminderMessage(record) {
-            const client = record.cName || "Client";
-            if (record.type === 'contract') {
-                return `Hi ${client}, Reminder to review the agreement. Please check it. Thank you.`;
+            const clientName = record.cName || "Client";
+            if (!record.dueDate) {
+                return `Hi ${clientName}, Sharing invoice #${record.invNum}. Kindly review.`;
             }
-            return `Hi ${client}, Reminder: Invoice #${record.invNum || ''} Amount: ₹${record.total || 0} Due: ${formatDate(record.dueDate) || ''} Kindly process the payment. Thank you.`;
+            const now = new Date().setHours(0,0,0,0);
+            const due = new Date(record.dueDate).setHours(0,0,0,0);
+            const daysLate = Math.floor((now - due) / (1000 * 60 * 60 * 24));
+
+            if (daysLate <= 0) {
+                return `Hi ${clientName}, Just a reminder that invoice #${record.invNum} for ₹${record.total} is due on ${formatDate(record.dueDate)}. Please check when possible.`;
+            }
+            if (daysLate === 1) {
+                return `Hi ${clientName}, Invoice #${record.invNum} (₹${record.total}) was due yesterday. Kindly update on payment.`;
+            }
+            if (daysLate === 2) {
+                return `Hi ${clientName}, Following up on invoice #${record.invNum} (₹${record.total}), now 2 days overdue. Please process soon.`;
+            }
+            return `Hi ${clientName}, Invoice #${record.invNum} (₹${record.total}) is ${daysLate} days overdue. Please treat this as urgent.`;
         }
 
-        // NEW: Reminder QR URL Generator
+        // --- PART 4: QR GENERATION ---
         function generateReminderQR(record) {
             const message = generateReminderMessage(record);
             return `https://wa.me/?text=${encodeURIComponent(message)}`;
         }
 
-        // --- 1. STATE MANAGEMENT ---
+        // --- STATE ---
         const defaultState = {
-            style: 'basic',
-            userType: 'registered',
-            isExport: false,
-            invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
-            invDate: new Date().toISOString().split('T')[0],
-            paymentTerms: 'net7',
-            dueDate: calculateDueDate(new Date().toISOString().split('T')[0], 'net7'),
-            lateFee: 0,
-            fName: '', fEmail: '', fAddress: '', myState: '',
-            cName: '', cAddress: '', clientState: '',
-            items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
-            upiId: '', qrImage: null,
-            bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
-            savedInvoices: [],
-            savedContracts: [],
-            mode: 'invoice', 
-            contractFreelancer: '',
-            contractClient: '',
-            contractDesc: '',
-            contractAmount: 0,
-            contractStart: '',
-            contractEnd: ''
+            style: 'basic', mode: 'invoice', lateFee: 0,
+            invNum: 'INV-001', invDate: new Date().toISOString().split('T')[0], paymentTerms: 'net7', dueDate: '',
+            fName: '', fEmail: '', fAddress: '', cName: '', cAddress: '', upiId: '', qrImage: null,
+            items: [{ id: Date.now(), desc: 'Web Service', amount: 1000 }],
+            savedInvoices: [], savedContracts: [],
+            contractFreelancer: '', contractClient: '', contractDesc: '', contractAmount: 0, contractStart: '', contractEnd: ''
         };
-
         let state = { ...defaultState };
         let grandTotalToExport = 0;
-        let isMobileFlow = false;
 
-        function loadState() {
-            const saved = localStorage.getItem('invoiceAppPro_V4_Tracker');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state = { ...defaultState, ...parsed };
-                    refreshStatuses();
-                } catch(e) { console.error("Load failed", e); }
+        function updateState(k, v) { 
+            state[k] = v; 
+            if (k === 'invDate' || k === 'paymentTerms') {
+                const d = new Date(state.invDate);
+                let days = 7;
+                if(state.paymentTerms==='net3') days=3; else if(state.paymentTerms==='net15') days=15; else if(state.paymentTerms==='receipt') days=0;
+                d.setDate(d.getDate()+days);
+                state.dueDate = d.toISOString().split('T')[0];
             }
+            saveState(); renderAll(); 
         }
 
-        function saveState() {
-            localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state));
-        }
+        function saveState() { localStorage.setItem('proinvoice_v4', JSON.stringify(state)); }
+        function loadState() { const s = localStorage.getItem('proinvoice_v4'); if(s) state = {...defaultState, ...JSON.parse(s)}; }
 
-        function refreshStatuses() {
-            const now = new Date().setHours(0,0,0,0);
-            let overdueCount = 0;
-
-            state.savedInvoices = state.savedInvoices.map(inv => {
-                if (inv.status === 'Paid') return inv;
-                const due = new Date(inv.dueDate).setHours(0,0,0,0);
-                const diff = (due - now) / (1000 * 60 * 60 * 24);
-                let newStatus = 'Unpaid';
-                if (diff < 0) { newStatus = 'Overdue'; overdueCount++; }
-                else if (diff <= 2) { newStatus = 'Due Soon'; overdueCount++; }
-                return { ...inv, status: newStatus };
-            });
-
-            state.savedContracts = state.savedContracts.map(con => {
-                if (con.status === 'Signed') return con;
-                overdueCount++;
-                return { ...con, status: 'Pending' };
-            });
-
-            const badge = document.getElementById('notif-badge');
-            if (overdueCount > 0) {
-                badge.innerText = overdueCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-            renderTrackerList();
-
-            const banner = document.getElementById('auto-nudge-banner');
-            if (banner && !isMobileFlow) {
-                if (overdueCount > 0) {
-                    document.getElementById('overdue-count-text').innerText = overdueCount;
-                    banner.classList.remove('hidden');
-                } else {
-                    banner.classList.add('hidden');
-                }
-            }
-        }
-
-        function updateState(key, value) {
-            state[key] = value;
-            if (key === 'invDate' || key === 'paymentTerms') {
-                state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
-            }
-            saveState();
-            if (key === 'userType') {
-                const extra = document.getElementById('gst-extra-settings');
-                if (value === 'registered') extra.classList.remove('hidden');
-                else extra.classList.add('hidden');
-            }
-            
-            if (state.mode === 'invoice') renderPreview();
-            else renderContractPreview();
-            
-            if(!isMobileFlow) updateShareQR();
-        }
-
-        // --- 2. TRACKER UI & LOGIC ---
-        function toggleTracker() {
-            const panel = document.getElementById('tracker-panel');
-            panel.classList.toggle('translate-x-full');
-            if (!panel.classList.contains('translate-x-full')) renderTrackerList();
-        }
-
-        function renderTrackerList() {
-            const container = document.getElementById('tracker-list');
-            const allItems = [
-                ...state.savedInvoices.map(i => ({...i, type: 'invoice'})),
-                ...state.savedContracts.map(c => ({...c, type: 'contract'}))
-            ].sort((a, b) => b.id - a.id);
-
-            if (allItems.length === 0) {
-                container.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-gray-400"><p class="text-sm font-medium">No records saved</p></div>`;
-                return;
-            }
-
-            container.innerHTML = allItems.map(item => {
-                let badgeClass = 'bg-gray-100 text-gray-600';
-                if (item.status === 'Paid' || item.status === 'Signed') badgeClass = 'bg-green-100 text-green-700';
-                else if (item.status === 'Due Soon') badgeClass = 'bg-yellow-100 text-yellow-700';
-                else if (item.status === 'Overdue' || item.status === 'Pending') badgeClass = 'bg-red-100 text-red-700';
-
-                const isInv = item.type === 'invoice';
-                return `
-                    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <p class="text-[9px] font-black ${isInv ? 'text-brand-500' : 'text-slate-500'} uppercase tracking-widest mb-1">
-                                    ${isInv ? 'Invoice' : 'Contract'}
-                                </p>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">#${item.invNum || item.id}</p>
-                                <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${item.cName || 'Unnamed'}</h4>
-                            </div>
-                            <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${badgeClass}">${item.status}</span>
-                        </div>
-                        <div class="flex justify-between items-end mt-4">
-                            <div>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase">${isInv ? 'Due: ' + formatDate(item.dueDate) : 'Created: ' + formatDate(new Date(item.id).toISOString().split('T')[0])}</p>
-                                <p class="text-sm font-black text-gray-900">${formatINR(item.total)}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                ${item.status !== 'Paid' && item.status !== 'Signed' ? `
-                                    <button onclick="${isInv ? 'markAsPaid' : 'markAsSigned'}(${item.id})" class="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    </button>
-                                    <button onclick="sendSmartReminder(${item.id}, '${item.type}')" class="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                    </button>
-                                ` : ''}
-                                <button onclick="deleteRecord(${item.id}, '${item.type}')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function markAsPaid(id) { const inv = state.savedInvoices.find(i => i.id === id); if (inv) { inv.status = 'Paid'; saveState(); refreshStatuses(); } }
-        function markAsSigned(id) { const con = state.savedContracts.find(i => i.id === id); if (con) { con.status = 'Signed'; saveState(); refreshStatuses(); } }
-        function deleteRecord(id, type) { if(confirm("Remove this record?")) { if(type==='invoice') state.savedInvoices = state.savedInvoices.filter(i => i.id !== id); else state.savedContracts = state.savedContracts.filter(i => i.id !== id); saveState(); refreshStatuses(); } }
-
-        function sendSmartReminder(id, type = 'invoice') {
-            const collection = type === 'invoice' ? state.savedInvoices : state.savedContracts;
-            const item = collection.find(i => i.id === id);
-            if (!item) return;
-            item.type = type; // Ensure type is present for message generator
-            const message = generateReminderMessage(item);
-            item.lastReminderSent = Date.now();
-            saveState();
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-        }
-
-        // NEW: Open Reminder QR Logic
+        // --- REMINDERS (INVOICE ONLY) ---
         function openReminderQR(id) {
-            const all = [...state.savedInvoices.map(i=>({...i, type:'invoice'})), ...state.savedContracts.map(c=>({...c, type:'contract'}))];
-            const record = all.find(r => r.id === id);
+            const record = state.savedInvoices.find(r => r.id === id);
             if (!record) return;
-
             const url = generateReminderQR(record);
             const container = document.getElementById(`qr-${id}`);
             if (!container) return;
-
-            const isAlreadyOpen = !container.classList.contains('hidden');
-            
-            // Toggle logic
-            if(isAlreadyOpen) {
-                container.classList.add('hidden');
-                return;
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                container.innerHTML = '';
+                new QRCode(container, { text: url, width: 140, height: 140 });
             }
-
-            container.classList.remove('hidden');
-            container.innerHTML = '<p class="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Scan to send reminder</p>';
-            
-            const qrWrapper = document.createElement('div');
-            qrWrapper.className = 'bg-white p-2 border border-gray-100 rounded-xl shadow-sm inline-block';
-            container.appendChild(qrWrapper);
-
-            new QRCode(qrWrapper, {
-                text: url,
-                width: 140,
-                height: 140,
-                colorDark : "#111827",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
-            });
         }
 
-        function sendWhatsApp() {
-            let message = "";
-            if (state.mode === 'invoice') {
-                message = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} for ${formatINR(grandTotalToExport)}. Please check.`;
-            } else {
-                message = `Hi ${state.contractClient || state.cName || 'Client'}, sharing our project agreement. Please review and confirm.`;
-            }
+        function sendSmartReminder(id) {
+            const record = state.savedInvoices.find(r => r.id === id);
+            if (!record) return;
+            const message = generateReminderMessage(record);
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
-        function saveToHistory() {
-            const record = {
-                id: Date.now(),
-                invNum: state.mode === 'invoice' ? state.invNum : null,
-                cName: state.mode === 'invoice' ? state.cName : state.contractClient,
-                total: state.mode === 'invoice' ? grandTotalToExport : state.contractAmount,
-                date: state.mode === 'invoice' ? state.invDate : state.contractStart,
-                dueDate: state.mode === 'invoice' ? state.dueDate : null,
-                status: state.mode === 'invoice' ? 'Unpaid' : 'Pending',
-                lastReminderSent: null
-            };
-
-            if (state.mode === 'invoice') state.savedInvoices.unshift(record);
-            else state.savedContracts.unshift(record);
-
-            saveState();
-            refreshStatuses();
-            
-            const toast = document.getElementById('save-toast');
-            toast.classList.remove('-translate-y-24', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-            setTimeout(() => { 
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('-translate-y-24', 'opacity-0');
-            }, 3000);
-        }
-
-        // --- 3. DOM & PREVIEW ---
-        function populateForm() {
-            const styleRadio = document.querySelector(`input[name="style"][value="${state.style}"]`);
-            if(styleRadio) styleRadio.checked = true;
-            const userTypeRadio = document.querySelector(`input[name="userType"][value="${state.userType}"]`);
-            if(userTypeRadio) userTypeRadio.checked = true;
-            const exportCheck = document.getElementById('isExport');
-            if(exportCheck) exportCheck.checked = state.isExport;
-            if(state.userType !== 'registered') document.getElementById('gst-extra-settings').classList.add('hidden');
-
-            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'lateFee', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
-                const el = document.getElementById(key);
-                if(el) el.value = state[key] || '';
-            });
-            const termsSelect = document.getElementById('paymentTerms');
-            if(termsSelect) termsSelect.value = state.paymentTerms || 'net7';
-            if (state.qrImage) showQRPreview(state.qrImage); else hideQRPreview();
-            
-            setMode(state.mode);
-        }
-
-        function renderItems() {
-            const container = document.getElementById('items-container');
-            container.innerHTML = '';
-            state.items.forEach((item, index) => {
-                const row = document.createElement('div');
-                row.className = 'flex gap-2 items-start fade-in';
-                row.innerHTML = `
-                    <div class="flex-1"><input type="text" placeholder="Service Name" value="${item.desc}" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateItem(${item.id}, 'desc', this.value)"></div>
-                    <div class="w-32 relative"><span class="absolute left-3 top-2.5 text-gray-500 font-bold">₹</span><input type="number" value="${item.amount || ''}" class="w-full text-sm font-bold pl-7 border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateItem(${item.id}, 'amount', parseFloat(this.value) || 0)"></div>
-                    <button onclick="removeItem(${item.id})" class="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors bg-gray-50 rounded-lg border border-transparent"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                `;
-                container.appendChild(row);
-            });
-        }
-
-        function addItem() { state.items.push({ id: Date.now(), desc: '', amount: 0 }); saveState(); renderItems(); renderPreview(); }
-        function removeItem(id) { if (state.items.length > 1) { state.items = state.items.filter(i => i.id !== id); saveState(); renderItems(); renderPreview(); } }
-        function updateItem(id, field, value) { const item = state.items.find(i => i.id === id); if (item) { item[field] = value; saveState(); renderPreview(); } }
-
-        function handleQRUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => { state.qrImage = e.target.result; saveState(); showQRPreview(state.qrImage); renderPreview(); };
-            reader.readAsDataURL(file);
-        }
-        function showQRPreview(src) { document.getElementById('qr-placeholder').classList.add('hidden'); document.getElementById('qr-preview-container').classList.remove('hidden'); document.getElementById('qr-preview-container').classList.add('flex'); document.getElementById('qr-preview-img').src = src; document.getElementById('remove-qr-btn').classList.remove('hidden'); }
-        function hideQRPreview() { document.getElementById('qr-placeholder').classList.remove('hidden'); document.getElementById('qr-preview-container').classList.add('hidden'); document.getElementById('qrUpload').value = ''; document.getElementById('remove-qr-btn').classList.add('hidden'); }
-        function removeQR() { state.qrImage = null; saveState(); hideQRPreview(); renderPreview(); }
-
-        const formatINR = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
-        const formatDate = (ds) => ds ? new Date(ds).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-
-        // --- 4. PREVIEW RENDERS ---
-        function renderPreview() {
-            const target = document.getElementById('invoice-target');
-            const subtotal = state.items.reduce((sum, item) => sum + (item.amount || 0), 0);
-            let taxAmount = 0; let taxBreakdownArray = []; let invoiceLabel = 'INVOICE'; let taxNote = '';
-
-            if (state.userType === 'composition') { invoiceLabel = 'BILL OF SUPPLY'; taxNote = 'Composition taxable person, not eligible to collect tax on supplies.'; }
-            else if (state.userType === 'registered') {
-                invoiceLabel = 'TAX INVOICE';
-                if (state.isExport) taxNote = 'Export under LUT. Tax payable is Nil.';
-                else {
-                    const isInterState = (state.myState || '').trim().toLowerCase() !== (state.clientState || '').trim().toLowerCase();
-                    if (isInterState) { taxAmount = subtotal * 0.18; taxBreakdownArray.push({ label: 'IGST (18%)', amount: taxAmount }); }
-                    else { const cgst = subtotal * 0.09; const sgst = subtotal * 0.09; taxAmount = cgst + sgst; taxBreakdownArray.push({ label: 'CGST (9%)', amount: cgst }, { label: 'SGST (9%)', amount: sgst }); }
-                }
-            }
-            grandTotalToExport = subtotal + taxAmount;
-            const watermarkHTML = `<div class="mt-auto pt-16 pb-4 flex justify-center items-center opacity-[0.20] text-[10px] text-gray-900 font-medium w-full text-center">Generated using <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> Project Eramdam</div>`;
-
-            let innerHTML = '';
-            const itemsRows = state.items.map((item, idx) => `<tr class="border-b border-gray-100"><td class="py-3 px-2 text-sm text-gray-400">${idx+1}</td><td class="py-3 px-2 text-sm font-medium text-gray-900">${item.desc || 'Item'}</td><td class="py-3 px-2 text-sm font-medium text-gray-900 text-right">${formatINR(item.amount)}</td></tr>`).join('');
-            
-            if (state.style === 'basic') {
-                innerHTML = `<div class="p-14 flex flex-col min-h-full"><div class="mb-10 pb-6 border-b border-gray-200"><h1 class="text-3xl font-bold">${state.fName || 'Brand'}</h1><p class="text-sm text-gray-500">${state.fEmail}</p><h2 class="text-xl font-medium text-gray-400 mt-10 uppercase">${invoiceLabel} <span class="text-gray-800">#${state.invNum}</span></h2></div><div class="mb-10"><p class="text-[10px] uppercase font-bold text-gray-400 mb-1">Billed To</p><h3 class="text-lg font-medium">${state.cName}</h3><p class="text-sm text-gray-600">${state.cAddress}</p></div><table class="w-full mb-10"><thead class="border-y border-gray-200 text-[10px] font-bold text-gray-400 uppercase"><th class="py-3 px-2 text-left">#</th><th class="py-3 px-2 text-left">Desc</th><th class="py-3 px-2 text-right">Amount</th></thead><tbody>${itemsRows}</tbody></table><div class="flex flex-col items-end mb-16"><div class="w-64 border-t border-gray-200 pt-4"><div class="flex justify-between py-1 text-sm"><span>Subtotal</span><span>${formatINR(subtotal)}</span></div>${taxBreakdownArray.map(t=>`<div class="flex justify-between py-1 text-sm text-gray-500"><span>${t.label}</span><span>${formatINR(t.amount)}</span></div>`).join('')}<div class="flex justify-between py-4 text-xl font-bold border-t border-black mt-2"><span>Total</span><span>${formatINR(grandTotalToExport)}</span></div></div></div><div class="mt-auto border-t pt-6 text-[10px] text-gray-500"><p class="font-bold mb-2">Terms: Due within ${state.paymentTerms} days.</p></div>${watermarkHTML}</div>`;
-            } else if (state.style === 'business') {
-                innerHTML = `<div class="p-12 min-h-full"><div class="flex justify-between mb-8 pb-8 border-b"><div><h1 class="text-2xl font-bold">${state.fName}</h1><p class="text-sm">${state.fEmail}</p></div><div class="text-right"><h2 class="text-3xl font-black text-gray-200 uppercase">${invoiceLabel}</h2><p class="text-sm font-bold">#${state.invNum}</p></div></div><div class="bg-gray-50 p-6 rounded-lg mb-8"><p class="text-[10px] font-bold uppercase text-gray-500 mb-2">Billed To</p><h3 class="text-lg font-bold">${state.cName}</h3></div><table class="w-full mb-8"><thead class="bg-gray-100 text-[11px] font-bold uppercase"><tr><th class="p-3 text-left">#</th><th class="p-3 text-left">Desc</th><th class="p-3 text-right">Amount</th></tr></thead><tbody>${itemsRows}</tbody></table><div class="flex gap-8"><div class="flex-1 bg-gray-50 p-6 rounded-lg text-[10px]">Payment Details...</div><div class="w-80 bg-slate-900 text-white p-8 rounded-lg">Total: ${formatINR(grandTotalToExport)}</div></div>${watermarkHTML}</div>`;
-            } else { // modern
-                innerHTML = `<div class="p-12 min-h-full font-poppins"><div class="border-t-[10px] border-brand-500 pt-6 mb-14 flex justify-between"><div><h1 class="text-4xl font-black text-brand-600">${state.fName}</h1></div><div class="text-right"><h2 class="text-5xl font-black text-gray-200 uppercase">${invoiceLabel}</h2></div></div><div class="mb-12 bg-white shadow-sm p-8 rounded-[2rem] w-fit"><h3>${state.cName}</h3></div><table class="w-full mb-12"><thead class="border-b-2 border-brand-100 text-brand-600 text-[11px] font-bold uppercase"><th class="p-4">#</th><th class="p-4">Desc</th><th class="p-4 text-right">Amount</th></thead><tbody>${itemsRows}</tbody></table><div class="flex justify-between gap-12"><div class="flex-1 text-[10px]">Terms & Conditions...</div><div class="bg-brand-900 text-white rounded-[2.5rem] p-10 w-[420px]">Total: ${formatINR(grandTotalToExport)}</div></div>${watermarkHTML}</div>`;
-            }
-            target.innerHTML = innerHTML;
-        }
-
-        function renderContractPreview() {
-            const target = document.getElementById('invoice-target');
-            const freelancer = state.contractFreelancer || state.fName || '[Freelancer]';
-            const client = state.contractClient || state.cName || '[Client]';
-            const html = `<div class="p-16 font-serif min-h-full flex flex-col"><div class="text-center mb-12 border-b-4 border-slate-900 pb-8"><h1 class="text-3xl font-black uppercase">Freelance Agreement</h1></div><div class="space-y-8"><p>This agreement is between <strong>${freelancer}</strong> and <strong>${client}</strong>.</p><div class="bg-gray-50 p-6 rounded-xl border italic">${state.contractDesc || 'Project scope...'}</div><div class="grid grid-cols-2 gap-8"><div><p class="font-bold text-xs uppercase text-gray-400">Payment</p><p class="text-xl font-black">${formatINR(state.contractAmount)}</p></div><div><p class="font-bold text-xs uppercase text-gray-400">Timeline</p><p class="text-sm">Deliver by: ${formatDate(state.contractEnd)}</p></div></div><div class="pt-16 grid grid-cols-2 gap-12"><div class="border-t pt-4">Signature: ${freelancer}</div><div class="border-t pt-4">Signature: ${client}</div></div></div><div class="mt-auto pt-16 flex justify-center opacity-20 text-[9px] font-bold uppercase">ProInvoice Contract Generator</div></div>`;
-            target.innerHTML = html;
-        }
-
-        // --- 5. UTILS ---
-        let currentZoom = 1;
-        function adjustZoom(amount) { currentZoom = Math.max(0.4, Math.min(currentZoom + amount, 1.5)); document.getElementById('scale-wrapper').style.transform = `scale(${currentZoom})`; document.getElementById('zoom-level').innerText = `${Math.round(currentZoom * 100)}%`; }
-        function generatePDF() { const element = document.getElementById('invoice-target'); const wrapper = document.getElementById('scale-wrapper'); const prev = wrapper.style.transform; wrapper.style.transform = 'scale(1)'; const fileName = state.mode === 'invoice' ? `Inv_${state.invNum}.pdf` : `Contract_${state.contractClient}.pdf`; setTimeout(() => { html2pdf().set({ margin: 0, filename: fileName, html2canvas: { scale: 2 }, jsPDF: { unit: 'px', format: [794, 1123] } }).from(element).save().then(() => wrapper.style.transform = prev); }, 100); }
-        function clearData() { if(confirm("Clear data?")) { const h = state.savedInvoices; const c = state.savedContracts; state = { ...defaultState, savedInvoices: h, savedContracts: c }; populateForm(); renderItems(); renderPreview(); updateShareQR(); } }
-
-        function updateShareQR() {
-            const container = document.getElementById('share-qr-container');
-            const label = document.getElementById('share-qr-label');
-            if (!container) return; container.innerHTML = ''; 
-            const isInv = state.mode === 'invoice';
-            label.innerText = isInv ? 'Scan to open invoice on mobile.' : 'Scan to open contract on mobile.';
-            const baseUrl = window.location.href.split('?')[0];
-            const url = new URL(baseUrl);
-            url.searchParams.set('mobile', '1');
-            url.searchParams.set('mode', state.mode);
-            url.searchParams.set('inv', isInv ? state.invNum : 'CONTRACT');
-            url.searchParams.set('c', isInv ? state.cName : state.contractClient);
-            url.searchParams.set('t', isInv ? grandTotalToExport : state.contractAmount);
-            new QRCode(container, { text: url.toString(), width: 140, height: 140, colorDark : "#111827", colorLight : "#ffffff" });
-        }
-
-        function setMode(mode) {
-            state.mode = mode;
-            const invTab = document.getElementById('btn-tab-invoice');
-            const conTab = document.getElementById('btn-tab-contract');
-            const invForm = document.getElementById('invoice-form-section');
-            const conForm = document.getElementById('contract-form-section');
-            const invActs = document.getElementById('invoice-actions');
-            const conActs = document.getElementById('contract-actions');
-
-            if (mode === 'contract') {
-                invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400";
-                conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600";
-                invForm.classList.add('hidden'); conForm.classList.remove('hidden');
-                invActs.classList.add('hidden'); conActs.classList.remove('hidden');
-                renderContractPreview();
-            } else {
-                conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400";
-                invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600";
-                conForm.classList.add('hidden'); invForm.classList.remove('hidden');
-                conActs.classList.add('hidden'); invActs.classList.remove('hidden');
-                renderPreview();
-            }
-            saveState(); updateShareQR();
-        }
-
-        function openNudgeModal() { document.getElementById('nudge-modal').classList.remove('hidden'); setTimeout(() => { document.getElementById('nudge-modal').classList.remove('opacity-0'); document.getElementById('nudge-modal-content').classList.remove('scale-95'); }, 10); renderNudgeList(); }
-        function closeNudgeModal() { document.getElementById('nudge-modal').classList.add('opacity-0'); document.getElementById('nudge-modal-content').classList.add('scale-95'); setTimeout(() => document.getElementById('nudge-modal').classList.add('hidden'), 300); }
-        
-        // Updated UI for Reminder Modal with Phone QR support
         function renderNudgeList() {
             const list = document.getElementById('nudge-modal-list');
-            const overdueInvoices = state.savedInvoices.filter(i => i.status === 'Overdue');
-            const pendingContracts = state.savedContracts.filter(c => c.status === 'Pending');
-            const items = [...overdueInvoices.map(i=>({...i, type:'invoice'})), ...pendingContracts.map(c=>({...c, type:'contract'}))];
-            
-            if (items.length === 0) { list.innerHTML = `<p class="text-center text-sm py-4">No pending items.</p>`; return; }
-            
-            list.innerHTML = items.map(item => `
-                <div class="bg-white border rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-[9px] font-black uppercase text-brand-600 mb-1 tracking-widest">${item.type}</p>
-                            <h4 class="text-sm font-bold text-gray-900 truncate max-w-[200px]">${item.cName}</h4>
-                            <p class="text-xs font-black text-red-600 mt-1">${formatINR(item.total)}</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <!-- PC WhatsApp Icon -->
-                            <button onclick="sendSmartReminder(${item.id}, '${item.type}')" class="p-2.5 bg-brand-50 text-brand-600 rounded-xl hover:bg-brand-100 transition-colors" title="Send via PC">
-                                <svg width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                            </button>
-                        </div>
+            // PART 1: Restrict to Invoice Only
+            const overdue = state.savedInvoices.filter(i => i.status === 'Unpaid');
+            if (overdue.length === 0) { list.innerHTML = 'No overdue invoices.'; return; }
+            list.innerHTML = overdue.map(item => `
+                <div class="border rounded-xl p-4 bg-gray-50 space-y-3">
+                    <div class="flex justify-between font-bold">
+                        <span>#${item.invNum} - ${item.cName}</span>
+                        <span class="text-red-600">${formatINR(item.total)}</span>
                     </div>
-
-                    <!-- NEW: Send via Phone QR Trigger -->
-                    <div class="flex flex-col gap-3">
-                        <button onclick="openReminderQR(${item.id})" class="w-full py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors border border-gray-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-                            📱 Send via Phone (QR)
-                        </button>
-                        
-                        <!-- QR Box Container -->
-                        <div id="qr-${item.id}" class="qr-box hidden text-center pt-2 animate-fadeIn">
-                            <!-- QR Code will be injected here -->
-                        </div>
+                    <div class="flex gap-2">
+                        <button onclick="sendSmartReminder(${item.id})" class="bg-brand-600 text-white text-xs px-3 py-2 rounded-lg">PC Reminder</button>
+                        <button onclick="openReminderQR(${item.id})" class="bg-gray-800 text-white text-xs px-3 py-2 rounded-lg">📱 QR Phone</button>
                     </div>
+                    <div id="qr-${item.id}" class="hidden p-3 bg-white border rounded-lg"></div>
                 </div>
             `).join('');
         }
 
-        function sendAllReminders() {
-            const overdueInvoices = state.savedInvoices.filter(i => i.status === 'Overdue');
-            const pendingContracts = state.savedContracts.filter(c => c.status === 'Pending');
-            [...overdueInvoices, ...pendingContracts].forEach((item, idx) => setTimeout(() => sendSmartReminder(item.id, overdueInvoices.includes(item)?'invoice':'contract'), idx * 800));
-            closeNudgeModal();
-        }
-
-        function initApp() {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('mobile') === '1') {
-                isMobileFlow = true;
-                document.getElementById('app-ui').classList.add('hidden');
-                document.getElementById('mobile-ui').classList.remove('hidden');
-                const mode = params.get('mode') || 'invoice';
-                const mInv = params.get('inv') || '---';
-                const mCname = params.get('c') || 'Client';
-                const mTotal = parseFloat(params.get('t')) || 0;
-                document.getElementById('m-title').innerText = (mode === 'invoice' ? 'Invoice Ready' : 'Contract Ready');
-                document.getElementById('m-inv').innerText = mInv;
-                document.getElementById('m-client').innerText = mCname;
-                document.getElementById('m-total').innerText = '₹' + mTotal.toLocaleString('en-IN');
-                if(mode === 'contract') { document.getElementById('m-icon-contract').classList.remove('hidden'); document.getElementById('m-ref-container').classList.add('hidden'); }
-                else { document.getElementById('m-icon-invoice').classList.remove('hidden'); }
-                document.getElementById('btn-m-wa').onclick = () => {
-                    const msg = mode === 'invoice' ? `Hi ${mCname}, sharing invoice ${mInv} for ₹${mTotal}.` : `Hi ${mCname}, sharing our project agreement. Please review.`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-                };
-                document.getElementById('btn-m-pdf').onclick = () => {
-                    state = { ...defaultState, mode: mode, invNum: mInv, cName: mCname, contractClient: mCname, contractAmount: mTotal, items: [{ desc: 'Total', amount: mTotal }] };
-                    if(mode === 'invoice') renderPreview(); else renderContractPreview();
-                    generatePDF();
-                };
+        // --- PART 6: FIX MAIN WHATSAPP BUTTON ---
+        function sendWhatsApp() {
+            let message = "";
+            const clientName = state.mode === 'invoice' ? (state.cName || "Client") : (state.contractClient || "Client");
+            if (state.mode === 'invoice') {
+                message = `Hi ${clientName}, Sharing invoice #${state.invNum} for ${formatINR(grandTotalToExport)}. Please review.`;
             } else {
-                loadState(); populateForm(); renderItems(); refreshStatuses(); updateShareQR();
-                document.getElementById('btn-tab-contract').classList.remove('hidden');
+                message = `Hi ${clientName}, Sharing our agreement. Please review and confirm.`;
             }
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
-        window.onload = initApp;
+        // --- PREVIEW (T&C + UPI FIX) ---
+        function renderPreview() {
+            const target = document.getElementById('invoice-target');
+            if (state.mode === 'contract') { renderContractPreview(); return; }
+
+            const sub = state.items.reduce((s, i) => s + (i.amount || 0), 0);
+            grandTotalToExport = sub;
+
+            let html = `<div class="p-12 h-full flex flex-col font-sans">
+                <div class="flex justify-between border-b pb-8 mb-8">
+                    <div><h1 class="text-3xl font-black">${state.fName || 'BRAND'}</h1></div>
+                    <div class="text-right">
+                        <h2 class="text-5xl font-black text-gray-100">INVOICE</h2>
+                        <p class="font-bold">#${state.invNum}</p>
+                        <p class="text-sm">Due: ${formatDate(state.dueDate)}</p>
+                    </div>
+                </div>
+                <div class="mb-8">
+                    <p class="text-xs font-bold text-gray-400">BILLED TO</p>
+                    <h3 class="text-lg font-bold">${state.cName || 'Client Name'}</h3>
+                    <p class="text-sm text-gray-600">${state.cAddress || ''}</p>
+                </div>
+                <table class="w-full mb-8">
+                    <thead class="border-b-2"><tr><th class="text-left p-2">Item</th><th class="text-right p-2">Amount</th></tr></thead>
+                    <tbody>${state.items.map(i => `<tr class="border-b"><td class="p-2">${i.desc}</td><td class="p-2 text-right">${formatINR(i.amount)}</td></tr>`).join('')}</tbody>
+                </table>
+                <div class="ml-auto w-48 text-right font-black text-2xl border-t-2 pt-4">${formatINR(sub)}</div>`;
+
+            // PART 8: RESTORE UPI QR DISPLAY
+            if (state.qrImage) {
+                html += `
+                <div style="margin-top:20px;text-align:center;border-top:1px solid #eee;padding-top:20px;">
+                    <p style="font-size:10px;font-weight:bold;color:#666;margin-bottom:8px;">Scan to Pay via UPI</p>
+                    <img src="${state.qrImage}" style="width:120px;height:120px;object-fit:contain;margin:0 auto;border:1px solid #f0f0f0;padding:5px;border-radius:8px;" />
+                </div>`;
+            }
+
+            // PART 7: RESTORE TERMS & CONDITIONS
+            html += `
+                <div style="margin-top:20px;font-size:10px;color:#555;border-top:1px solid #eee;padding-top:20px;">
+                    <p><strong>Terms & Conditions</strong></p>
+                    <ul style="margin-top:5px;padding-left:15px;list-style-type:disc;">
+                        <li>Payment is due as per agreed terms.</li>
+                        <li>Late fee of ${state.lateFee || 0}% may apply on overdue invoices.</li>
+                        <li>No refunds after project completion.</li>
+                        <li>Ownership transfers only after full payment.</li>
+                    </ul>
+                </div>`;
+
+            html += `<div class="mt-auto text-center opacity-20 text-[10px] py-4">Generated via ProInvoice SAAS</div></div>`;
+            target.innerHTML = html;
+        }
+
+        function renderContractPreview() {
+            const target = document.getElementById('invoice-target');
+            const freelancer = state.contractFreelancer || state.fName || 'Freelancer';
+            const client = state.contractClient || 'Client';
+            target.innerHTML = `<div class="p-16 h-full font-serif">
+                <h1 class="text-center text-3xl font-black border-b-4 border-black pb-8 mb-12">AGREEMENT</h1>
+                <p class="mb-4">Between <strong>${freelancer}</strong> and <strong>${client}</strong>.</p>
+                <div class="bg-gray-50 p-6 italic mb-8">${state.contractDesc || 'Project scope...'}</div>
+                <p class="font-bold">Total: ${formatINR(state.contractAmount)}</p>
+                <div class="mt-20 flex justify-between"><div class="border-t pt-2 w-48">Freelancer</div><div class="border-t pt-2 w-48">Client</div></div>
+            </div>`;
+        }
+
+        // --- APP CONTROLS ---
+        function setMode(m) { state.mode = m; updateState('mode', m); }
+        function addItem() { state.items.push({id: Date.now(), desc: '', amount: 0}); renderAll(); }
+        function handleQRUpload(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (ev) => { 
+                updateState('qrImage', ev.target.result);
+                document.getElementById('qr-placeholder').classList.add('hidden');
+                document.getElementById('qr-preview-container').classList.remove('hidden');
+                document.getElementById('qr-preview-img').src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        function saveToHistory() {
+            const rec = { id: Date.now(), invNum: state.invNum, cName: state.mode==='invoice'?state.cName:state.contractClient, total: state.mode==='invoice'?grandTotalToExport:state.contractAmount, status: 'Unpaid', dueDate: state.dueDate };
+            if(state.mode==='invoice') state.savedInvoices.unshift(rec); else state.savedContracts.unshift(rec);
+            saveState();
+            const t = document.getElementById('save-toast'); t.classList.add('opacity-100'); setTimeout(()=>t.classList.remove('opacity-100'), 2000);
+        }
+        function renderAll() { 
+            renderPreview(); 
+            const container = document.getElementById('share-qr-container');
+            container.innerHTML = '';
+            const isInv = state.mode === 'invoice';
+            const url = new URL(window.location.href);
+            url.searchParams.set('mobile','1');
+            url.searchParams.set('mode', state.mode);
+            url.searchParams.set('inv', isInv ? state.invNum : 'CONTRACT');
+            new QRCode(container, { text: url.toString(), width: 120, height: 120 });
+        }
+        function toggleTracker() { document.getElementById('tracker-panel').classList.toggle('translate-x-full'); }
+        function openNudgeModal() { document.getElementById('nudge-modal').classList.remove('hidden'); renderNudgeList(); }
+        function closeNudgeModal() { document.getElementById('nudge-modal').classList.add('hidden'); }
+        function clearData() { localStorage.removeItem('proinvoice_v4'); location.reload(); }
+
+        window.onload = () => { loadState(); renderAll(); };
     </script>
 </body>
 </html>
