@@ -1,3 +1,5 @@
+45
+
 Gnmail?
 
 <!DOCTYPE html>
@@ -32,11 +34,8 @@ async function handleCredentialResponse(response) {
 
     // 2. Call your Google Apps Script Backend
     try {
-        const res = await fetch(BACKEND_URL, {
-            method: 'POST',
-            body: JSON.stringify({ email: email })
-        });
-        const result = await res.json();
+        state.userToken = response.credential; // Store JWT for subsequent API calls
+        const result = await apiRequest('AUTH_CHECK', { email: email });
 
         if (result.success) {
             // Success: Unlock the app
@@ -61,6 +60,29 @@ async function handleCredentialResponse(response) {
         errorEl.classList.add('text-red-500');
     }
 }
+
+async function apiRequest(action, payload = {}) {
+            const token = state.userToken; // Retrieved during Google Auth
+            if (!token && action !== 'AUTH_CHECK') {
+                console.error("No auth token found.");
+                return { success: false, message: "Authentication required." };
+            }
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: action,
+                        token: token,
+                        payload: payload
+                    })
+                });
+                return await response.json();
+            } catch (error) {
+                console.error(`API Error (${action}):`, error);
+                return { success: false, message: "Network error. Check connection." };
+            }
+        }
 
 function applyTierLimits() {
     const contractTab = document.getElementById('btn-tab-contract');
@@ -679,25 +701,28 @@ function applyTierLimits() {
         let grandTotalToExport = 0;
         let isMobileFlow = false;
 
-        function loadState() {
-            const saved = localStorage.getItem('invoiceAppPro_V4_Tracker');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state = { ...defaultState, ...parsed };
+        async function loadState() {
+            // First, load basic UI preferences from local (Style, etc)
+            const localSaved = localStorage.getItem('invoiceAppPro_V4_Tracker');
+            if (localSaved) {
+                const parsed = JSON.parse(localSaved);
+                state = { ...defaultState, ...parsed };
+            }
 
-                    state.savedInvoices = Array.isArray(state.savedInvoices)
-                        ? state.savedInvoices.map(inv => normalizeTrackerRecord(inv, 'invoice'))
-                        : [];
-
-                    state.savedContracts = Array.isArray(state.savedContracts)
-                        ? state.savedContracts.map(ct => normalizeTrackerRecord(ct, 'contract'))
-                        : [];
-
-                    refreshInvoiceStatuses();
-                } catch (e) {
-                    console.error("Load failed", e);
-                }
+            // Then, fetch core record data from GAS Backend (Data Starvation)
+            const result = await apiRequest('FETCH_DATA');
+            if (result.success) {
+                state.savedInvoices = Array.isArray(result.invoices)
+                    ? result.invoices.map(inv => normalizeTrackerRecord(inv, 'invoice'))
+                    : [];
+                
+                state.savedContracts = Array.isArray(result.contracts)
+                    ? result.contracts.map(ct => normalizeTrackerRecord(ct, 'contract'))
+                    : [];
+                
+                refreshInvoiceStatuses();
+            } else {
+                console.warn("Could not sync with cloud tracker.");
             }
         }
 
