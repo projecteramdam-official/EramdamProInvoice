@@ -1,4 +1,4 @@
-QR for reminder1
+QR for reminder2
 
 <!DOCTYPE html>
 <html lang="en">
@@ -215,20 +215,39 @@ QR for reminder1
                             </div>
 
                             <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200/50">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
-                                    <select id="paymentTerms" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentTerms', this.value)">
-                                        <option value="receipt">Due on Receipt</option>
-                                        <option value="net3">Net 3 Days</option>
-                                        <option value="net7">Net 7 Days</option>
-                                        <option value="net15">Net 15 Days</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Late Fee (%) <span class="text-gray-400 font-normal ml-1">Opt.</span></label>
-                                    <input type="number" id="lateFee" min="0" step="0.1" placeholder="e.g. 5" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('lateFee', parseFloat(this.value) || 0)">
-                                </div>
-                            </div>
+    <div>
+        <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
+        <select id="paymentTerms" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentTerms', this.value)">
+            <option value="receipt">Due on Receipt</option>
+            <option value="net3">Net 3 Days</option>
+            <option value="net7">Net 7 Days</option>
+            <option value="net15">Net 15 Days</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-bold text-gray-600 mb-1.5">Late Fee (%) <span class="text-gray-400 font-normal ml-1">Opt.</span></label>
+        <input type="number" id="lateFee" min="0" step="0.1" placeholder="e.g. 5" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('lateFee', parseFloat(this.value) || 0)">
+    </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200/50">
+    <div>
+        <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Status</label>
+        <select id="paymentStatus" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentStatus', this.value)">
+            <option value="unpaid">Unpaid</option>
+            <option value="partial">Partial Paid</option>
+            <option value="paid">Paid</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-bold text-gray-600 mb-1.5">Amount Paid (₹)</label>
+        <input type="number" id="paidAmount" min="0" step="0.01" placeholder="0" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('paidAmount', parseFloat(this.value) || 0)">
+    </div>
+</div>
+
+<p class="text-[10px] text-gray-400 mt-2 italic">
+    Partial payments let the tracker show a “Partial Paid” badge and generate better reminder text.
+</p>
                         </div>
 
                         <!-- Tax & GST -->
@@ -479,7 +498,15 @@ QR for reminder1
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
-                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="tracker-list">
+                <div class="px-4 pt-4 pb-2 border-b border-gray-100 bg-white">
+    <div class="grid grid-cols-3 gap-2">
+        <button id="tracker-filter-all" onclick="setTrackerFilter('all')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-brand-600 text-white">All</button>
+        <button id="tracker-filter-invoices" onclick="setTrackerFilter('invoices')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700">Invoices</button>
+        <button id="tracker-filter-contracts" onclick="setTrackerFilter('contracts')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700">Contracts</button>
+    </div>
+</div>
+
+<div class="flex-1 overflow-y-auto p-4 space-y-4" id="tracker-list">
                     <!-- Records injected here -->
                 </div>
             </aside>
@@ -568,7 +595,9 @@ QR for reminder1
     bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
     savedInvoices: [],
     savedContracts: [],
-    mode: 'invoice', // 'invoice' or 'contract'
+paymentStatus: 'unpaid',
+paidAmount: 0,
+mode: 'invoice', // 'invoice' or 'contract'
     contractFreelancer: '',
     contractClient: '',
     contractDesc: '',
@@ -627,6 +656,22 @@ function getTrackerRecords() {
     return [...getInvoiceRecords(), ...getContractRecords()]
         .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
 }
+        function syncPaymentStatus() {
+    const itemsTotal = (state.items || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const total = Number(grandTotalToExport || itemsTotal || 0);
+    const paid = Number(state.paidAmount || 0);
+
+    if (paid <= 0) {
+        if (state.paymentStatus !== 'paid') state.paymentStatus = 'unpaid';
+        return;
+    }
+
+    if (total > 0 && paid >= total) {
+        state.paymentStatus = 'paid';
+    } else {
+        state.paymentStatus = 'partial';
+    }
+}
 
         // Status Logic
         function refreshInvoiceStatuses() {
@@ -675,28 +720,41 @@ function getTrackerRecords() {
         }
 
         function updateState(key, value) {
-            state[key] = value;
-            if (key === 'invDate' || key === 'paymentTerms') {
-                state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
-            }
-            saveState();
-            if (key === 'userType') {
-                const extra = document.getElementById('gst-extra-settings');
-                if (value === 'registered') extra.classList.remove('hidden');
-                else extra.classList.add('hidden');
-            }
-            
-            // Re-render appropriate preview
-            if (state.mode === 'invoice') {
-                renderPreview();
-                updateShareQR(); // FIXED: Update QR when invoice state changes
-            } else {
-                renderContractPreview();
-                updateContractShareQR(); // FIXED: Update QR when contract state changes
-            }
-        }
+    state[key] = value;
+
+    if (key === 'invDate' || key === 'paymentTerms') {
+        state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
+    }
+
+    if (key === 'paidAmount' || key === 'paymentStatus' || key === 'lateFee' || key === 'invDate' || key === 'paymentTerms') {
+        syncPaymentStatus();
+    }
+
+    saveState();
+
+    if (key === 'userType') {
+        const extra = document.getElementById('gst-extra-settings');
+        if (value === 'registered') extra.classList.remove('hidden');
+        else extra.classList.add('hidden');
+    }
+
+    if (state.mode === 'invoice') {
+        renderPreview();
+        updateShareQR();
+    } else {
+        renderContractPreview();
+        updateContractShareQR();
+    }
+}
 
         // --- 2. TRACKER UI & LOGIC ---
+let trackerFilter = 'all';
+
+function setTrackerFilter(filter) {
+    trackerFilter = filter;
+    renderTrackerList();
+}
+        
         function toggleTracker() {
             const panel = document.getElementById('tracker-panel');
             panel.classList.toggle('translate-x-full');
@@ -709,7 +767,29 @@ function getTrackerRecords() {
     const container = document.getElementById('tracker-list');
     const records = getTrackerRecords();
 
-    if (records.length === 0) {
+    const filterButtons = {
+        all: document.getElementById('tracker-filter-all'),
+        invoices: document.getElementById('tracker-filter-invoices'),
+        contracts: document.getElementById('tracker-filter-contracts')
+    };
+
+    Object.entries(filterButtons).forEach(([key, btn]) => {
+        if (!btn) return;
+        if (trackerFilter === key) {
+            btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-brand-600 bg-brand-600 text-white';
+        } else {
+            btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700';
+        }
+    });
+
+    let visibleRecords = records;
+    if (trackerFilter === 'invoices') {
+        visibleRecords = records.filter(r => (r.recordType || 'invoice') === 'invoice');
+    } else if (trackerFilter === 'contracts') {
+        visibleRecords = records.filter(r => (r.recordType || 'invoice') === 'contract');
+    }
+
+    if (visibleRecords.length === 0) {
         container.innerHTML = `
             <div class="flex flex-col items-center justify-center py-20 text-gray-400">
                 <svg class="mb-3 opacity-20" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
@@ -718,7 +798,7 @@ function getTrackerRecords() {
         return;
     }
 
-    container.innerHTML = records.map(record => {
+    container.innerHTML = visibleRecords.map(record => {
         const type = record.recordType || 'invoice';
 
         if (type === 'contract') {
@@ -757,10 +837,27 @@ function getTrackerRecords() {
             `;
         }
 
+        const paidAmount = Number(record.paidAmount || 0);
+        const totalAmount = Number(record.total || 0);
+        const balance = Math.max(totalAmount - paidAmount, 0);
+        const paymentStatus = record.paymentStatus || (paidAmount > 0 ? (balance > 0 ? 'partial' : 'paid') : 'unpaid');
+
         let badgeClass = 'bg-gray-100 text-gray-600';
-        if (record.status === 'Paid') badgeClass = 'bg-green-100 text-green-700';
-        else if (record.status === 'Due Soon') badgeClass = 'bg-yellow-100 text-yellow-700';
-        else if (record.status === 'Overdue') badgeClass = 'bg-red-100 text-red-700';
+        let badgeLabel = record.status || 'Unpaid';
+
+        if (paymentStatus === 'paid' || record.status === 'Paid') {
+            badgeClass = 'bg-green-100 text-green-700';
+            badgeLabel = 'Paid';
+        } else if (paymentStatus === 'partial' || record.status === 'Partial Paid') {
+            badgeClass = 'bg-orange-100 text-orange-700';
+            badgeLabel = 'Partial Paid';
+        } else if (record.status === 'Due Soon') {
+            badgeClass = 'bg-yellow-100 text-yellow-700';
+            badgeLabel = 'Due Soon';
+        } else if (record.status === 'Overdue') {
+            badgeClass = 'bg-red-100 text-red-700';
+            badgeLabel = 'Overdue';
+        }
 
         return `
             <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
@@ -769,15 +866,17 @@ function getTrackerRecords() {
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">#${record.invNum}</p>
                         <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${record.cName || 'Unnamed'}</h4>
                     </div>
-                    <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${badgeClass}">${record.status}</span>
+                    <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${badgeClass}">${badgeLabel}</span>
                 </div>
+
                 <div class="flex justify-between items-end mt-4">
                     <div>
                         <p class="text-[10px] text-gray-400 font-bold uppercase">Due: ${formatDate(record.dueDate)}</p>
                         <p class="text-sm font-black text-gray-900">${formatINR(record.total)}</p>
+                        ${paidAmount > 0 ? `<p class="text-[10px] text-gray-500 font-bold mt-1">Paid: ${formatINR(paidAmount)} • Balance: ${formatINR(balance)}</p>` : ''}
                     </div>
                     <div class="flex gap-2">
-                        ${record.status !== 'Paid' ? `
+                        ${badgeLabel !== 'Paid' ? `
                             <button onclick="markAsPaid(${record.id})" class="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors" title="Mark as Paid">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             </button>
@@ -1022,20 +1121,23 @@ function sendAllReminders() {
         return;
     }
 
-    const record = {
-        id: now,
-        recordType: 'invoice',
-        invNum: state.invNum,
-        cName: state.cName,
-        total: grandTotalToExport,
-        date: state.invDate,
-        dueDate: state.dueDate,
-        status: 'Unpaid',
-        lastReminderSent: null,
-        daysOverdue: 0,
-        paymentStatus: 'unpaid',
-        savedAt: now
-    };
+    syncPaymentStatus();
+
+const record = {
+    id: now,
+    recordType: 'invoice',
+    invNum: state.invNum,
+    cName: state.cName,
+    total: grandTotalToExport,
+    date: state.invDate,
+    dueDate: state.dueDate,
+    status: state.paymentStatus === 'paid' ? 'Paid' : (state.paymentStatus === 'partial' ? 'Partial Paid' : 'Unpaid'),
+    paymentStatus: state.paymentStatus || 'unpaid',
+    paidAmount: Number(state.paidAmount || 0),
+    lastReminderSent: null,
+    daysOverdue: 0,
+    savedAt: now
+};
 
     state.savedInvoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
     state.savedInvoices.unshift(record);
@@ -1061,7 +1163,7 @@ function sendAllReminders() {
             if(exportCheck) exportCheck.checked = state.isExport;
             if(state.userType !== 'registered') document.getElementById('gst-extra-settings').classList.add('hidden');
 
-            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'lateFee', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
+            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'lateFee', 'paymentStatus', 'paidAmount', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
                 const el = document.getElementById(key);
                 if(el) el.value = state[key] || '';
             });
@@ -1090,9 +1192,36 @@ function sendAllReminders() {
             });
         }
 
-        function addItem() { state.items.push({ id: Date.now(), desc: '', amount: 0 }); saveState(); renderItems(); renderPreview(); }
-        function removeItem(id) { if (state.items.length > 1) { state.items = state.items.filter(i => i.id !== id); saveState(); renderItems(); renderPreview(); } }
-        function updateItem(id, field, value) { const item = state.items.find(i => i.id === id); if (item) { item[field] = value; saveState(); renderPreview(); } }
+        function addItem() {
+    state.items.push({ id: Date.now(), desc: '', amount: 0 });
+    saveState();
+    renderItems();
+    renderPreview();
+    syncPaymentStatus();
+    saveState();
+}
+
+function removeItem(id) {
+    if (state.items.length > 1) {
+        state.items = state.items.filter(i => i.id !== id);
+        saveState();
+        renderItems();
+        renderPreview();
+        syncPaymentStatus();
+        saveState();
+    }
+}
+
+function updateItem(id, field, value) {
+    const item = state.items.find(i => i.id === id);
+    if (item) {
+        item[field] = value;
+        saveState();
+        renderPreview();
+        syncPaymentStatus();
+        saveState();
+    }
+}
 
         function handleQRUpload(event) {
             const file = event.target.files[0];
