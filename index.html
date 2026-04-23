@@ -1,4 +1,4 @@
-QR for reminder
+QR for reminder1
 
 <!DOCTYPE html>
 <html lang="en">
@@ -892,6 +892,20 @@ function openReminderShare(inv) {
     }
 }
 
+function getReminderPaymentContext(inv) {
+    const totalAmount = Number(inv.total || 0);
+    const paidAmount = Number(inv.paidAmount ?? inv.amountPaid ?? 0);
+    const balanceDue = Math.max(totalAmount - paidAmount, 0);
+
+    return {
+        totalAmount,
+        paidAmount,
+        balanceDue,
+        hasPartialPayment: paidAmount > 0 && balanceDue > 0,
+        isFullyPaid: inv.status === 'Paid' || balanceDue <= 0
+    };
+}
+
 function buildSmartReminderMessage(inv) {
     const dayMs = 24 * 60 * 60 * 1000;
 
@@ -904,23 +918,39 @@ function buildSmartReminderMessage(inv) {
     const daysDiff = Math.floor((now - due) / dayMs);
 
     const client = inv.cName || "Client";
-    const amount = formatINR(inv.total || 0);
     const invNum = inv.invNum || '—';
+
+    const { totalAmount, paidAmount, balanceDue, hasPartialPayment, isFullyPaid } = getReminderPaymentContext(inv);
+
+    const totalText = formatINR(totalAmount);
+    const paidText = formatINR(paidAmount);
+    const balanceText = formatINR(balanceDue);
 
     let message = "";
 
-    if (daysDiff <= 0 && daysDiff >= -2) {
-        message = `Hi ${client}, hope you're having a great day! 😊 Just a friendly reminder that invoice #${invNum} for ${amount} is due on ${formatDate(inv.dueDate)}. Let me know if you need anything.`;
-    } else if (daysDiff >= 1 && daysDiff < 3) {
-        message = `Hi ${client}, I wanted to follow up on invoice #${invNum} for ${amount}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
-    } else if (daysDiff >= 3 && daysDiff < 7) {
-        message = `Hi ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. I'd appreciate it if you could prioritize this payment. Please let me know the expected payment date.`;
-    } else if (daysDiff >= 7 && daysDiff < 14) {
-        message = `Hi ${client}, invoice #${invNum} for ${amount} has been pending for ${daysDiff} days. This is urgent. Please arrange payment immediately to avoid any service delays. Contact me ASAP if there are any issues.`;
-    } else if (daysDiff >= 14) {
-        message = `⚠️ ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. This is a final payment reminder. Please remit payment within 48 hours to avoid further action. If already paid, please confirm transaction details.`;
-    } else {
-        message = `Hi ${client}, checking in regarding invoice #${invNum} for ${amount} due on ${formatDate(inv.dueDate)}.`;
+    if (isFullyPaid) {
+        message = `Hi ${client}, thanks for the payment for invoice #${invNum}. I’ve marked it as settled.`;
+    }
+    else if (hasPartialPayment) {
+        message = `Hi ${client}, thanks for the partial payment of ${paidText} for invoice #${invNum}. The remaining balance is ${balanceText}. Since the work is completed, I’m just following up on the balance when convenient.`;
+    }
+    else if (daysDiff <= 0 && daysDiff >= -2) {
+        message = `Hi ${client}, hope you’re doing well. I’ve completed the work and wanted to share invoice #${invNum} for ${totalText}, due on ${formatDate(inv.dueDate)}. Let me know if you need anything from my side.`;
+    }
+    else if (daysDiff >= 1 && daysDiff < 3) {
+        message = `Hi ${client}, I’ve completed the work and wanted to follow up on invoice #${invNum} for ${totalText}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
+    }
+    else if (daysDiff >= 3 && daysDiff < 7) {
+        message = `Hi ${client}, invoice #${invNum} for ${totalText} is now ${daysDiff} days overdue. The work is already completed, so I’d appreciate it if you could prioritize the remaining balance of ${balanceText}. Please let me know the expected payment date.`;
+    }
+    else if (daysDiff >= 7 && daysDiff < 14) {
+        message = `Hi ${client}, invoice #${invNum} for ${totalText} has been pending for ${daysDiff} days. The work is complete, and the outstanding balance is still ${balanceText}. Please arrange payment as soon as possible, or let me know if there is any issue.`;
+    }
+    else if (daysDiff >= 14) {
+        message = `⚠️ Hi ${client}, invoice #${invNum} for ${totalText} is now ${daysDiff} days overdue. This is my final reminder for the completed work. Please share payment or the transaction reference within 48 hours. If payment has already been made, please confirm the details.`;
+    }
+    else {
+        message = `Hi ${client}, I’m sharing invoice #${invNum} for ${totalText} related to the completed work.`;
     }
 
     return { message, daysDiff };
@@ -1003,6 +1033,7 @@ function sendAllReminders() {
         status: 'Unpaid',
         lastReminderSent: null,
         daysOverdue: 0,
+        paymentStatus: 'unpaid',
         savedAt: now
     };
 
