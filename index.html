@@ -1901,27 +1901,7 @@ function applyTierLimits() {
             }, 300);
         }
 
-        function initApp() {
-function openUpgradeModal(context) {
-            const contextEl = document.getElementById('upgrade-context');
-            if (contextEl) contextEl.innerText = `Upgrade required to ${context}. Unlock your full workspace and sync your data to the cloud.`;
-            
-            const modal = document.getElementById('upgrade-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        }
-
-        function closeUpgradeModal() {
-            const modal = document.getElementById('upgrade-modal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function handleUpgrade() {
-            alert("Redirecting to Pro Payment Flow...");
-        }
-            const params = new URLSearchParams(window.location.search);
+                    const params = new URLSearchParams(window.location.search);
             
             if (params.get('mobile') === '1') {
                 isMobileFlow = true;
@@ -2099,7 +2079,27 @@ function logoutUser() {
             // Clear localStorage
             localStorage.removeItem('proinvoice_last_email');
 
-            // Full Google logout
+            function initApp() {
+function openUpgradeModal(context) {
+            const contextEl = document.getElementById('upgrade-context');
+            if (contextEl) contextEl.innerText = `Upgrade required to ${context}. Unlock your full workspace and sync your data to the cloud.`;
+            
+            const modal = document.getElementById('upgrade-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeUpgradeModal() {
+            const modal = document.getElementById('upgrade-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function handleUpgrade() {
+            alert("Redirecting to Pro Payment Flow...");
+        }
+// Full Google logout
             if (window.google && google.accounts && google.accounts.id) {
                 google.accounts.id.disableAutoSelect();
             }
