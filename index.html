@@ -1,4 +1,4 @@
-deploy fix1
+deploy fix
 
 <!DOCTYPE html>
 <html lang="en">
@@ -246,6 +246,7 @@ function applyTierLimits() {
                     <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Auto-saved
                 </span>
                 <button onclick="clearData()" class="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors">Reset Data</button>
+<button onclick="logoutUser()" class="text-sm font-medium text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm ml-2">Logout</button>
             </div>
         </nav>
 
@@ -1948,6 +1949,27 @@ function applyTierLimits() {
         }
 
         window.onload = initApp;
+function logoutUser() {
+            // Clear state
+            state.userToken = null;
+            state.userEmail = null;
+            state.userTier = null;
+            state.userSheetId = null;
+
+            // Clear localStorage
+            localStorage.removeItem('proinvoice_last_email');
+
+            // Full Google logout
+            if (window.google && google.accounts && google.accounts.id) {
+                google.accounts.id.disableAutoSelect();
+            }
+
+            // Show login screen again
+            document.getElementById('auth-gate').classList.remove('hidden');
+
+            // Hard reset UI
+            location.reload();
+        }
     </script>
 </body>
 </html>
