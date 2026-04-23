@@ -1,4 +1,4 @@
-entry
+blang
 
 
 <!DOCTYPE html>
@@ -724,12 +724,23 @@ function getTrackerRecords() {
     state[key] = value;
 
     if (key === 'invDate' || key === 'paymentTerms') {
-        state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
-    }
+        state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
+    }
 
-    if (key === 'paidAmount' || key === 'paymentStatus' || key === 'lateFee' || key === 'invDate' || key === 'paymentTerms') {
-        syncPaymentStatus();
-    }
+    // SYNC LOGIC: Auto-fill amount based on status label
+    if (key === 'paymentStatus') {
+        if (value === 'paid') {
+            state.paidAmount = grandTotalToExport;
+            document.getElementById('paidAmount').value = grandTotalToExport;
+        } else if (value === 'unpaid') {
+            state.paidAmount = 0;
+            document.getElementById('paidAmount').value = 0;
+        }
+    }
+
+    if (key === 'paidAmount' || key === 'paymentStatus' || key === 'lateFee' || key === 'invDate' || key === 'paymentTerms') {
+        syncPaymentStatus();
+    }
 
     saveState();
 
@@ -1076,21 +1087,23 @@ function sendSmartReminder(id) {
 
 function sendAllReminders() {
     const overdueInvoices = (state.savedInvoices || []).filter(
-        i => (i.recordType || 'invoice') === 'invoice' && i.status !== 'Paid'
+        i => (i.recordType || 'invoice') === 'invoice' && i.status === 'Overdue'
     );
 
     if (overdueInvoices.length === 0) return;
 
-    // Desktop: show QR reminder flow for the first invoice.
-    // This avoids browser popup blocking from multiple WhatsApp tabs.
     if (!isMobileDevice()) {
-        currentReminderInvoiceId = overdueInvoices[0].id;
-        openReminderShare(overdueInvoices[0]);
-        return;
+        // PC Logic: Focus on the first one or open the Reminder QR flow
+        // To prevent popup blocking, we open the most critical one in WhatsApp Web
+        const target = overdueInvoices[0];
+        const { message } = buildSmartReminderMessage(target);
+        window.open(`https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+    } else {
+        // Mobile Logic: Open the first one directly in the app
+        window.open(getReminderWaLink(overdueInvoices[0]), '_blank');
     }
 
-    // Mobile: open the first reminder directly.
-    window.open(getReminderWaLink(overdueInvoices[0]), '_blank');
+    closeNudgeModal();
 }
 
         function saveToHistory() {
@@ -1290,7 +1303,7 @@ if (paid > 0 && paid < total) {
     paymentHTML = `
         <div style="margin-top:10px; font-size:12px; font-weight: bold;">
             <div style="color: #4b5563;">Paid: ${formatINR(paid)}</div>
-            <div style="color: #dc2626;">Balance Due: ${formatINR(balance)}</div>
+            <div style="color: #dc2626;">Balance Remaining: ${formatINR(balance)}</div>
         </div>
     `;
 } else if (paid >= total && total > 0) {
@@ -1374,7 +1387,7 @@ if (paid > 0 && paid < total) {
                                 ${taxesHTML}
                                 ${taxNote ? `<p class="text-xs italic text-gray-400 py-2 border-b border-gray-200">${taxNote}</p>` : ''}
                                 <div class="flex justify-between py-4 text-xl font-semibold text-gray-900 border-b border-gray-900">
-    <span>Total Due</span>
+    <span>Total Amount</span>
     <span>${formatINR(grandTotal)}</span>
 </div>
 <div class="flex justify-end">
@@ -1508,7 +1521,7 @@ if (paid > 0 && paid < total) {
                                 ${taxesHTML}
                                 ${taxNote ? `<p class="text-xs italic text-slate-500 mt-3 pt-3 border-t border-slate-800">${taxNote}</p>` : ''}
                                 <div class="mt-6 pt-6 border-t border-slate-700 flex flex-col items-end">
-    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Due</span>
+    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Amount</span>
     <span class="text-3xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
     <div class="text-white brightness-150">
         ${paymentHTML}
@@ -1605,7 +1618,7 @@ if (paid > 0 && paid < total) {
                                 </div>
                                 ${taxNote ? `<p class="text-[11px] italic text-brand-200 mt-4 pt-4 border-t border-brand-800 relative z-10">${taxNote}</p>` : ''}
                                 <div class="mt-8 flex flex-col items-end relative z-10">
-    <span class="text-[11px] font-black uppercase tracking-widest text-brand-200 mb-1">Total Due</span>
+    <span class="text-[11px] font-black uppercase tracking-widest text-brand-200 mb-1">Total Amount</span>
     <span class="text-5xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
     ${paymentHTML}
 </div>
