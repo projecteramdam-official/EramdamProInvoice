@@ -1,3 +1,5 @@
+2
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,16 +93,17 @@
             <div class="w-20 h-20 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </div>
-            <h1 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Invoice Ready</h1>
-            <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex flex-col gap-1">
-                <span>#<span id="m-inv"></span></span>
-                <span id="m-client" class="text-gray-800 truncate"></span>
-            </p>
             
-            <div class="py-6 border-y border-gray-100 mb-8">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Amount</p>
-                <div class="text-4xl font-black text-brand-600 tracking-tighter" id="m-total">₹0</div>
-            </div>
+            <h1 class="text-2xl font-black text-gray-900 mb-2 tracking-tight" id="m-title">Invoice Ready</h1>
+<p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex flex-col gap-1">
+    <span id="m-label">#<span id="m-inv"></span></span>
+    <span id="m-client" class="text-gray-800 truncate"></span>
+</p>
+
+<div class="py-6 border-y border-gray-100 mb-8">
+    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1" id="m-amount-label">Total Amount</p>
+    <div class="text-4xl font-black text-brand-600 tracking-tighter" id="m-total">₹0</div>
+</div>
             
             <div class="space-y-3">
                 <button id="btn-m-pdf" class="w-full bg-brand-900 text-white py-4 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-brand-800 transition-colors shadow-md">
@@ -401,6 +404,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- NEW: Contract QR Share System -->
+<div id="contract-qr-section" class="hidden bg-brand-50 border border-brand-200 rounded-xl p-5 shadow-sm mt-4 text-center">
+    <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700 flex items-center justify-center gap-1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        Send Contract via Phone
+    </h2>
+    <p class="text-[10px] text-brand-600/80 mb-4 font-medium">Scan to open on mobile, download contract, and send via WhatsApp.</p>
+    <div id="contract-share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100">
+        <!-- QRCode for contract injected here -->
+    </div>
+</div>
                     
                 </div>
 
@@ -414,9 +429,15 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
                         </button>
                     </div>
-                    <!-- NEW FEATURE: Contract PDF Button -->
-                    <div id="contract-actions" class="hidden grid grid-cols-1 gap-3 mb-3">
-                        <button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+                    <!-- NEW FEATURE: Contract Actions (WhatsApp + QR) -->
+<div id="contract-actions" class="hidden grid grid-cols-2 gap-3 mb-3">
+    <button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
+    </button>
+    <button onclick="sendContractWhatsApp()" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
+    </button>
+</div>
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> 
                             Download Contract PDF
                         </button>
@@ -707,36 +728,60 @@
             }
         }
 
-        // SMART REMINDER LOGIC
-        function sendSmartReminder(id) {
-            const inv = state.savedInvoices.find(i => i.id === id);
-            if (!inv) return;
+        // ENHANCED: Smart Reminder with 5 Message Variations Based on Days Overdue
+function sendSmartReminder(id) {
+    const inv = state.savedInvoices.find(i => i.id === id);
+    if (!inv) return;
 
-            const now = new Date().setHours(0,0,0,0);
-            const due = new Date(inv.dueDate).setHours(0,0,0,0);
-            const daysDiff = Math.floor((now - due) / (1000 * 60 * 60 * 24));
-            
-            let message = "";
-            const client = inv.cName || "Client";
+    const now = new Date().setHours(0,0,0,0);
+    const due = new Date(inv.dueDate).setHours(0,0,0,0);
+    const daysDiff = Math.floor((now - due) / (1000 * 60 * 60 * 24));
+    
+    let message = "";
+    const client = inv.cName || "Client";
+    const amount = formatINR(inv.total);
+    const invNum = inv.invNum;
 
-            if (inv.status === 'Due Soon') {
-                message = `Hi ${client}, just a quick reminder that invoice #${inv.invNum} for ${formatINR(inv.total)} is due on ${formatDate(inv.dueDate)}.`;
-            } else if (daysDiff >= 1 && daysDiff < 7) {
-                message = `Hi ${client}, invoice #${inv.invNum} for ${formatINR(inv.total)} is overdue. Kindly update on payment status.`;
-            } else if (daysDiff >= 7) {
-                message = `Hi ${client}, invoice #${inv.invNum} has been pending for a while. Please prioritize payment of ${formatINR(inv.total)} to avoid service interruption.`;
-            } else {
-                message = `Hi ${client}, checking in regarding invoice #${inv.invNum} due on ${formatDate(inv.dueDate)}.`;
-            }
+    // NEW: 5 Tone-Adjusted Messages
+    if (inv.status === 'Due Soon') {
+        // Message 1: FRIENDLY (Due in 1-2 days)
+        message = `Hi ${client}, hope you're having a great day! 😊 Just a friendly reminder that invoice #${invNum} for ${amount} is due on ${formatDate(inv.dueDate)}. Let me know if you need anything.`;
+    } 
+    else if (daysDiff >= 1 && daysDiff < 3) {
+        // Message 2: PROFESSIONAL (1-2 days overdue)
+        message = `Hi ${client}, I wanted to follow up on invoice #${invNum} for ${amount}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
+    } 
+    else if (daysDiff >= 3 && daysDiff < 7) {
+        // Message 3: FIRM (3-6 days overdue)
+        message = `Hi ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. I'd appreciate it if you could prioritize this payment. Please let me know the expected payment date.`;
+    } 
+    else if (daysDiff >= 7 && daysDiff < 14) {
+        // Message 4: URGENT (7-13 days overdue)
+        message = `Hi ${client}, invoice #${invNum} for ${amount} has been pending for ${daysDiff} days. This is urgent. Please arrange payment immediately to avoid any service delays. Contact me ASAP if there are any issues.`;
+    } 
+    else if (daysDiff >= 14) {
+        // Message 5: FINAL NOTICE (14+ days overdue)
+        message = `⚠️ ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. This is a final payment reminder. Please remit payment within 48 hours to avoid further action. If already paid, please confirm transaction details.`;
+    } 
+    else {
+        // Default for upcoming invoices
+        message = `Hi ${client}, checking in regarding invoice #${invNum} for ${amount} due on ${formatDate(inv.dueDate)}.`;
+    }
 
-            // Update timestamp
-            inv.lastReminderSent = Date.now();
-            saveState();
+    // Update timestamp
+    inv.lastReminderSent = Date.now();
+    inv.daysOverdue = daysDiff; // NEW: Track for future reference
+    saveState();
 
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-        }
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+}
 
         function saveToHistory() {
+             // NEW: Only save invoices to tracker, not contracts
+    if (state.mode === 'contract') {
+        alert('Contracts are saved as reference only. Payment tracking is for invoices.');
+        return;
+    }
             const record = {
                 id: Date.now(),
                 invNum: state.invNum,
@@ -1260,38 +1305,72 @@
                 html2pdf().set({ margin: 0, filename: fileName, html2canvas: { scale: 2 }, jsPDF: { unit: 'px', format: [794, 1123] } }).from(element).save().then(() => wrapper.style.transform = prev);
             }, 100);
         }
+
+        // QR SHARE SYSTEM
+let qrCodeInstance = null;
+function updateShareQR() {
+    const container = document.getElementById('share-qr-container');
+    if (!container) return;
+    container.innerHTML = ''; 
+
+    const baseUrl = window.location.href.split('?')[0];
+    const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of ${formatINR(grandTotalToExport)}. Please check.`;
+    
+    // Encode Minimal Data
+    const url = new URL(baseUrl);
+    url.searchParams.set('mobile', '1');
+    url.searchParams.set('inv', state.invNum);
+    url.searchParams.set('c', state.cName);
+    url.searchParams.set('t', grandTotalToExport);
+    url.searchParams.set('msg', msg);
+    
+    qrCodeInstance = new QRCode(container, {
+        text: url.toString(),
+        width: 140,
+        height: 140,
+        colorDark : "#111827",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.L
+    });
+}
         
         function sendWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent('Invoice #' + state.invNum + ' for ' + formatINR(grandTotalToExport) + ' is ready.')}`, '_blank'); }
+        // NEW: Contract WhatsApp Send
+function sendContractWhatsApp() { 
+    const client = state.contractClient || 'Client';
+    const msg = `Hi ${client}, sharing our freelance agreement. Please review and confirm. Amount: ${formatINR(state.contractAmount)}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'); 
+}
         
         function clearData() { if(confirm("Start fresh?")) { const h = state.savedInvoices; state = { ...defaultState, savedInvoices: h }; populateForm(); renderItems(); renderPreview(); if(!isMobileFlow) updateShareQR(); } }
 
-        // QR SHARE SYSTEM
-        let qrCodeInstance = null;
-        function updateShareQR() {
-            const container = document.getElementById('share-qr-container');
-            if (!container) return;
-            container.innerHTML = ''; 
+        // NEW: Contract QR Generation
+let contractQRInstance = null;
+function updateContractShareQR() {
+    const container = document.getElementById('contract-share-qr-container');
+    if (!container) return;
+    container.innerHTML = '';
 
-            const baseUrl = window.location.href.split('?')[0];
-            const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of ${formatINR(grandTotalToExport)}. Please check.`;
-            
-            // Encode Minimal Data
-            const url = new URL(baseUrl);
-            url.searchParams.set('mobile', '1');
-            url.searchParams.set('inv', state.invNum);
-            url.searchParams.set('c', state.cName);
-            url.searchParams.set('t', grandTotalToExport);
-            url.searchParams.set('msg', msg);
-            
-            qrCodeInstance = new QRCode(container, {
-                text: url.toString(),
-                width: 140,
-                height: 140,
-                colorDark : "#111827",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
-            });
-        }
+    const baseUrl = window.location.href.split('?')[0];
+    const msg = `Hi ${state.contractClient || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
+    
+    // Encode Minimal Data
+    const url = new URL(baseUrl);
+    url.searchParams.set('mobile', '1');
+    url.searchParams.set('mode', 'contract'); // NEW: Tell mobile it's a contract
+    url.searchParams.set('client', state.contractClient);
+    url.searchParams.set('amount', state.contractAmount);
+    url.searchParams.set('msg', msg);
+    
+    contractQRInstance = new QRCode(container, {
+        text: url.toString(),
+        width: 140,
+        height: 140,
+        colorDark : "#111827",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.L
+    });
+}
 
         // Reminder Modal Logic
         function openNudgeModal() {
@@ -1357,33 +1436,46 @@
             const params = new URLSearchParams(window.location.search);
             
             if (params.get('mobile') === '1') {
-                isMobileFlow = true;
-                // Switch to Mobile Overlay UI
-                document.getElementById('app-ui').classList.add('opacity-0', 'pointer-events-none', 'fixed', 'z-[-1]');
-                document.getElementById('mobile-ui').classList.remove('hidden');
-                
-                // Parse minimal data
-                const mInv = params.get('inv') || '---';
-                const mCname = params.get('c') || 'Client';
-                const mTotal = parseFloat(params.get('t')) || 0;
-                const mMsg = params.get('msg') || '';
-                
-                // Populate Mobile Card
-                document.getElementById('m-inv').innerText = mInv;
-                document.getElementById('m-client').innerText = mCname;
-                document.getElementById('m-total').innerText = '₹' + mTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-                
-                // Bind Mobile Actions
-                document.getElementById('btn-m-wa').onclick = () => {
-                    window.open(`https://wa.me/?text=${encodeURIComponent(mMsg)}`, '_blank');
-                };
-                
-                document.getElementById('btn-m-pdf').onclick = () => {
-                    // Hydrate minimal state to strictly use the locked renderPreview()
-                    state = { ...defaultState, invNum: mInv, cName: mCname, items: [{ desc: 'Invoice Total', amount: mTotal }] };
-                    renderPreview(); 
-                    generatePDF();
-                };
+    isMobileFlow = true;
+    document.getElementById('app-ui').classList.add('opacity-0', 'pointer-events-none', 'fixed', 'z-[-1]');
+    document.getElementById('mobile-ui').classList.remove('hidden');
+    
+    const mMode = params.get('mode') || 'invoice'; // NEW: Check if invoice or contract
+    const mInv = params.get('inv') || '---';
+    const mCname = params.get('client') || params.get('c') || 'Client';
+    const mTotal = parseFloat(params.get('amount') || params.get('t')) || 0;
+    const mMsg = params.get('msg') || '';
+    
+    // Populate Mobile Card
+    if (mMode === 'contract') {
+        // NEW: Contract mobile flow
+        document.getElementById('m-title').innerText = 'Contract Ready';
+        document.getElementById('m-label').classList.add('hidden');
+        document.getElementById('m-amount-label').innerText = 'Total Value';
+    } else {
+        document.getElementById('m-title').innerText = 'Invoice Ready';
+        document.getElementById('m-label').classList.remove('hidden');
+        document.getElementById('m-inv').innerText = mInv;
+    }
+    
+    document.getElementById('m-client').innerText = mCname;
+    document.getElementById('m-total').innerText = '₹' + mTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    document.getElementById('btn-m-wa').onclick = () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(mMsg)}`, '_blank');
+    };
+    
+    document.getElementById('btn-m-pdf').onclick = () => {
+        if (mMode === 'contract') {
+            // NEW: Contract PDF download
+            state = { ...defaultState, contractClient: mCname, contractAmount: mTotal, contractFreelancer: state.fName };
+            renderContractPreview();
+        } else {
+            state = { ...defaultState, invNum: mInv, cName: mCname, items: [{ desc: 'Invoice Total', amount: mTotal }] };
+            renderPreview();
+        }
+        generatePDF();
+    };
             } else {
                 // Normal Desktop Flow
                 loadState(); 
@@ -1394,33 +1486,39 @@
             }
         }
 
-        // NEW FEATURE: Contract Generator Logic
         function setMode(mode) {
-            state.mode = mode;
-            const invTab = document.getElementById('btn-tab-invoice');
-            const conTab = document.getElementById('btn-tab-contract');
-            const invForm = document.getElementById('invoice-form-section');
-            const conForm = document.getElementById('contract-form-section');
-            const invActs = document.getElementById('invoice-actions');
-            const conActs = document.getElementById('contract-actions');
+    state.mode = mode;
+    const invTab = document.getElementById('btn-tab-invoice');
+    const conTab = document.getElementById('btn-tab-contract');
+    const invForm = document.getElementById('invoice-form-section');
+    const conForm = document.getElementById('contract-form-section');
+    const invActs = document.getElementById('invoice-actions');
+    const conActs = document.getElementById('contract-actions');
+    const invQR = document.getElementById('share-qr-container');
+    const conQR = document.getElementById('contract-share-qr-container');
 
-            if (mode === 'contract') {
-                invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
-                conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
-                invForm.classList.add('hidden');
-                conForm.classList.remove('hidden');
-                invActs.classList.add('hidden');
-                conActs.classList.remove('hidden');
-                renderContractPreview();
+    if (mode === 'contract') {
+        invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
+        conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
+        invForm.classList.add('hidden');
+        conForm.classList.remove('hidden');
+        invActs.classList.add('hidden');
+        conActs.classList.remove('hidden');
+        document.getElementById('contract-qr-section').classList.remove('hidden');
+        renderContractPreview();
+        updateContractShareQR(); // NEW: Generate contract QR
+        
             } else {
-                conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
-                invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
-                conForm.classList.add('hidden');
-                invForm.classList.remove('hidden');
-                conActs.classList.add('hidden');
-                invActs.classList.remove('hidden');
-                renderPreview();
-            }
+        conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
+        invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
+        conForm.classList.add('hidden');
+        invForm.classList.remove('hidden');
+        conActs.classList.add('hidden');
+        invActs.classList.remove('hidden');
+        document.getElementById('contract-qr-section').classList.add('hidden');
+        renderPreview();
+        updateShareQR(); // NEW: Update invoice QR
+    }
             saveState();
         }
 
