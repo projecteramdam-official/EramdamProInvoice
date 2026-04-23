@@ -1,4 +1,5 @@
-QR for reminder3
+entry
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -1278,6 +1279,27 @@ function updateItem(id, field, value) {
 
             const grandTotal = subtotal + taxAmount;
             grandTotalToExport = grandTotal;
+// ADD THIS BLOCK IMMEDIATELY AFTER:
+const paid = Number(state.paidAmount || 0);
+const total = Number(grandTotalToExport || 0);
+const balance = Math.max(total - paid, 0);
+
+let paymentHTML = '';
+
+if (paid > 0 && paid < total) {
+    paymentHTML = `
+        <div style="margin-top:10px; font-size:12px; font-weight: bold;">
+            <div style="color: #4b5563;">Paid: ${formatINR(paid)}</div>
+            <div style="color: #dc2626;">Balance Due: ${formatINR(balance)}</div>
+        </div>
+    `;
+} else if (paid >= total && total > 0) {
+    paymentHTML = `
+        <div style="margin-top:10px; font-size:12px; color:green; font-weight: bold;">
+            Fully Paid
+        </div>
+    `;
+}
 
             const hasBank = state.bankName || state.bankAccountName || state.bankAccountNo || state.bankIfsc;
             const hasPayment = state.qrImage || state.upiId || hasBank;
@@ -1352,9 +1374,12 @@ function updateItem(id, field, value) {
                                 ${taxesHTML}
                                 ${taxNote ? `<p class="text-xs italic text-gray-400 py-2 border-b border-gray-200">${taxNote}</p>` : ''}
                                 <div class="flex justify-between py-4 text-xl font-semibold text-gray-900 border-b border-gray-900">
-                                    <span>Total Due</span>
-                                    <span>${formatINR(grandTotal)}</span>
-                                </div>
+    <span>Total Due</span>
+    <span>${formatINR(grandTotal)}</span>
+</div>
+<div class="flex justify-end">
+    ${paymentHTML}
+</div>
                             </div>
                         </div>
                         <div class="mt-auto flex flex-col w-full">
@@ -1483,9 +1508,12 @@ function updateItem(id, field, value) {
                                 ${taxesHTML}
                                 ${taxNote ? `<p class="text-xs italic text-slate-500 mt-3 pt-3 border-t border-slate-800">${taxNote}</p>` : ''}
                                 <div class="mt-6 pt-6 border-t border-slate-700 flex flex-col items-end">
-                                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Due</span>
-                                    <span class="text-3xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
-                                </div>
+    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Due</span>
+    <span class="text-3xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
+    <div class="text-white brightness-150">
+        ${paymentHTML}
+    </div>
+</div>
                             </div>
                         </div>
                         ${watermarkHTML}
@@ -1577,9 +1605,10 @@ function updateItem(id, field, value) {
                                 </div>
                                 ${taxNote ? `<p class="text-[11px] italic text-brand-200 mt-4 pt-4 border-t border-brand-800 relative z-10">${taxNote}</p>` : ''}
                                 <div class="mt-8 flex flex-col items-end relative z-10">
-                                    <span class="text-[11px] font-black uppercase tracking-widest text-brand-200 mb-1">Total Due</span>
-                                    <span class="text-5xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
-                                </div>
+    <span class="text-[11px] font-black uppercase tracking-widest text-brand-200 mb-1">Total Due</span>
+    <span class="text-5xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
+    ${paymentHTML}
+</div>
                             </div>
                         </div>
                         ${watermarkHTML}
@@ -1649,8 +1678,22 @@ function updateItem(id, field, value) {
             if (!container) return;
             container.innerHTML = '';
 
-            const baseUrl = window.location.href.split('?')[0];
-            const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of ${formatINR(grandTotalToExport)}. Please check.`;
+           const total = Number(grandTotalToExport || 0);
+const paid = Number(state.paidAmount || 0);
+const balance = Math.max(total - paid, 0);
+
+let paymentText = '';
+
+if (paid > 0 && paid < total) {
+    paymentText = ` Paid: ${formatINR(paid)} | Balance Due: ${formatINR(balance)}.`;
+} else if (paid >= total) {
+    paymentText = ` Fully paid.`;
+} else {
+    paymentText = '';
+}
+
+const baseUrl = window.location.href.split('?')[0];
+const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of ${formatINR(total)}.${paymentText} Please check.`;
             
             // Encode Minimal Data
             const url = new URL(baseUrl);
