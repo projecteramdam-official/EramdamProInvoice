@@ -1,4 +1,4 @@
-deploy
+deployfix
 
 <!DOCTYPE html>
 <html lang="en">
@@ -708,7 +708,20 @@ function applyTierLimits() {
             const localSaved = localStorage.getItem('invoiceAppPro_V4_Tracker');
             if (localSaved) {
                 const parsed = JSON.parse(localSaved);
+                
+                // CRITICAL: Save auth credentials before overwriting state
+                const currentToken = state.userToken;
+                const currentTier = state.userTier;
+                const currentSheetId = state.userSheetId;
+                const currentEmail = state.userEmail;
+                
                 state = { ...defaultState, ...parsed };
+                
+                // RESTORE auth credentials
+                state.userToken = currentToken;
+                state.userTier = currentTier;
+                state.userSheetId = currentSheetId;
+                state.userEmail = currentEmail;
             }
 
             // Then, fetch core record data from GAS Backend (Data Starvation)
@@ -727,6 +740,7 @@ function applyTierLimits() {
                 console.warn("Could not sync with cloud tracker.");
             }
         }
+
 
         function saveState() {
             localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state));
