@@ -90,17 +90,19 @@ function applyTierLimits() {
             
             if (state.userTier === 'Pro') {
                 if (contractTab) contractTab.classList.remove('hidden');
-                // Remove any existing overlay
                 const existingOverlay = document.getElementById('tracker-lock-overlay');
                 if (existingOverlay) existingOverlay.remove();
             } else {
-                if (contractTab) contractTab.classList.add('hidden'); 
+                // FORCE HIDE for Free users
+                if (contractTab) {
+                    contractTab.classList.add('hidden');
+                    contractTab.style.display = 'none'; 
+                }
                 
-                // Add the upgrade overlay over the demo data for Free users
                 if (trackerList && !document.getElementById('tracker-lock-overlay')) {
                     const overlay = document.createElement('div');
                     overlay.id = 'tracker-lock-overlay';
-                    overlay.className = 'absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-8 text-center';
+                    overlay.className = 'bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-8 text-center';
                     overlay.innerHTML = `
                         <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-4 shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -109,7 +111,6 @@ function applyTierLimits() {
                         <p class="text-xs text-gray-500 mt-2 leading-relaxed">Ghost mode active. Upgrade to sync real data to your cloud sheet.</p>
                         <button onclick="handleUpgrade()" class="mt-6 bg-brand-600 text-white px-8 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-brand-700 transition-all">Upgrade to Pro</button>
                     `;
-                    trackerList.style.position = 'relative';
                     trackerList.appendChild(overlay);
                 }
             }
@@ -1949,7 +1950,7 @@ function applyTierLimits() {
                 renderItems();
                 setMode(state.mode || 'invoice');
             }
-        }
+        
 
         function setMode(mode) {
             state.mode = mode;
@@ -1971,8 +1972,8 @@ function applyTierLimits() {
                 renderContractPreview();
                 updateContractShareQR();
             } else {
-                invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
-                conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
+    invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
+    conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all " + (state.userTier !== 'Pro' ? 'hidden' : '');
                 conForm.classList.add('hidden');
                 invForm.classList.remove('hidden');
                 conActs.classList.add('hidden');
