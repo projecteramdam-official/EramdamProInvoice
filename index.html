@@ -1,4 +1,4 @@
-123
+00
 
 <!DOCTYPE html>
 <html lang="en">
@@ -537,48 +537,80 @@
 
         // --- 1. STATE MANAGEMENT ---
         const defaultState = {
-            style: 'basic',
-            userType: 'registered',
-            isExport: false,
-            invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
-            invDate: new Date().toISOString().split('T')[0],
-            paymentTerms: 'net7',
-            dueDate: calculateDueDate(new Date().toISOString().split('T')[0], 'net7'),
-            lateFee: 0,
-            fName: '', fEmail: '', fAddress: '', myState: '',
-            cName: '', cAddress: '', clientState: '',
-            items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
-            upiId: '', qrImage: null,
-            bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
-            savedInvoices: [],
-            // NEW FEATURE: Contract Generator State
-            mode: 'invoice', // 'invoice' or 'contract'
-            contractFreelancer: '',
-            contractClient: '',
-            contractDesc: '',
-            contractAmount: 0,
-            contractStart: '',
-            contractEnd: ''
-        };
+    style: 'basic',
+    userType: 'registered',
+    isExport: false,
+    invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
+    invDate: new Date().toISOString().split('T')[0],
+    paymentTerms: 'net7',
+    dueDate: calculateDueDate(new Date().toISOString().split('T')[0], 'net7'),
+    lateFee: 0,
+    fName: '', fEmail: '', fAddress: '', myState: '',
+    cName: '', cAddress: '', clientState: '',
+    items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
+    upiId: '', qrImage: null,
+    bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
+    savedInvoices: [],
+    savedContracts: [],
+    mode: 'invoice', // 'invoice' or 'contract'
+    contractFreelancer: '',
+    contractClient: '',
+    contractDesc: '',
+    contractAmount: 0,
+    contractStart: '',
+    contractEnd: ''
+};
 
         let state = { ...defaultState };
         let grandTotalToExport = 0;
         let isMobileFlow = false; // Flag to track if in mobile view
 
         function loadState() {
-            const saved = localStorage.getItem('invoiceAppPro_V4_Tracker');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state = { ...defaultState, ...parsed };
-                    refreshInvoiceStatuses();
-                } catch(e) { console.error("Load failed", e); }
-            }
+    const saved = localStorage.getItem('invoiceAppPro_V4_Tracker');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            state = { ...defaultState, ...parsed };
+
+            state.savedInvoices = Array.isArray(state.savedInvoices)
+                ? state.savedInvoices.map(inv => normalizeTrackerRecord(inv, 'invoice'))
+                : [];
+
+            state.savedContracts = Array.isArray(state.savedContracts)
+                ? state.savedContracts.map(ct => normalizeTrackerRecord(ct, 'contract'))
+                : [];
+
+            refreshInvoiceStatuses();
+        } catch (e) {
+            console.error("Load failed", e);
         }
+    }
+}
 
         function saveState() {
             localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state));
         }
+
+        function normalizeTrackerRecord(record, type) {
+    return {
+        ...record,
+        recordType: record.recordType || type,
+        savedAt: record.savedAt || record.id || Date.now()
+    };
+}
+
+function getInvoiceRecords() {
+    return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice'));
+}
+
+function getContractRecords() {
+    return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract'));
+}
+
+function getTrackerRecords() {
+    return [...getInvoiceRecords(), ...getContractRecords()]
+        .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+}
 
         // Status Logic
         function refreshInvoiceStatuses() {
@@ -658,57 +690,112 @@
         }
 
         function renderTrackerList() {
-            const container = document.getElementById('tracker-list');
-            if (state.savedInvoices.length === 0) {
-                container.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-20 text-gray-400">
-                        <svg class="mb-3 opacity-20" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                        <p class="text-sm font-medium">No records saved yet</p>
-                    </div>`;
-                return;
-            }
+    const container = document.getElementById('tracker-list');
+    const records = getTrackerRecords();
 
-            container.innerHTML = state.savedInvoices.map(inv => {
-                let badgeClass = 'bg-gray-100 text-gray-600';
-                if (inv.status === 'Paid') badgeClass = 'bg-green-100 text-green-700';
-                else if (inv.status === 'Due Soon') badgeClass = 'bg-yellow-100 text-yellow-700';
-                else if (inv.status === 'Overdue') badgeClass = 'bg-red-100 text-red-700';
+    if (records.length === 0) {
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+                <svg class="mb-3 opacity-20" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                <p class="text-sm font-medium">No records saved yet</p>
+            </div>`;
+        return;
+    }
 
-                return `
-                    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">#${inv.invNum}</p>
-                                <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${inv.cName || 'Unnamed'}</h4>
-                            </div>
-                            <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${badgeClass}">${inv.status}</span>
+    container.innerHTML = records.map(record => {
+        const type = record.recordType || 'invoice';
+
+        if (type === 'contract') {
+            const client = record.contractClient || 'Unnamed';
+            const freelancer = record.contractFreelancer || 'Freelancer';
+            const amount = formatINR(record.amount || 0);
+            const start = record.contractStart ? formatDate(record.contractStart) : '';
+            const end = record.contractEnd ? formatDate(record.contractEnd) : '';
+
+            return `
+                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Contract</p>
+                            <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${client}</h4>
+                            <p class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[180px]">${freelancer}</p>
                         </div>
-                        <div class="flex justify-between items-end mt-4">
-                            <div>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase">Due: ${formatDate(inv.dueDate)}</p>
-                                <p class="text-sm font-black text-gray-900">${formatINR(inv.total)}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                ${inv.status !== 'Paid' ? `
-                                    <button onclick="markAsPaid(${inv.id})" class="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors" title="Mark as Paid">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    </button>
-                                    <button onclick="sendSmartReminder(${inv.id})" class="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                    </button>
-                                ` : `
-                                    <div class="p-2 text-green-500 opacity-50"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
-                                `}
-                                <button onclick="deleteInvoice(${inv.id})" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
+                        <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest bg-slate-100 text-slate-700">
+                            Contract
+                        </span>
                     </div>
-                `;
-            }).join('');
+
+                    <div class="mt-3 text-sm font-black text-gray-900">${amount}</div>
+                    <div class="mt-2 text-[10px] text-gray-400 font-bold uppercase leading-relaxed">
+                        ${start ? `Start: ${start}` : ''}
+                        ${start && end ? '<br>' : ''}
+                        ${end ? `Delivery: ${end}` : ''}
+                    </div>
+
+                    <div class="flex justify-end mt-4">
+                        <button onclick="deleteTrackerRecord(${record.id}, 'contract')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Contract">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            `;
         }
 
+        let badgeClass = 'bg-gray-100 text-gray-600';
+        if (record.status === 'Paid') badgeClass = 'bg-green-100 text-green-700';
+        else if (record.status === 'Due Soon') badgeClass = 'bg-yellow-100 text-yellow-700';
+        else if (record.status === 'Overdue') badgeClass = 'bg-red-100 text-red-700';
+
+        return `
+            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">#${record.invNum}</p>
+                        <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${record.cName || 'Unnamed'}</h4>
+                    </div>
+                    <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${badgeClass}">${record.status}</span>
+                </div>
+                <div class="flex justify-between items-end mt-4">
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">Due: ${formatDate(record.dueDate)}</p>
+                        <p class="text-sm font-black text-gray-900">${formatINR(record.total)}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        ${record.status !== 'Paid' ? `
+                            <button onclick="markAsPaid(${record.id})" class="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors" title="Mark as Paid">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                            <button onclick="sendSmartReminder(${record.id})" class="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                            </button>
+                        ` : `
+                            <div class="p-2 text-green-500 opacity-50"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                        `}
+                        <button onclick="deleteTrackerRecord(${record.id}, 'invoice')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Invoice">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function deleteTrackerRecord(id, type) {
+    if (!confirm("Remove this record from tracker?")) return;
+
+    if (type === 'contract') {
+        state.savedContracts = (state.savedContracts || []).filter(i => i.id !== id);
+        saveState();
+        renderTrackerList();
+        return;
+    }
+
+    state.savedInvoices = (state.savedInvoices || []).filter(i => i.id !== id);
+    saveState();
+    refreshInvoiceStatuses();
+}
+        
         function markAsPaid(id) {
             const inv = state.savedInvoices.find(i => i.id === id);
             if (inv) {
@@ -727,83 +814,111 @@
         }
 
         // ENHANCED: Smart Reminder with 5 Message Variations Based on Days Overdue
-        function sendSmartReminder(id) {
-            const inv = state.savedInvoices.find(i => i.id === id);
-            if (!inv) return;
+        function buildSmartReminderMessage(inv) {
+    const dayMs = 24 * 60 * 60 * 1000;
 
-            const now = new Date().setHours(0,0,0,0);
-            const due = new Date(inv.dueDate).setHours(0,0,0,0);
-            const daysDiff = Math.floor((now - due) / (1000 * 60 * 60 * 24));
-            
-            let message = "";
-            const client = inv.cName || "Client";
-            const amount = formatINR(inv.total);
-            const invNum = inv.invNum;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
 
-            // NEW: 5 Tone-Adjusted Messages
-            if (inv.status === 'Due Soon') {
-                // Message 1: FRIENDLY (Due in 1-2 days)
-                message = `Hi ${client}, hope you're having a great day! 😊 Just a friendly reminder that invoice #${invNum} for ${amount} is due on ${formatDate(inv.dueDate)}. Let me know if you need anything.`;
-            } 
-            else if (daysDiff >= 1 && daysDiff < 3) {
-                // Message 2: PROFESSIONAL (1-2 days overdue)
-                message = `Hi ${client}, I wanted to follow up on invoice #${invNum} for ${amount}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
-            } 
-            else if (daysDiff >= 3 && daysDiff < 7) {
-                // Message 3: FIRM (3-6 days overdue)
-                message = `Hi ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. I'd appreciate it if you could prioritize this payment. Please let me know the expected payment date.`;
-            } 
-            else if (daysDiff >= 7 && daysDiff < 14) {
-                // Message 4: URGENT (7-13 days overdue)
-                message = `Hi ${client}, invoice #${invNum} for ${amount} has been pending for ${daysDiff} days. This is urgent. Please arrange payment immediately to avoid any service delays. Contact me ASAP if there are any issues.`;
-            } 
-            else if (daysDiff >= 14) {
-                // Message 5: FINAL NOTICE (14+ days overdue)
-                message = `⚠️ ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. This is a final payment reminder. Please remit payment within 48 hours to avoid further action. If already paid, please confirm transaction details.`;
-            } 
-            else {
-                // Default for upcoming invoices
-                message = `Hi ${client}, checking in regarding invoice #${invNum} for ${amount} due on ${formatDate(inv.dueDate)}.`;
-            }
+    const due = new Date(inv.dueDate);
+    due.setHours(0, 0, 0, 0);
 
-            // Update timestamp
-            inv.lastReminderSent = Date.now();
-            inv.daysOverdue = daysDiff; // Track for future reference
-            saveState();
+    const daysDiff = Math.floor((now - due) / dayMs);
 
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-        }
+    const client = inv.cName || "Client";
+    const amount = formatINR(inv.total || 0);
+    const invNum = inv.invNum || '—';
+
+    let message = "";
+
+    if (daysDiff <= 0 && daysDiff >= -2) {
+        message = `Hi ${client}, hope you're having a great day! 😊 Just a friendly reminder that invoice #${invNum} for ${amount} is due on ${formatDate(inv.dueDate)}. Let me know if you need anything.`;
+    } else if (daysDiff >= 1 && daysDiff < 3) {
+        message = `Hi ${client}, I wanted to follow up on invoice #${invNum} for ${amount}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
+    } else if (daysDiff >= 3 && daysDiff < 7) {
+        message = `Hi ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. I'd appreciate it if you could prioritize this payment. Please let me know the expected payment date.`;
+    } else if (daysDiff >= 7 && daysDiff < 14) {
+        message = `Hi ${client}, invoice #${invNum} for ${amount} has been pending for ${daysDiff} days. This is urgent. Please arrange payment immediately to avoid any service delays. Contact me ASAP if there are any issues.`;
+    } else if (daysDiff >= 14) {
+        message = `⚠️ ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. This is a final payment reminder. Please remit payment within 48 hours to avoid further action. If already paid, please confirm transaction details.`;
+    } else {
+        message = `Hi ${client}, checking in regarding invoice #${invNum} for ${amount} due on ${formatDate(inv.dueDate)}.`;
+    }
+
+    return { message, daysDiff };
+}
+
+function sendSmartReminder(id) {
+    const inv = (state.savedInvoices || []).find(i => i.id === id && (i.recordType || 'invoice') === 'invoice');
+    if (!inv || !inv.dueDate) return;
+
+    const { message, daysDiff } = buildSmartReminderMessage(inv);
+
+    inv.lastReminderSent = Date.now();
+    inv.daysOverdue = Math.max(0, daysDiff);
+    saveState();
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+}
 
         function saveToHistory() {
-            // FIXED: Only save invoices to tracker, not contracts
-            if (state.mode === 'contract') {
-                alert('Contracts are saved as reference only. Payment tracking is for invoices.');
-                return;
-            }
+    const now = Date.now();
 
-            const record = {
-                id: Date.now(),
-                invNum: state.invNum,
-                cName: state.cName,
-                total: grandTotalToExport,
-                date: state.invDate,
-                dueDate: state.dueDate,
-                status: 'Unpaid',
-                lastReminderSent: null,
-                daysOverdue: 0
-            };
-            state.savedInvoices.unshift(record); // Add to top
-            saveState();
-            refreshInvoiceStatuses();
-            
-            const toast = document.getElementById('save-toast');
-            toast.classList.remove('-translate-y-24', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-            setTimeout(() => { 
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('-translate-y-24', 'opacity-0');
-            }, 3000);
-        }
+    if (state.mode === 'contract') {
+        const record = {
+            id: now,
+            recordType: 'contract',
+            contractFreelancer: state.contractFreelancer || state.fName || 'Freelancer',
+            contractClient: state.contractClient || state.cName || 'Client',
+            contractDesc: state.contractDesc || '',
+            contractStart: state.contractStart || '',
+            contractEnd: state.contractEnd || '',
+            amount: Number(state.contractAmount || 0),
+            savedAt: now
+        };
+
+        state.savedContracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
+        state.savedContracts.unshift(record);
+        saveState();
+        renderTrackerList();
+
+        const toast = document.getElementById('save-toast');
+        toast.classList.remove('-translate-y-24', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('-translate-y-24', 'opacity-0');
+        }, 3000);
+        return;
+    }
+
+    const record = {
+        id: now,
+        recordType: 'invoice',
+        invNum: state.invNum,
+        cName: state.cName,
+        total: grandTotalToExport,
+        date: state.invDate,
+        dueDate: state.dueDate,
+        status: 'Unpaid',
+        lastReminderSent: null,
+        daysOverdue: 0,
+        savedAt: now
+    };
+
+    state.savedInvoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
+    state.savedInvoices.unshift(record);
+    saveState();
+    refreshInvoiceStatuses();
+
+    const toast = document.getElementById('save-toast');
+    toast.classList.remove('-translate-y-24', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-24', 'opacity-0');
+    }, 3000);
+}
 
         // --- 3. DOM & PREVIEW ---
         function populateForm() {
@@ -1239,7 +1354,31 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'); 
         }
         
-        function clearData() { if(confirm("Start fresh?")) { const h = state.savedInvoices; state = { ...defaultState, savedInvoices: h }; populateForm(); renderItems(); renderPreview(); if(!isMobileFlow) updateShareQR(); } }
+        function clearData() {
+    if (confirm("Start fresh?")) {
+        const invoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
+        const contracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
+
+        state = {
+            ...defaultState,
+            savedInvoices: invoices,
+            savedContracts: contracts
+        };
+
+        populateForm();
+        renderItems();
+        setMode(state.mode || 'invoice');
+        renderTrackerList();
+
+        if (!isMobileFlow) {
+            if (state.mode === 'invoice') {
+                updateShareQR();
+            } else {
+                updateContractShareQR();
+            }
+        }
+    }
+}
 
         // FIXED: Invoice QR Share System (MISSING FUNCTION - NOW ADDED)
         let qrCodeInstance = null;
@@ -1320,40 +1459,40 @@
         }
 
         function renderNudgeList() {
-            const list = document.getElementById('nudge-modal-list');
-            const overdueInvoices = state.savedInvoices.filter(i => i.status === 'Overdue');
-            
-            if (overdueInvoices.length === 0) {
-                list.innerHTML = `<p class="text-center text-gray-500 text-sm py-4 font-medium">No overdue invoices found.</p>`;
-                return;
-            }
+    const list = document.getElementById('nudge-modal-list');
+    const overdueInvoices = (state.savedInvoices || []).filter(i => (i.recordType || 'invoice') === 'invoice' && i.status === 'Overdue');
 
-            list.innerHTML = overdueInvoices.map(inv => `
-                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex justify-between items-center hover:border-brand-200 transition-colors">
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-0.5">#${inv.invNum}</p>
-                        <h4 class="text-sm font-bold text-gray-900 truncate max-w-[150px] leading-tight">${inv.cName || 'Unnamed'}</h4>
-                        <p class="text-xs font-black text-red-600 mt-1">${formatINR(inv.total)}</p>
-                    </div>
-                    <button onclick="sendSmartReminder(${inv.id})" class="p-2.5 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                    </button>
-                </div>
-            `).join('');
-        }
+    if (overdueInvoices.length === 0) {
+        list.innerHTML = `<p class="text-center text-gray-500 text-sm py-4 font-medium">No overdue invoices found.</p>`;
+        return;
+    }
+
+    list.innerHTML = overdueInvoices.map(inv => `
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex justify-between items-center hover:border-brand-200 transition-colors">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-0.5">#${inv.invNum}</p>
+                <h4 class="text-sm font-bold text-gray-900 truncate max-w-[150px] leading-tight">${inv.cName || 'Unnamed'}</h4>
+                <p class="text-xs font-black text-red-600 mt-1">${formatINR(inv.total)}</p>
+            </div>
+            <button onclick="sendSmartReminder(${inv.id})" class="p-2.5 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </button>
+        </div>
+    `).join('');
+}
 
         function sendAllReminders() {
-            const overdueInvoices = state.savedInvoices.filter(i => i.status === 'Overdue');
-            if (overdueInvoices.length === 0) return;
-            
-            overdueInvoices.forEach((inv, index) => {
-                setTimeout(() => {
-                    sendSmartReminder(inv.id);
-                }, index * 800); 
-            });
-            
-            closeNudgeModal();
-        }
+    const overdueInvoices = (state.savedInvoices || []).filter(i => (i.recordType || 'invoice') === 'invoice' && i.status === 'Overdue');
+    if (overdueInvoices.length === 0) return;
+
+    overdueInvoices.forEach((inv, index) => {
+        setTimeout(() => {
+            sendSmartReminder(inv.id);
+        }, index * 800);
+    });
+
+    closeNudgeModal();
+}
 
         // FIXED: Mobile Mode Detection - Updated with ID attributes
         function initApp() {
@@ -1399,12 +1538,11 @@
                     generatePDF();
                 };
             } else {
-                loadState(); 
-                populateForm(); 
-                renderItems(); 
-                renderPreview();
-                updateShareQR();
-            }
+    loadState();
+    populateForm();
+    renderItems();
+    setMode(state.mode || 'invoice');
+}
         }
 
         // FIXED: setMode() with proper QR handling
