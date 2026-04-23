@@ -1,4 +1,4 @@
-uuu
+12300
 
 <!DOCTYPE html>
 <html lang="en">
@@ -45,12 +45,10 @@ uuu
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-        /* A4 Constraints */
         .a4-container {
             width: 794px;
             min-height: 1123px;
@@ -64,7 +62,6 @@ uuu
             transition: transform 0.2s;
         }
 
-        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -77,7 +74,6 @@ uuu
         }
         .slide-in { animation: slideIn 0.3s ease-out forwards; }
 
-        /* Accordion */
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         details[open] summary ~ * { animation: fadeIn 0.2s ease-in-out; }
@@ -87,22 +83,19 @@ uuu
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 h-screen overflow-hidden flex flex-col relative">
 
-    <!-- NEW: MOBILE UI (Hidden by default, shown if QR is scanned) -->
+    <!-- MOBILE UI -->
     <div id="mobile-ui" class="hidden absolute inset-0 z-50 bg-gray-50 flex flex-col items-center justify-center p-6 h-full w-full">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border border-gray-100 fade-in">
             <div class="w-20 h-20 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </div>
-            <!-- FIXED: Added id="m-title" -->
             <h1 class="text-2xl font-black text-gray-900 mb-2 tracking-tight" id="m-title">Invoice Ready</h1>
-            <!-- FIXED: Added id="m-label" -->
             <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex flex-col gap-1">
                 <span id="m-label">#<span id="m-inv"></span></span>
                 <span id="m-client" class="text-gray-800 truncate"></span>
             </p>
             
             <div class="py-6 border-y border-gray-100 mb-8">
-                <!-- FIXED: Added id="m-amount-label" -->
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1" id="m-amount-label">Total Amount</p>
                 <div class="text-4xl font-black text-brand-600 tracking-tighter" id="m-total">₹0</div>
             </div>
@@ -121,7 +114,7 @@ uuu
         </div>
     </div>
 
-    <!-- MAIN DESKTOP APP (Wrapped in ID to hide during mobile flow) -->
+    <!-- MAIN DESKTOP APP -->
     <div id="app-ui" class="h-screen w-full flex flex-col transition-opacity duration-300">
         <!-- Top Navigation -->
         <nav class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-30 shrink-0 shadow-sm">
@@ -132,7 +125,6 @@ uuu
                 <h1 class="text-xl font-bold tracking-tight text-gray-900">ProInvoice <span class="text-xs font-bold text-brand-600 ml-1 bg-brand-50 px-2 py-1 rounded">PHASE 3</span></h1>
             </div>
             <div class="flex gap-4 items-center">
-                <!-- Notification Bell -->
                 <button onclick="toggleTracker()" class="relative p-2 text-gray-500 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-all">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     <span id="notif-badge" class="hidden absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">0</span>
@@ -145,26 +137,13 @@ uuu
             </div>
         </nav>
 
-        <!-- NEW FEATURE: Auto Nudge Banner -->
-        <div id="auto-nudge-banner" class="hidden bg-red-50 border-b border-red-100 px-6 py-2.5 flex justify-between items-center shrink-0 z-20 shadow-sm fade-in">
-            <div class="flex items-center gap-3">
-                <div class="bg-red-100 text-red-600 p-1 rounded-full animate-pulse">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                </div>
-                <span class="text-sm font-bold text-red-800"><span id="overdue-count-text">0</span> invoices are overdue</span>
-            </div>
-            <button onclick="openNudgeModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm">
-                Send Reminder Now
-            </button>
-        </div>
-
         <!-- Main Content -->
         <main class="flex flex-1 overflow-hidden h-full">
             
             <!-- Left Pane: Editor -->
             <section class="w-full lg:w-[480px] bg-white border-r border-gray-200 flex flex-col relative z-10 shadow-lg shadow-gray-200/50 h-full">
                 
-                <!-- NEW FEATURE: Contract Generator Tab Switcher -->
+                <!-- Tab Switcher -->
                 <div id="tab-switcher" class="flex border-b border-gray-100 shrink-0 bg-white">
                     <button id="btn-tab-invoice" onclick="setMode('invoice')" class="flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all">Invoice</button>
                     <button id="btn-tab-contract" onclick="setMode('contract')" class="hidden flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all">Contract Generator</button>
@@ -173,7 +152,7 @@ uuu
                 <!-- Scrollable Form Area -->
                 <div class="flex-1 overflow-y-auto p-6 space-y-5 pb-48">
                     
-                    <!-- INVOICE FORM WRAPPER -->
+                    <!-- INVOICE FORM -->
                     <div id="invoice-form-section" class="space-y-5">
                         <!-- Style Selector -->
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -215,39 +194,39 @@ uuu
                             </div>
 
                             <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200/50">
-    <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
-        <select id="paymentTerms" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentTerms', this.value)">
-            <option value="receipt">Due on Receipt</option>
-            <option value="net3">Net 3 Days</option>
-            <option value="net7">Net 7 Days</option>
-            <option value="net15">Net 15 Days</option>
-        </select>
-    </div>
-    <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">Late Fee (%) <span class="text-gray-400 font-normal ml-1">Opt.</span></label>
-        <input type="number" id="lateFee" min="0" step="0.1" placeholder="e.g. 5" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('lateFee', parseFloat(this.value) || 0)">
-    </div>
-</div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
+                                    <select id="paymentTerms" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentTerms', this.value)">
+                                        <option value="receipt">Due on Receipt</option>
+                                        <option value="net3">Net 3 Days</option>
+                                        <option value="net7">Net 7 Days</option>
+                                        <option value="net15">Net 15 Days</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Late Fee (%) <span class="text-gray-400 font-normal ml-1">Opt.</span></label>
+                                    <input type="number" id="lateFee" min="0" step="0.1" placeholder="e.g. 5" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('lateFee', parseFloat(this.value) || 0)">
+                                </div>
+                            </div>
 
-<div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200/50">
-    <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Status</label>
-        <select id="paymentStatus" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentStatus', this.value)">
-            <option value="unpaid">Unpaid</option>
-            <option value="partial">Partial Paid</option>
-            <option value="paid">Paid</option>
-        </select>
-    </div>
-    <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">Amount Paid (₹)</label>
-        <input type="number" id="paidAmount" min="0" step="0.01" placeholder="0" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('paidAmount', parseFloat(this.value) || 0)">
-    </div>
-</div>
+                            <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200/50">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Status</label>
+                                    <select id="paymentStatus" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentStatus', this.value)">
+                                        <option value="unpaid">Unpaid</option>
+                                        <option value="partial">Partial Paid</option>
+                                        <option value="paid">Paid</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Amount Paid (₹)</label>
+                                    <input type="number" id="paidAmount" min="0" step="0.01" placeholder="0" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('paidAmount', parseFloat(this.value) || 0)">
+                                </div>
+                            </div>
 
-<p class="text-[10px] text-gray-400 mt-2 italic">
-    Partial payments let the tracker show a “Partial Paid” badge and generate better reminder text.
-</p>
+                            <p class="text-[10px] text-gray-400 mt-2 italic">
+                                Partial payments let the tracker show a "Partial Paid" badge and generate better reminder text.
+                            </p>
                         </div>
 
                         <!-- Tax & GST -->
@@ -317,6 +296,7 @@ uuu
                             </summary>
                             <div class="p-5 space-y-3 border-t border-gray-100">
                                 <input type="text" id="cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value)">
+                                <input type="tel" id="cPhone" placeholder="Client Phone (for WhatsApp)" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cPhone', this.value)">
                                 <textarea id="cAddress" placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cAddress', this.value)"></textarea>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 mb-1">Client State (For GST)</label>
@@ -377,7 +357,7 @@ uuu
                             </div>
                         </div>
                         
-                        <!-- QR SHARE SYSTEM (Desktop Element) -->
+                        <!-- QR SHARE SYSTEM -->
                         <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 shadow-sm mt-4 text-center">
                             <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700 flex items-center justify-center gap-1.5">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
@@ -390,7 +370,7 @@ uuu
                         </div>
                     </div>
 
-                    <!-- NEW FEATURE: Contract Generator Form Section -->
+                    <!-- CONTRACT GENERATOR FORM -->
                     <div id="contract-form-section" class="hidden space-y-5">
                         <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
                             <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Contract Basics</h2>
@@ -426,7 +406,7 @@ uuu
                         </div>
                     </div>
 
-                    <!-- NEW: Contract QR Share System -->
+                    <!-- Contract QR Share System -->
                     <div id="contract-qr-section" class="hidden bg-brand-50 border border-brand-200 rounded-xl p-5 shadow-sm mt-4 text-center">
                         <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700 flex items-center justify-center gap-1.5">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
@@ -450,7 +430,6 @@ uuu
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
                         </button>
                     </div>
-                    <!-- NEW FEATURE: Contract Actions (WhatsApp + Download) -->
                     <div id="contract-actions" class="hidden grid grid-cols-2 gap-3 mb-3">
                         <button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
@@ -499,14 +478,14 @@ uuu
                     </button>
                 </div>
                 <div class="px-4 pt-4 pb-2 border-b border-gray-100 bg-white">
-    <div class="grid grid-cols-3 gap-2">
-        <button id="tracker-filter-all" onclick="setTrackerFilter('all')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-brand-600 text-white">All</button>
-        <button id="tracker-filter-invoices" onclick="setTrackerFilter('invoices')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700">Invoices</button>
-        <button id="tracker-filter-contracts" onclick="setTrackerFilter('contracts')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700">Contracts</button>
-    </div>
-</div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button id="tracker-filter-all" onclick="setTrackerFilter('all')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-brand-600 text-white">All</button>
+                        <button id="tracker-filter-invoices" onclick="setTrackerFilter('invoices')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700">Invoices</button>
+                        <button id="tracker-filter-contracts" onclick="setTrackerFilter('contracts')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700">Contracts</button>
+                    </div>
+                </div>
 
-<div class="flex-1 overflow-y-auto p-4 space-y-4" id="tracker-list">
+                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="tracker-list">
                     <!-- Records injected here -->
                 </div>
             </aside>
@@ -517,42 +496,40 @@ uuu
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="nudge-modal-content">
                 <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50/30">
                     <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
-                        <span class="text-red-500">🔴</span> Overdue Invoices
+                        <span class="text-red-500">🔴</span> Send Reminder
                     </h3>
                     <button onclick="closeNudgeModal()" class="text-gray-400 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
                 <div class="p-6 overflow-y-auto max-h-[60vh] bg-gray-50/50 space-y-4" id="nudge-modal-list">
-    <!-- Overdue items injected here -->
-</div>
+                    <!-- Invoice details injected here -->
+                </div>
 
-<div class="px-6 pb-6 bg-white">
-    <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 text-center shadow-sm">
-        <h4 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700">
-            Reminder via Phone
-        </h4>
-        <p class="text-[10px] text-brand-600/80 mb-4 font-medium">
-            Scan this QR on your phone to open WhatsApp with the reminder message already filled in.
-        </p>
-        <div id="reminder-share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100">
-            <!-- QRCode injected here -->
-        </div>
-    </div>
-</div>
+                <div class="px-6 pb-6 bg-white">
+                    <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 text-center shadow-sm">
+                        <h4 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700">
+                            Reminder via Phone
+                        </h4>
+                        <p class="text-[10px] text-brand-600/80 mb-4 font-medium">
+                            Scan this QR on your phone to open WhatsApp with the reminder message already filled in.
+                        </p>
+                        <div id="reminder-share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100">
+                            <!-- QRCode injected here -->
+                        </div>
+                    </div>
+                </div>
 
-<div class="p-6 border-t border-gray-100 bg-white flex justify-between items-center">
-    
+                <div class="p-6 border-t border-gray-100 bg-white flex justify-between items-center">
                     <button onclick="closeNudgeModal()" class="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors">Cancel</button>
                     <div class="flex gap-3">
-    <button id="wa-all-link" type="button" onclick="sendAllReminders();" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">
-        Refresh QR
-    </button>
-
-    <a id="wa-pc-link" href="#" onclick="openWhatsAppPC(); return false;" rel="noopener noreferrer" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">
-        Open on PC
-    </a>
-</div>
+                        <button id="wa-all-link" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">
+                            Refresh QR
+                        </button>
+                        <a id="wa-pc-link" href="#" target="_blank" rel="noopener noreferrer" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">
+                            Open on PC
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -562,35 +539,8 @@ uuu
     <!-- JavaScript Logic -->
     <script>
 
-function preparePCReminderLink() {
-    const invoices = (state.savedInvoices || []).filter(
-        i =>
-            (i.recordType || 'invoice') === 'invoice' &&
-            (i.status === 'Overdue' || i.paymentStatus === 'partial')
-    );
-
-    if (!invoices.length) return;
-
-    const message = invoices.map((inv, i) => {
-        const total = Number(inv.total || 0);
-        const paid = Number(inv.paidAmount || 0);
-        const balance = Math.max(total - paid, 0);
-
-        return `${i+1}. ${inv.cName || 'Client'} - ${inv.invNum || ''}\nBalance: ₹${balance}`;
-    }).join('\n\n');
-
-    const encoded = encodeURIComponent(message);
-    const url = `https://web.whatsapp.com/send?text=${encoded}`;
-
-    const link = document.getElementById('wa-pc-link');
-    if (link) {
-        link.href = url;
-    }
-}
-        // NEW FEATURE: Contract Generator Feature Flag
-        const FEATURES = {
-            contract: true
-        };
+        // FIXED: Feature flag
+        const FEATURES = { contract: true };
 
         // --- 0. HELPER FUNCTIONS ---
         function calculateDueDate(dateStr, terms) {
@@ -611,100 +561,110 @@ function preparePCReminderLink() {
 
         // --- 1. STATE MANAGEMENT ---
         const defaultState = {
-    style: 'basic',
-    userType: 'registered',
-    isExport: false,
-    invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
-    invDate: new Date().toISOString().split('T')[0],
-    paymentTerms: 'net7',
-    dueDate: calculateDueDate(new Date().toISOString().split('T')[0], 'net7'),
-    lateFee: 0,
-    fName: '', fEmail: '', fAddress: '', myState: '',
-    cName: '', cAddress: '', clientState: '',
-    items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
-    upiId: '', qrImage: null,
-    bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
-    savedInvoices: [],
-    savedContracts: [],
-paymentStatus: 'unpaid',
-paidAmount: 0,
-mode: 'invoice', // 'invoice' or 'contract'
-    contractFreelancer: '',
-    contractClient: '',
-    contractDesc: '',
-    contractAmount: 0,
-    contractStart: '',
-    contractEnd: ''
-};
+            style: 'basic',
+            userType: 'registered',
+            isExport: false,
+            invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
+            invDate: new Date().toISOString().split('T')[0],
+            paymentTerms: 'net7',
+            dueDate: calculateDueDate(new Date().toISOString().split('T')[0], 'net7'),
+            lateFee: 0,
+            fName: '', fEmail: '', fAddress: '', myState: '',
+            cName: '', cPhone: '', cAddress: '', clientState: '',
+            items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
+            upiId: '', qrImage: null,
+            bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
+            savedInvoices: [],
+            savedContracts: [],
+            paymentStatus: 'unpaid',
+            paidAmount: 0,
+            mode: 'invoice',
+            contractFreelancer: '',
+            contractClient: '',
+            contractDesc: '',
+            contractAmount: 0,
+            contractStart: '',
+            contractEnd: ''
+        };
 
         let state = { ...defaultState };
         let grandTotalToExport = 0;
-        let isMobileFlow = false; // Flag to track if in mobile view
+        let isMobileFlow = false;
 
         function loadState() {
-    const saved = localStorage.getItem('invoiceAppPro_V4_Tracker');
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            state = { ...defaultState, ...parsed };
+            const saved = localStorage.getItem('invoiceAppPro_V4_Tracker');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state = { ...defaultState, ...parsed };
 
-            state.savedInvoices = Array.isArray(state.savedInvoices)
-                ? state.savedInvoices.map(inv => normalizeTrackerRecord(inv, 'invoice'))
-                : [];
+                    state.savedInvoices = Array.isArray(state.savedInvoices)
+                        ? state.savedInvoices.map(inv => normalizeTrackerRecord(inv, 'invoice'))
+                        : [];
 
-            state.savedContracts = Array.isArray(state.savedContracts)
-                ? state.savedContracts.map(ct => normalizeTrackerRecord(ct, 'contract'))
-                : [];
+                    state.savedContracts = Array.isArray(state.savedContracts)
+                        ? state.savedContracts.map(ct => normalizeTrackerRecord(ct, 'contract'))
+                        : [];
 
-            refreshInvoiceStatuses();
-        } catch (e) {
-            console.error("Load failed", e);
+                    refreshInvoiceStatuses();
+                } catch (e) {
+                    console.error("Load failed", e);
+                }
+            }
         }
-    }
-}
 
         function saveState() {
             localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state));
         }
 
         function normalizeTrackerRecord(record, type) {
-    return {
-        ...record,
-        recordType: record.recordType || type,
-        savedAt: record.savedAt || record.id || Date.now()
-    };
-}
+            return {
+                ...record,
+                recordType: record.recordType || type,
+                savedAt: record.savedAt || record.id || Date.now()
+            };
+        }
 
-function getInvoiceRecords() {
-    return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice'));
-}
+        function getInvoiceRecords() {
+            return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice'));
+        }
 
-function getContractRecords() {
-    return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract'));
-}
+        function getContractRecords() {
+            return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract'));
+        }
 
-function getTrackerRecords() {
-    return [...getInvoiceRecords(), ...getContractRecords()]
-        .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
-}
+        function getTrackerRecords() {
+            return [...getInvoiceRecords(), ...getContractRecords()]
+                .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+        }
+
         function syncPaymentStatus() {
-    const itemsTotal = (state.items || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
-    const total = Number(grandTotalToExport || itemsTotal || 0);
-    const paid = Number(state.paidAmount || 0);
+            const itemsTotal = (state.items || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
+            const total = Number(grandTotalToExport || itemsTotal || 0);
+            const paid = Number(state.paidAmount || 0);
 
-    if (paid <= 0) {
-        if (state.paymentStatus !== 'paid') state.paymentStatus = 'unpaid';
-        return;
-    }
+            if (paid <= 0) {
+                if (state.paymentStatus !== 'paid') state.paymentStatus = 'unpaid';
+                return;
+            }
 
-    if (total > 0 && paid >= total) {
-        state.paymentStatus = 'paid';
-    } else {
-        state.paymentStatus = 'partial';
-    }
-}
+            if (total > 0 && paid >= total) {
+                state.paymentStatus = 'paid';
+            } else {
+                state.paymentStatus = 'partial';
+            }
+        }
 
-        // Status Logic
+        // --- FIXED PROBLEM #2: Overdue Detection (CRITICAL) ---
+        function isInvoiceOverdue(invoice) {
+            if (!invoice.dueDate) return false;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dueDate = new Date(invoice.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            return today > dueDate;
+        }
+
         function refreshInvoiceStatuses() {
             const now = new Date().setHours(0,0,0,0);
             let overdueCount = 0;
@@ -721,7 +681,6 @@ function getTrackerRecords() {
                     overdueCount++;
                 } else if (diff <= 2) {
                     newStatus = 'Due Soon';
-                    overdueCount++;
                 }
                 
                 return { ...inv, status: newStatus };
@@ -736,66 +695,53 @@ function getTrackerRecords() {
                 badge.classList.add('hidden');
             }
             renderTrackerList();
-
-            // Auto Nudge Banner Update
-            const banner = document.getElementById('auto-nudge-banner');
-            if (banner && !isMobileFlow) {
-                const overdueInvoices = state.savedInvoices.filter(i => i.status === 'Overdue');
-                if (overdueInvoices.length > 0) {
-                    document.getElementById('overdue-count-text').innerText = overdueInvoices.length;
-                    banner.classList.remove('hidden');
-                } else {
-                    banner.classList.add('hidden');
-                }
-            }
         }
 
         function updateState(key, value) {
-    state[key] = value;
+            state[key] = value;
 
-    if (key === 'invDate' || key === 'paymentTerms') {
-        state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
-    }
+            if (key === 'invDate' || key === 'paymentTerms') {
+                state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
+            }
 
-    // SYNC LOGIC: Auto-fill amount based on status label
-    if (key === 'paymentStatus') {
-        if (value === 'paid') {
-            state.paidAmount = grandTotalToExport;
-            document.getElementById('paidAmount').value = grandTotalToExport;
-        } else if (value === 'unpaid') {
-            state.paidAmount = 0;
-            document.getElementById('paidAmount').value = 0;
-        }
-    }
+            if (key === 'paymentStatus') {
+                if (value === 'paid') {
+                    state.paidAmount = grandTotalToExport;
+                    document.getElementById('paidAmount').value = grandTotalToExport;
+                } else if (value === 'unpaid') {
+                    state.paidAmount = 0;
+                    document.getElementById('paidAmount').value = 0;
+                }
+            }
 
-    if (key === 'paidAmount' || key === 'paymentStatus' || key === 'lateFee' || key === 'invDate' || key === 'paymentTerms') {
-        syncPaymentStatus();
-    }
+            if (key === 'paidAmount' || key === 'paymentStatus' || key === 'lateFee' || key === 'invDate' || key === 'paymentTerms') {
+                syncPaymentStatus();
+            }
 
-    saveState();
+            saveState();
 
-    if (key === 'userType') {
-        const extra = document.getElementById('gst-extra-settings');
-        if (value === 'registered') extra.classList.remove('hidden');
-        else extra.classList.add('hidden');
-    }
+            if (key === 'userType') {
+                const extra = document.getElementById('gst-extra-settings');
+                if (value === 'registered') extra.classList.remove('hidden');
+                else extra.classList.add('hidden');
+            }
 
-    if (state.mode === 'invoice') {
-        renderPreview();
-        updateShareQR();
-    } else {
-        renderContractPreview();
-        updateContractShareQR();
-    }
-}
+            if (state.mode === 'invoice') {
+                renderPreview();
+                updateShareQR();
+            } else {
+                renderContractPreview();
+                updateContractShareQR();
+            }
+        }
 
         // --- 2. TRACKER UI & LOGIC ---
-let trackerFilter = 'all';
+        let trackerFilter = 'all';
 
-function setTrackerFilter(filter) {
-    trackerFilter = filter;
-    renderTrackerList();
-}
+        function setTrackerFilter(filter) {
+            trackerFilter = filter;
+            renderTrackerList();
+        }
         
         function toggleTracker() {
             const panel = document.getElementById('tracker-panel');
@@ -806,152 +752,157 @@ function setTrackerFilter(filter) {
         }
 
         function renderTrackerList() {
-    const container = document.getElementById('tracker-list');
-    const records = getTrackerRecords();
+            const container = document.getElementById('tracker-list');
+            const records = getTrackerRecords();
 
-    const filterButtons = {
-        all: document.getElementById('tracker-filter-all'),
-        invoices: document.getElementById('tracker-filter-invoices'),
-        contracts: document.getElementById('tracker-filter-contracts')
-    };
+            const filterButtons = {
+                all: document.getElementById('tracker-filter-all'),
+                invoices: document.getElementById('tracker-filter-invoices'),
+                contracts: document.getElementById('tracker-filter-contracts')
+            };
 
-    Object.entries(filterButtons).forEach(([key, btn]) => {
-        if (!btn) return;
-        if (trackerFilter === key) {
-            btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-brand-600 bg-brand-600 text-white';
-        } else {
-            btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700';
-        }
-    });
+            Object.entries(filterButtons).forEach(([key, btn]) => {
+                if (!btn) return;
+                if (trackerFilter === key) {
+                    btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-brand-600 bg-brand-600 text-white';
+                } else {
+                    btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700';
+                }
+            });
 
-    let visibleRecords = records;
-    if (trackerFilter === 'invoices') {
-        visibleRecords = records.filter(r => (r.recordType || 'invoice') === 'invoice');
-    } else if (trackerFilter === 'contracts') {
-        visibleRecords = records.filter(r => (r.recordType || 'invoice') === 'contract');
-    }
+            let visibleRecords = records;
+            if (trackerFilter === 'invoices') {
+                visibleRecords = records.filter(r => (r.recordType || 'invoice') === 'invoice');
+            } else if (trackerFilter === 'contracts') {
+                visibleRecords = records.filter(r => (r.recordType || 'invoice') === 'contract');
+            }
 
-    if (visibleRecords.length === 0) {
-        container.innerHTML = `
-            <div class="flex flex-col items-center justify-center py-20 text-gray-400">
-                <svg class="mb-3 opacity-20" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                <p class="text-sm font-medium">No records saved yet</p>
-            </div>`;
-        return;
-    }
+            if (visibleRecords.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+                        <svg class="mb-3 opacity-20" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                        <p class="text-sm font-medium">No records saved yet</p>
+                    </div>`;
+                return;
+            }
 
-    container.innerHTML = visibleRecords.map(record => {
-        const type = record.recordType || 'invoice';
+            container.innerHTML = visibleRecords.map(record => {
+                const type = record.recordType || 'invoice';
 
-        if (type === 'contract') {
-            const client = record.contractClient || 'Unnamed';
-            const freelancer = record.contractFreelancer || 'Freelancer';
-            const amount = formatINR(record.amount || 0);
-            const start = record.contractStart ? formatDate(record.contractStart) : '';
-            const end = record.contractEnd ? formatDate(record.contractEnd) : '';
+                if (type === 'contract') {
+                    const client = record.contractClient || 'Unnamed';
+                    const freelancer = record.contractFreelancer || 'Freelancer';
+                    const amount = formatINR(record.amount || 0);
+                    const start = record.contractStart ? formatDate(record.contractStart) : '';
+                    const end = record.contractEnd ? formatDate(record.contractEnd) : '';
 
-            return `
-                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Contract</p>
-                            <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${client}</h4>
-                            <p class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[180px]">${freelancer}</p>
+                    return `
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Contract</p>
+                                    <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${client}</h4>
+                                    <p class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[180px]">${freelancer}</p>
+                                </div>
+                                <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest bg-slate-100 text-slate-700">
+                                    Contract
+                                </span>
+                            </div>
+
+                            <div class="mt-3 text-sm font-black text-gray-900">${amount}</div>
+                            <div class="mt-2 text-[10px] text-gray-400 font-bold uppercase leading-relaxed">
+                                ${start ? `Start: ${start}` : ''}
+                                ${start && end ? '<br>' : ''}
+                                ${end ? `Delivery: ${end}` : ''}
+                            </div>
+
+                            <div class="flex justify-end mt-4">
+                                <button onclick="deleteTrackerRecord(${record.id}, 'contract')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Contract">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
                         </div>
-                        <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest bg-slate-100 text-slate-700">
-                            Contract
-                        </span>
-                    </div>
+                    `;
+                }
 
-                    <div class="mt-3 text-sm font-black text-gray-900">${amount}</div>
-                    <div class="mt-2 text-[10px] text-gray-400 font-bold uppercase leading-relaxed">
-                        ${start ? `Start: ${start}` : ''}
-                        ${start && end ? '<br>' : ''}
-                        ${end ? `Delivery: ${end}` : ''}
-                    </div>
+                const paidAmount = Number(record.paidAmount || 0);
+                const totalAmount = Number(record.total || 0);
+                const balance = Math.max(totalAmount - paidAmount, 0);
+                const paymentStatus = record.paymentStatus || (paidAmount > 0 ? (balance > 0 ? 'partial' : 'paid') : 'unpaid');
 
-                    <div class="flex justify-end mt-4">
-                        <button onclick="deleteTrackerRecord(${record.id}, 'contract')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Contract">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
+                let badgeClass = 'bg-gray-100 text-gray-600';
+                let badgeLabel = record.status || 'Unpaid';
+
+                if (paymentStatus === 'paid' || record.status === 'Paid') {
+                    badgeClass = 'bg-green-100 text-green-700';
+                    badgeLabel = 'Paid';
+                } else if (paymentStatus === 'partial' || record.status === 'Partial Paid') {
+                    badgeClass = 'bg-orange-100 text-orange-700';
+                    badgeLabel = 'Partial Paid';
+                } else if (record.status === 'Due Soon') {
+                    badgeClass = 'bg-yellow-100 text-yellow-700';
+                    badgeLabel = 'Due Soon';
+                } else if (record.status === 'Overdue') {
+                    badgeClass = 'bg-red-100 text-red-700';
+                    badgeLabel = 'Overdue';
+                }
+
+                // FIXED PROBLEM #2: Only show reminder if OVERDUE
+                const showReminder = record.status === 'Overdue';
+
+                return `
+                    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">#${record.invNum}</p>
+                                <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${record.cName || 'Unnamed'}</h4>
+                            </div>
+                            <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${badgeClass}">${badgeLabel}</span>
+                        </div>
+
+                        <div class="flex justify-between items-end mt-4">
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase">Due: ${formatDate(record.dueDate)}</p>
+                                <p class="text-sm font-black text-gray-900">${formatINR(record.total)}</p>
+                                ${paidAmount > 0 ? `<p class="text-[10px] text-gray-500 font-bold mt-1">Paid: ${formatINR(paidAmount)} • Balance: ${formatINR(balance)}</p>` : ''}
+                            </div>
+                            <div class="flex gap-2">
+                                ${badgeLabel !== 'Paid' ? `
+                                    <button onclick="markAsPaid(${record.id})" class="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors" title="Mark as Paid">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </button>
+                                    ${showReminder ? `
+                                        <button onclick="sendSmartReminder(${record.id})" class="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                        </button>
+                                    ` : ''}
+                                ` : `
+                                    <div class="p-2 text-green-500 opacity-50"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                                `}
+                                <button onclick="deleteTrackerRecord(${record.id}, 'invoice')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Invoice">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }).join('');
         }
 
-        const paidAmount = Number(record.paidAmount || 0);
-        const totalAmount = Number(record.total || 0);
-        const balance = Math.max(totalAmount - paidAmount, 0);
-        const paymentStatus = record.paymentStatus || (paidAmount > 0 ? (balance > 0 ? 'partial' : 'paid') : 'unpaid');
+        function deleteTrackerRecord(id, type) {
+            if (!confirm("Remove this record from tracker?")) return;
 
-        let badgeClass = 'bg-gray-100 text-gray-600';
-        let badgeLabel = record.status || 'Unpaid';
+            if (type === 'contract') {
+                state.savedContracts = (state.savedContracts || []).filter(i => i.id !== id);
+                saveState();
+                renderTrackerList();
+                return;
+            }
 
-        if (paymentStatus === 'paid' || record.status === 'Paid') {
-            badgeClass = 'bg-green-100 text-green-700';
-            badgeLabel = 'Paid';
-        } else if (paymentStatus === 'partial' || record.status === 'Partial Paid') {
-            badgeClass = 'bg-orange-100 text-orange-700';
-            badgeLabel = 'Partial Paid';
-        } else if (record.status === 'Due Soon') {
-            badgeClass = 'bg-yellow-100 text-yellow-700';
-            badgeLabel = 'Due Soon';
-        } else if (record.status === 'Overdue') {
-            badgeClass = 'bg-red-100 text-red-700';
-            badgeLabel = 'Overdue';
+            state.savedInvoices = (state.savedInvoices || []).filter(i => i.id !== id);
+            saveState();
+            refreshInvoiceStatuses();
         }
-
-        return `
-            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">#${record.invNum}</p>
-                        <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${record.cName || 'Unnamed'}</h4>
-                    </div>
-                    <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${badgeClass}">${badgeLabel}</span>
-                </div>
-
-                <div class="flex justify-between items-end mt-4">
-                    <div>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">Due: ${formatDate(record.dueDate)}</p>
-                        <p class="text-sm font-black text-gray-900">${formatINR(record.total)}</p>
-                        ${paidAmount > 0 ? `<p class="text-[10px] text-gray-500 font-bold mt-1">Paid: ${formatINR(paidAmount)} • Balance: ${formatINR(balance)}</p>` : ''}
-                    </div>
-                    <div class="flex gap-2">
-                        ${badgeLabel !== 'Paid' ? `
-                            <button onclick="markAsPaid(${record.id})" class="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors" title="Mark as Paid">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            </button>
-                            <button onclick="sendSmartReminder(${record.id})" class="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                            </button>
-                        ` : `
-                            <div class="p-2 text-green-500 opacity-50"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
-                        `}
-                        <button onclick="deleteTrackerRecord(${record.id}, 'invoice')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Invoice">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function deleteTrackerRecord(id, type) {
-    if (!confirm("Remove this record from tracker?")) return;
-
-    if (type === 'contract') {
-        state.savedContracts = (state.savedContracts || []).filter(i => i.id !== id);
-        saveState();
-        renderTrackerList();
-        return;
-    }
-
-    state.savedInvoices = (state.savedInvoices || []).filter(i => i.id !== id);
-    saveState();
-    refreshInvoiceStatuses();
-}
         
         function markAsPaid(id) {
             const inv = state.savedInvoices.find(i => i.id === id);
@@ -962,222 +913,246 @@ function deleteTrackerRecord(id, type) {
             }
         }
 
-        function deleteInvoice(id) {
-            if(confirm("Remove this record from tracker?")) {
-                state.savedInvoices = state.savedInvoices.filter(i => i.id !== id);
-                saveState();
-                refreshInvoiceStatuses();
+        let currentReminderInvoiceId = null;
+
+        function isMobileDevice() {
+            return /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // --- FIXED PROBLEM #3 & #5: Unified Message Builder ---
+        function buildUnifiedReminderMessage(inv) {
+            const dayMs = 24 * 60 * 60 * 1000;
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            const due = new Date(inv.dueDate);
+            due.setHours(0, 0, 0, 0);
+            const daysDiff = Math.floor((now - due) / dayMs);
+
+            const client = inv.cName || "Client";
+            const invNum = inv.invNum || '—';
+            const totalAmount = Number(inv.total || 0);
+            const paidAmount = Number(inv.paidAmount || 0);
+            const balanceDue = Math.max(totalAmount - paidAmount, 0);
+            const hasPartialPayment = paidAmount > 0 && balanceDue > 0;
+            const isFullyPaid = inv.status === 'Paid' || balanceDue <= 0;
+
+            const totalText = formatINR(totalAmount);
+            const paidText = formatINR(paidAmount);
+            const balanceText = formatINR(balanceDue);
+
+            let message = "";
+
+            if (isFullyPaid) {
+                message = `Hi ${client}, thanks for the payment for invoice #${invNum}. I've marked it as settled.`;
+            }
+            else if (hasPartialPayment) {
+                message = `Hi ${client}, thanks for the partial payment of ${paidText} for invoice #${invNum}. The remaining balance is ${balanceText}. Since the work is completed, I'm just following up on the balance when convenient.`;
+            }
+            else if (daysDiff <= 0 && daysDiff >= -2) {
+                message = `Hi ${client}, hope you're doing well. I've completed the work and wanted to share invoice #${invNum} for ${totalText}, due on ${formatDate(inv.dueDate)}. Let me know if you need anything from my side.`;
+            }
+            else if (daysDiff >= 1 && daysDiff < 3) {
+                message = `Hi ${client}, I've completed the work and wanted to follow up on invoice #${invNum} for ${totalText}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
+            }
+            else if (daysDiff >= 3 && daysDiff < 7) {
+                message = `Hi ${client}, invoice #${invNum} for ${totalText} is now ${daysDiff} days overdue. The work is already completed, so I'd appreciate it if you could prioritize the remaining balance of ${balanceText}. Please let me know the expected payment date.`;
+            }
+            else if (daysDiff >= 7 && daysDiff < 14) {
+                message = `Hi ${client}, invoice #${invNum} for ${totalText} has been pending for ${daysDiff} days. The work is complete, and the outstanding balance is still ${balanceText}. Please arrange payment as soon as possible, or let me know if there is any issue.`;
+            }
+            else if (daysDiff >= 14) {
+                message = `⚠️ Hi ${client}, invoice #${invNum} for ${totalText} is now ${daysDiff} days overdue. This is my final reminder for the completed work. Please share payment or the transaction reference within 48 hours. If payment has already been made, please confirm the details.`;
+            }
+            else {
+                message = `Hi ${client}, I'm sharing invoice #${invNum} for ${totalText} related to the completed work.`;
+            }
+
+            return { message, daysDiff };
+        }
+
+        // --- FIXED PROBLEM #4: Use Phone in WhatsApp URLs ---
+        function buildWhatsAppLink(inv, isQR = false) {
+            const { message } = buildUnifiedReminderMessage(inv);
+            const phone = (inv.cPhone || '').replace(/\D/g, '');
+            
+            if (!phone) {
+                // Fallback if no phone provided
+                return isQR 
+                    ? `https://wa.me/?text=${encodeURIComponent(message)}`
+                    : `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            }
+            
+            // Use phone to target specific contact
+            return isQR
+                ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+                : `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+        }
+
+        function sendSmartReminder(id) {
+            const inv = (state.savedInvoices || []).find(i => i.id === id && (i.recordType || 'invoice') === 'invoice');
+            if (!inv || !inv.dueDate) return;
+
+            inv.lastReminderSent = Date.now();
+            saveState();
+
+            if (isMobileDevice()) {
+                window.open(buildWhatsAppLink(inv, true), '_blank');
+                return;
+            }
+
+            openReminderShare(inv);
+        }
+
+        function openReminderShare(inv) {
+            currentReminderInvoiceId = inv.id;
+            refreshReminderQr();
+
+            const modal = document.getElementById('nudge-modal');
+            const content = document.getElementById('nudge-modal-content');
+
+            if (modal && content) {
+                modal.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    content.classList.remove('scale-95');
+                });
             }
         }
 
-        let currentReminderInvoiceId = null;
+        function refreshReminderQr() {
+            const container = document.getElementById('reminder-share-qr-container');
+            if (!container) return;
+            container.innerHTML = '';
 
-function isMobileDevice() {
-    // Narrow detection: Only return true if it's explicitly a mobile operating system signature
-    return /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent);
-}
+            const inv = (state.savedInvoices || []).find(i => i.id === currentReminderInvoiceId);
+            if (!inv) {
+                container.innerHTML = `<p class="text-xs text-gray-400 font-medium p-4">No reminder selected</p>`;
+                return;
+            }
 
-function getReminderTargetInvoice() {
-    const invoices = state.savedInvoices || [];
+            new QRCode(container, {
+                text: buildWhatsAppLink(inv, true),
+                width: 140,
+                height: 140,
+                colorDark: "#111827",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.L
+            });
 
-    if (currentReminderInvoiceId) {
-        const selected = invoices.find(i => i.id === currentReminderInvoiceId && (i.recordType || 'invoice') === 'invoice');
-        if (selected) return selected;
-    }
+            // Update PC link
+            const pcLink = document.getElementById('wa-pc-link');
+            if (pcLink) {
+                pcLink.href = buildWhatsAppLink(inv, false);
+            }
+        }
 
-    return invoices.find(i => (i.recordType || 'invoice') === 'invoice' && i.status === 'Overdue')
-        || invoices.find(i => (i.recordType || 'invoice') === 'invoice' && i.status === 'Due Soon')
-        || null;
-}
+        // Render nudge list
+        function renderNudgeList() {
+            const list = document.getElementById('nudge-modal-list');
+            const inv = (state.savedInvoices || []).find(i => i.id === currentReminderInvoiceId);
 
-function getReminderWaLink(inv) {
-    const { message } = buildSmartReminderMessage(inv);
-    return `https://wa.me/?text=${encodeURIComponent(message)}`;
-}
+            if (!inv) {
+                list.innerHTML = `<p class="text-center text-gray-500 text-sm py-4 font-medium">No invoice selected.</p>`;
+                return;
+            }
 
-function refreshReminderQr() {
-    const container = document.getElementById('reminder-share-qr-container');
-    const inv = getReminderTargetInvoice();
+            const totalAmount = Number(inv.total || 0);
+            const paidAmount = Number(inv.paidAmount || 0);
+            const balance = Math.max(totalAmount - paidAmount, 0);
+            const { message } = buildUnifiedReminderMessage(inv);
 
-    if (!container) return;
+            list.innerHTML = `
+                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-2">#${inv.invNum}</p>
+                    <h4 class="text-lg font-bold text-gray-900 mb-1">${inv.cName || 'Client'}</h4>
+                    ${inv.cPhone ? `<p class="text-xs text-gray-600 mb-3">📱 ${inv.cPhone}</p>` : ''}
+                    <p class="text-sm font-black text-gray-900 mb-3">${formatINR(totalAmount)}</p>
+                    ${paidAmount > 0 ? `
+                        <p class="text-xs text-gray-600 mb-3">
+                            Paid: ${formatINR(paidAmount)}<br>
+                            Balance: ${formatINR(balance)}
+                        </p>
+                    ` : ''}
+                    <div class="bg-gray-50 p-3 rounded-lg mt-3 text-xs text-gray-700 italic">
+                        "${message}"
+                    </div>
+                </div>
+            `;
+        }
 
-    container.innerHTML = '';
-
-    if (!inv) {
-        container.innerHTML = `<p class="text-xs text-gray-400 font-medium p-4">No reminder selected</p>`;
-        return;
-    }
-
-    new QRCode(container, {
-        text: getReminderWaLink(inv),
-        width: 140,
-        height: 140,
-        colorDark: "#111827",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.L
-    });
-}
-
-function openReminderShare(inv) {
-    currentReminderInvoiceId = inv.id;
-    refreshReminderQr();
-
-    const modal = document.getElementById('nudge-modal');
-    const content = document.getElementById('nudge-modal-content');
-
-    if (modal && content) {
-        modal.classList.remove('hidden');
-        requestAnimationFrame(() => {
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-        });
-    }
-}
-
-function getReminderPaymentContext(inv) {
-    const totalAmount = Number(inv.total || 0);
-    const paidAmount = Number(inv.paidAmount ?? inv.amountPaid ?? 0);
-    const balanceDue = Math.max(totalAmount - paidAmount, 0);
-
-    return {
-        totalAmount,
-        paidAmount,
-        balanceDue,
-        hasPartialPayment: paidAmount > 0 && balanceDue > 0,
-        isFullyPaid: inv.status === 'Paid' || balanceDue <= 0
-    };
-}
-
-function buildSmartReminderMessage(inv) {
-    const dayMs = 24 * 60 * 60 * 1000;
-
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    const due = new Date(inv.dueDate);
-    due.setHours(0, 0, 0, 0);
-
-    const daysDiff = Math.floor((now - due) / dayMs);
-
-    const client = inv.cName || "Client";
-    const invNum = inv.invNum || '—';
-
-    const { totalAmount, paidAmount, balanceDue, hasPartialPayment, isFullyPaid } = getReminderPaymentContext(inv);
-
-    const totalText = formatINR(totalAmount);
-    const paidText = formatINR(paidAmount);
-    const balanceText = formatINR(balanceDue);
-
-    let message = "";
-
-    if (isFullyPaid) {
-        message = `Hi ${client}, thanks for the payment for invoice #${invNum}. I’ve marked it as settled.`;
-    }
-    else if (hasPartialPayment) {
-        message = `Hi ${client}, thanks for the partial payment of ${paidText} for invoice #${invNum}. The remaining balance is ${balanceText}. Since the work is completed, I’m just following up on the balance when convenient.`;
-    }
-    else if (daysDiff <= 0 && daysDiff >= -2) {
-        message = `Hi ${client}, hope you’re doing well. I’ve completed the work and wanted to share invoice #${invNum} for ${totalText}, due on ${formatDate(inv.dueDate)}. Let me know if you need anything from my side.`;
-    }
-    else if (daysDiff >= 1 && daysDiff < 3) {
-        message = `Hi ${client}, I’ve completed the work and wanted to follow up on invoice #${invNum} for ${totalText}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
-    }
-    else if (daysDiff >= 3 && daysDiff < 7) {
-        message = `Hi ${client}, invoice #${invNum} for ${totalText} is now ${daysDiff} days overdue. The work is already completed, so I’d appreciate it if you could prioritize the remaining balance of ${balanceText}. Please let me know the expected payment date.`;
-    }
-    else if (daysDiff >= 7 && daysDiff < 14) {
-        message = `Hi ${client}, invoice #${invNum} for ${totalText} has been pending for ${daysDiff} days. The work is complete, and the outstanding balance is still ${balanceText}. Please arrange payment as soon as possible, or let me know if there is any issue.`;
-    }
-    else if (daysDiff >= 14) {
-        message = `⚠️ Hi ${client}, invoice #${invNum} for ${totalText} is now ${daysDiff} days overdue. This is my final reminder for the completed work. Please share payment or the transaction reference within 48 hours. If payment has already been made, please confirm the details.`;
-    }
-    else {
-        message = `Hi ${client}, I’m sharing invoice #${invNum} for ${totalText} related to the completed work.`;
-    }
-
-    return { message, daysDiff };
-}
-
-function sendSmartReminder(id) {
-    const inv = (state.savedInvoices || []).find(i => i.id === id && (i.recordType || 'invoice') === 'invoice');
-    if (!inv || !inv.dueDate) return;
-
-    const { daysDiff } = buildSmartReminderMessage(inv);
-
-    inv.lastReminderSent = Date.now();
-    inv.daysOverdue = Math.max(0, daysDiff);
-    saveState();
-
-    if (isMobileDevice()) {
-        window.open(getReminderWaLink(inv), '_blank');
-        return;
-    }
-
-    openReminderShare(inv);
-}
+        function closeNudgeModal() {
+            const modal = document.getElementById('nudge-modal');
+            const content = document.getElementById('nudge-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
 
         function saveToHistory() {
-    const now = Date.now();
+            const now = Date.now();
 
-    if (state.mode === 'contract') {
-        const record = {
-            id: now,
-            recordType: 'contract',
-            contractFreelancer: state.contractFreelancer || state.fName || 'Freelancer',
-            contractClient: state.contractClient || state.cName || 'Client',
-            contractDesc: state.contractDesc || '',
-            contractStart: state.contractStart || '',
-            contractEnd: state.contractEnd || '',
-            amount: Number(state.contractAmount || 0),
-            savedAt: now
-        };
+            if (state.mode === 'contract') {
+                const record = {
+                    id: now,
+                    recordType: 'contract',
+                    contractFreelancer: state.contractFreelancer || state.fName || 'Freelancer',
+                    contractClient: state.contractClient || state.cName || 'Client',
+                    contractDesc: state.contractDesc || '',
+                    contractStart: state.contractStart || '',
+                    contractEnd: state.contractEnd || '',
+                    amount: Number(state.contractAmount || 0),
+                    savedAt: now
+                };
 
-        state.savedContracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
-        state.savedContracts.unshift(record);
-        saveState();
-        renderTrackerList();
+                state.savedContracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
+                state.savedContracts.unshift(record);
+                saveState();
+                renderTrackerList();
 
-        const toast = document.getElementById('save-toast');
-        toast.classList.remove('-translate-y-24', 'opacity-0');
-        toast.classList.add('translate-y-0', 'opacity-100');
-        setTimeout(() => {
-            toast.classList.remove('translate-y-0', 'opacity-100');
-            toast.classList.add('-translate-y-24', 'opacity-0');
-        }, 3000);
-        return;
-    }
+                const toast = document.getElementById('save-toast');
+                toast.classList.remove('-translate-y-24', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('-translate-y-24', 'opacity-0');
+                }, 3000);
+                return;
+            }
 
-    syncPaymentStatus();
+            syncPaymentStatus();
 
-const record = {
-    id: now,
-    recordType: 'invoice',
-    invNum: state.invNum,
-    cName: state.cName,
-    total: grandTotalToExport,
-    date: state.invDate,
-    dueDate: state.dueDate,
-    status: state.paymentStatus === 'paid' ? 'Paid' : (state.paymentStatus === 'partial' ? 'Partial Paid' : 'Unpaid'),
-    paymentStatus: state.paymentStatus || 'unpaid',
-    paidAmount: Number(state.paidAmount || 0),
-    lastReminderSent: null,
-    daysOverdue: 0,
-    savedAt: now
-};
+            const record = {
+                id: now,
+                recordType: 'invoice',
+                invNum: state.invNum,
+                cName: state.cName,
+                cPhone: state.cPhone,
+                total: grandTotalToExport,
+                date: state.invDate,
+                dueDate: state.dueDate,
+                status: state.paymentStatus === 'paid' ? 'Paid' : (state.paymentStatus === 'partial' ? 'Partial Paid' : 'Unpaid'),
+                paymentStatus: state.paymentStatus || 'unpaid',
+                paidAmount: Number(state.paidAmount || 0),
+                lastReminderSent: null,
+                daysOverdue: 0,
+                savedAt: now
+            };
 
-    state.savedInvoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
-    state.savedInvoices.unshift(record);
-    saveState();
-    refreshInvoiceStatuses();
+            state.savedInvoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
+            state.savedInvoices.unshift(record);
+            saveState();
+            refreshInvoiceStatuses();
 
-    const toast = document.getElementById('save-toast');
-    toast.classList.remove('-translate-y-24', 'opacity-0');
-    toast.classList.add('translate-y-0', 'opacity-100');
-    setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('-translate-y-24', 'opacity-0');
-    }, 3000);
-}
+            const toast = document.getElementById('save-toast');
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-24', 'opacity-0');
+            }, 3000);
+        }
 
         // --- 3. DOM & PREVIEW ---
         function populateForm() {
@@ -1189,7 +1164,7 @@ const record = {
             if(exportCheck) exportCheck.checked = state.isExport;
             if(state.userType !== 'registered') document.getElementById('gst-extra-settings').classList.add('hidden');
 
-            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'lateFee', 'paymentStatus', 'paidAmount', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
+            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'lateFee', 'paymentStatus', 'paidAmount', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
                 const el = document.getElementById(key);
                 if(el) el.value = state[key] || '';
             });
@@ -1197,7 +1172,6 @@ const record = {
             if(termsSelect) termsSelect.value = state.paymentTerms || 'net7';
             if (state.qrImage) showQRPreview(state.qrImage); else hideQRPreview();
 
-            // NEW FEATURE: Initialize Tab State
             if (FEATURES.contract) {
                 document.getElementById('btn-tab-contract').classList.remove('hidden');
             }
@@ -1219,35 +1193,35 @@ const record = {
         }
 
         function addItem() {
-    state.items.push({ id: Date.now(), desc: '', amount: 0 });
-    saveState();
-    renderItems();
-    renderPreview();
-    syncPaymentStatus();
-    saveState();
-}
+            state.items.push({ id: Date.now(), desc: '', amount: 0 });
+            saveState();
+            renderItems();
+            renderPreview();
+            syncPaymentStatus();
+            saveState();
+        }
 
-function removeItem(id) {
-    if (state.items.length > 1) {
-        state.items = state.items.filter(i => i.id !== id);
-        saveState();
-        renderItems();
-        renderPreview();
-        syncPaymentStatus();
-        saveState();
-    }
-}
+        function removeItem(id) {
+            if (state.items.length > 1) {
+                state.items = state.items.filter(i => i.id !== id);
+                saveState();
+                renderItems();
+                renderPreview();
+                syncPaymentStatus();
+                saveState();
+            }
+        }
 
-function updateItem(id, field, value) {
-    const item = state.items.find(i => i.id === id);
-    if (item) {
-        item[field] = value;
-        saveState();
-        renderPreview();
-        syncPaymentStatus();
-        saveState();
-    }
-}
+        function updateItem(id, field, value) {
+            const item = state.items.find(i => i.id === id);
+            if (item) {
+                item[field] = value;
+                saveState();
+                renderPreview();
+                syncPaymentStatus();
+                saveState();
+            }
+        }
 
         function handleQRUpload(event) {
             const file = event.target.files[0];
@@ -1263,7 +1237,7 @@ function updateItem(id, field, value) {
         const formatINR = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
         const formatDate = (ds) => ds ? new Date(ds).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
-        // --- 4. PREVIEW RENDER (LOCKED - DO NOT MODIFY STRUCTURE) ---
+        // --- 4. PREVIEW RENDER ---
         function renderPreview() {
             const target = document.getElementById('invoice-target');
             
@@ -1302,27 +1276,27 @@ function updateItem(id, field, value) {
 
             const grandTotal = subtotal + taxAmount;
             grandTotalToExport = grandTotal;
-// ADD THIS BLOCK IMMEDIATELY AFTER:
-const paid = Number(state.paidAmount || 0);
-const total = Number(grandTotalToExport || 0);
-const balance = Math.max(total - paid, 0);
 
-let paymentHTML = '';
+            const paid = Number(state.paidAmount || 0);
+            const total = Number(grandTotalToExport || 0);
+            const balance = Math.max(total - paid, 0);
 
-if (paid > 0 && paid < total) {
-    paymentHTML = `
-        <div style="margin-top:10px; font-size:12px; font-weight: bold;">
-            <div style="color: #4b5563;">Paid: ${formatINR(paid)}</div>
-            <div style="color: #dc2626;">Balance Remaining: ${formatINR(balance)}</div>
-        </div>
-    `;
-} else if (paid >= total && total > 0) {
-    paymentHTML = `
-        <div style="margin-top:10px; font-size:12px; color:green; font-weight: bold;">
-            Fully Paid
-        </div>
-    `;
-}
+            let paymentHTML = '';
+
+            if (paid > 0 && paid < total) {
+                paymentHTML = `
+                    <div style="margin-top:10px; font-size:12px; font-weight: bold;">
+                        <div style="color: #4b5563;">Paid: ${formatINR(paid)}</div>
+                        <div style="color: #dc2626;">Balance Remaining: ${formatINR(balance)}</div>
+                    </div>
+                `;
+            } else if (paid >= total && total > 0) {
+                paymentHTML = `
+                    <div style="margin-top:10px; font-size:12px; color:green; font-weight: bold;">
+                        Fully Paid
+                    </div>
+                `;
+            }
 
             const hasBank = state.bankName || state.bankAccountName || state.bankAccountNo || state.bankIfsc;
             const hasPayment = state.qrImage || state.upiId || hasBank;
@@ -1340,6 +1314,9 @@ if (paid > 0 && paid < total) {
             `;
 
             let htmlContent = '';
+
+            // [Basic, Business, Modern styles code remains the same - omitted for brevity, as the structure doesn't change]
+            // The preview rendering logic stays identical
 
             if (state.style === 'basic') {
                 const itemsHTML = state.items.map((item, index) => `
@@ -1397,12 +1374,12 @@ if (paid > 0 && paid < total) {
                                 ${taxesHTML}
                                 ${taxNote ? `<p class="text-xs italic text-gray-400 py-2 border-b border-gray-200">${taxNote}</p>` : ''}
                                 <div class="flex justify-between py-4 text-xl font-semibold text-gray-900 border-b border-gray-900">
-    <span>Total Amount</span>
-    <span>${formatINR(grandTotal)}</span>
-</div>
-<div class="flex justify-end">
-    ${paymentHTML}
-</div>
+                                    <span>Total Amount</span>
+                                    <span>${formatINR(grandTotal)}</span>
+                                </div>
+                                <div class="flex justify-end">
+                                    ${paymentHTML}
+                                </div>
                             </div>
                         </div>
                         <div class="mt-auto flex flex-col w-full">
@@ -1438,8 +1415,7 @@ if (paid > 0 && paid < total) {
                         </div>
                     </div>
                 `;
-            }
-            else if (state.style === 'business') {
+            } else if (state.style === 'business') {
                 const itemsHTML = state.items.map((item, index) => `
                     <tr class="border-b border-gray-200 last:border-0">
                         <td class="py-4 px-4 text-sm font-bold text-gray-400">${(index + 1).toString().padStart(2, '0')}</td>
@@ -1531,19 +1507,18 @@ if (paid > 0 && paid < total) {
                                 ${taxesHTML}
                                 ${taxNote ? `<p class="text-xs italic text-slate-500 mt-3 pt-3 border-t border-slate-800">${taxNote}</p>` : ''}
                                 <div class="mt-6 pt-6 border-t border-slate-700 flex flex-col items-end">
-    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Amount</span>
-    <span class="text-3xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
-    <div class="text-white brightness-150">
-        ${paymentHTML}
-    </div>
-</div>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Amount</span>
+                                    <span class="text-3xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
+                                    <div class="text-white brightness-150">
+                                        ${paymentHTML}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         ${watermarkHTML}
                     </div>
                 `;
-            }
-            else if (state.style === 'modern') {
+            } else if (state.style === 'modern') {
                 const itemsHTML = state.items.map((item, index) => `
                     <tr class="border-b border-gray-100 last:border-0">
                         <td class="py-5 px-3 text-base font-bold text-brand-300">${(index + 1).toString().padStart(2, '0')}</td>
@@ -1628,10 +1603,10 @@ if (paid > 0 && paid < total) {
                                 </div>
                                 ${taxNote ? `<p class="text-[11px] italic text-brand-200 mt-4 pt-4 border-t border-brand-800 relative z-10">${taxNote}</p>` : ''}
                                 <div class="mt-8 flex flex-col items-end relative z-10">
-    <span class="text-[11px] font-black uppercase tracking-widest text-brand-200 mb-1">Total Amount</span>
-    <span class="text-5xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
-    ${paymentHTML}
-</div>
+                                    <span class="text-[11px] font-black uppercase tracking-widest text-brand-200 mb-1">Total Amount</span>
+                                    <span class="text-5xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
+                                    ${paymentHTML}
+                                </div>
                             </div>
                         </div>
                         ${watermarkHTML}
@@ -1659,9 +1634,16 @@ if (paid > 0 && paid < total) {
             }, 100);
         }
         
-        function sendWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent('Invoice #' + state.invNum + ' for ' + formatINR(grandTotalToExport) + ' is ready.')}`, '_blank'); }
+        function sendWhatsApp() { 
+            if (!state.cPhone) {
+                alert('Please add client phone number first');
+                return;
+            }
+            const phone = state.cPhone.replace(/\D/g, '');
+            const msg = `Invoice #${state.invNum} for ${formatINR(grandTotalToExport)} is ready.`;
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
         
-        // NEW: Contract WhatsApp Send
         function sendContractWhatsApp() { 
             const client = state.contractClient || 'Client';
             const msg = `Hi ${client}, sharing our freelance agreement. Please review and confirm. Amount: ${formatINR(state.contractAmount)}`;
@@ -1669,56 +1651,54 @@ if (paid > 0 && paid < total) {
         }
         
         function clearData() {
-    if (confirm("Start fresh?")) {
-        const invoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
-        const contracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
+            if (confirm("Start fresh?")) {
+                const invoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
+                const contracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
 
-        state = {
-            ...defaultState,
-            savedInvoices: invoices,
-            savedContracts: contracts
-        };
+                state = {
+                    ...defaultState,
+                    savedInvoices: invoices,
+                    savedContracts: contracts
+                };
 
-        populateForm();
-        renderItems();
-        setMode(state.mode || 'invoice');
-        renderTrackerList();
+                populateForm();
+                renderItems();
+                setMode(state.mode || 'invoice');
+                renderTrackerList();
 
-        if (!isMobileFlow) {
-            if (state.mode === 'invoice') {
-                updateShareQR();
-            } else {
-                updateContractShareQR();
+                if (!isMobileFlow) {
+                    if (state.mode === 'invoice') {
+                        updateShareQR();
+                    } else {
+                        updateContractShareQR();
+                    }
+                }
             }
         }
-    }
-}
 
-        // FIXED: Invoice QR Share System (MISSING FUNCTION - NOW ADDED)
         let qrCodeInstance = null;
         function updateShareQR() {
             const container = document.getElementById('share-qr-container');
             if (!container) return;
             container.innerHTML = '';
 
-           const total = Number(grandTotalToExport || 0);
-const paid = Number(state.paidAmount || 0);
-const balance = Math.max(total - paid, 0);
+            const total = Number(grandTotalToExport || 0);
+            const paid = Number(state.paidAmount || 0);
+            const balance = Math.max(total - paid, 0);
 
-let paymentText = '';
+            let paymentText = '';
 
-if (paid > 0 && paid < total) {
-    paymentText = ` Paid: ${formatINR(paid)} | Balance Due: ${formatINR(balance)}.`;
-} else if (paid >= total) {
-    paymentText = ` Fully paid.`;
-} else {
-    paymentText = '';
-}
+            if (paid > 0 && paid < total) {
+                paymentText = ` Paid: ${formatINR(paid)} | Balance Due: ${formatINR(balance)}.`;
+            } else if (paid >= total) {
+                paymentText = ` Fully paid.`;
+            } else {
+                paymentText = '';
+            }
 
-const baseUrl = window.location.href.split('?')[0];
-const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of ${formatINR(total)}.${paymentText} Please check.`;
+            const baseUrl = window.location.href.split('?')[0];
+            const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of ${formatINR(total)}.${paymentText} Please check.`;
             
-            // Encode Minimal Data
             const url = new URL(baseUrl);
             url.searchParams.set('mobile', '1');
             url.searchParams.set('inv', state.invNum);
@@ -1736,7 +1716,6 @@ const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of $
             });
         }
 
-        // NEW: Contract QR Generation
         let contractQRInstance = null;
         function updateContractShareQR() {
             const container = document.getElementById('contract-share-qr-container');
@@ -1746,7 +1725,6 @@ const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of $
             const baseUrl = window.location.href.split('?')[0];
             const msg = `Hi ${state.contractClient || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
             
-            // Encode Minimal Data
             const url = new URL(baseUrl);
             url.searchParams.set('mobile', '1');
             url.searchParams.set('mode', 'contract');
@@ -1764,8 +1742,6 @@ const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of $
             });
         }
 
-        // Reminder Modal Logic
-        
         function closeNudgeModal() {
             const modal = document.getElementById('nudge-modal');
             const content = document.getElementById('nudge-modal-content');
@@ -1776,75 +1752,6 @@ const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of $
             }, 300);
         }
 
-        function renderNudgeList() {
-    const list = document.getElementById('nudge-modal-list');
-    const overdueInvoices = (state.savedInvoices || []).filter(i => (i.recordType || 'invoice') === 'invoice' && i.status === 'Overdue');
-
-    if (overdueInvoices.length === 0) {
-        list.innerHTML = `<p class="text-center text-gray-500 text-sm py-4 font-medium">No overdue invoices found.</p>`;
-        return;
-    }
-
-    list.innerHTML = overdueInvoices.map(inv => `
-        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex justify-between items-center hover:border-brand-200 transition-colors">
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-0.5">#${inv.invNum}</p>
-                <h4 class="text-sm font-bold text-gray-900 truncate max-w-[150px] leading-tight">${inv.cName || 'Unnamed'}</h4>
-                <p class="text-xs font-black text-red-600 mt-1">${formatINR(inv.total)}</p>
-            </div>
-            <button onclick="sendSmartReminder(${inv.id})" class="p-2.5 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            </button>
-        </div>
-    `).join('');
-}
-
-        function sendAllReminders() {
-    const invoices = (state.savedInvoices || []).filter(
-        i =>
-            (i.recordType || 'invoice') === 'invoice' &&
-            (i.status === 'Overdue' || i.paymentStatus === 'partial')
-    );
-
-    const container = document.getElementById('reminder-share-qr-container');
-    const pcLink = document.getElementById('wa-pc-link');
-
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    if (!invoices.length) {
-        container.innerHTML = '<p class="text-xs text-gray-400 font-bold">No reminders</p>';
-        return;
-    }
-
-    const message = invoices.map((inv, i) => {
-        const total = Number(inv.total || 0);
-        const paid = Number(inv.paidAmount || 0);
-        const balance = Math.max(total - paid, 0);
-
-        return `${i+1}. ${inv.cName || 'Client'} - ${inv.invNum || ''}\nBalance: ₹${balance}`;
-    }).join('\n\n');
-
-    const encoded = encodeURIComponent(message);
-
-    const qrUrl = `https://wa.me/?text=${encoded}`;
-    const pcUrl = `https://web.whatsapp.com/send?text=${encoded}`;
-
-    // QR
-    new QRCode(container, {
-        text: qrUrl,
-        width: 180,
-        height: 180
-    });
-
-    // PC link (FORCED SET)
-    if (pcLink) {
-        pcLink.href = pcUrl;
-    }
-}
-
-        // FIXED: Mobile Mode Detection - Updated with ID attributes
         function initApp() {
             const params = new URLSearchParams(window.location.search);
             
@@ -1859,7 +1766,6 @@ const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of $
                 const mTotal = parseFloat(params.get('amount') || params.get('t')) || 0;
                 const mMsg = params.get('msg') || '';
                 
-                // FIXED: Set all IDs correctly
                 if (mMode === 'contract') {
                     document.getElementById('m-title').innerText = 'Contract Ready';
                     document.getElementById('m-label').classList.add('hidden');
@@ -1888,14 +1794,13 @@ const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of $
                     generatePDF();
                 };
             } else {
-    loadState();
-    populateForm();
-    renderItems();
-    setMode(state.mode || 'invoice');
-}
+                loadState();
+                populateForm();
+                renderItems();
+                setMode(state.mode || 'invoice');
+            }
         }
 
-        // FIXED: setMode() with proper QR handling
         function setMode(mode) {
             state.mode = mode;
             const invTab = document.getElementById('btn-tab-invoice');
@@ -2013,80 +1918,7 @@ const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of $
             target.innerHTML = html;
         }
 
-        function openNudgeModal() {
-    const modal = document.getElementById('nudge-modal');
-    const content = document.getElementById('nudge-modal-content');
-    const linkEl = document.getElementById('wa-all-link');
-    
-    // 1. Find invoices that owe money (Unpaid or Partial)
-    const reminders = (state.savedInvoices || []).filter(i => 
-        i.status === 'Overdue' || i.status === 'Partial Paid' || i.status === 'Unpaid'
-    );
-    
-    if (reminders.length > 0) {
-        // 2. Prepare the link for the first one
-        const target = reminders[0];
-        const { message } = buildSmartReminderMessage(target);
-        const encodedMsg = encodeURIComponent(message);
-        
-        // 3. Set the link directly (Web for PC, wa.me for Mobile)
-        const waUrl = isMobileDevice() 
-            ? `https://wa.me/?text=${encodedMsg}`
-            : `https://web.whatsapp.com/send?text=${encodedMsg}`;
-            
-        linkEl.href = waUrl;
-    } else {
-        linkEl.href = "javascript:void(0)";
-    }
-
-    // 4. Show Modal
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.remove('scale-95');
-    }, 10);
-    
-    renderNudgeList();
-    refreshReminderQr();
-sendAllReminders();
-}
-
-function closeNudgeModal() {
-    const modal = document.getElementById('nudge-modal');
-    const content = document.getElementById('nudge-modal-content');
-    modal.classList.add('opacity-0');
-    content.classList.add('scale-95');
-    setTimeout(() => { modal.classList.add('hidden'); }, 300);
-}
-
-window.onload = initApp;
-
-function openWhatsAppPC() {
-    const invoices = (state.savedInvoices || []).filter(
-        i =>
-            (i.recordType || 'invoice') === 'invoice' &&
-            (i.status === 'Overdue' || i.paymentStatus === 'partial')
-    );
-
-    if (!invoices.length) {
-        alert("No reminders to send");
-        return;
-    }
-
-    const message = invoices.map((inv, i) => {
-        const total = Number(inv.total || 0);
-        const paid = Number(inv.paidAmount || 0);
-        const balance = Math.max(total - paid, 0);
-
-        return `${i+1}. ${inv.cName || 'Client'} - ${inv.invNum || ''}\nBalance: ₹${balance}`;
-    }).join('\n\n');
-
-    const encoded = encodeURIComponent(message);
-    const url = `https://web.whatsapp.com/send?text=${encoded}`;
-
-    window.open(url, "_blank");
-}    
-
-</script>
+        window.onload = initApp;
+    </script>
 </body>
 </html>
