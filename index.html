@@ -1177,7 +1177,68 @@ function applyTierLimits() {
             }, 300);
         }
 
-               // --- 3. DOM & PREVIEW ---
+              async function saveToHistory() {
+            const now = Date.now();
+            let record;
+
+            if (state.mode === 'contract') {
+                record = {
+                    id: now,
+                    recordType: 'contract',
+                    contractFreelancer: state.contractFreelancer || state.fName || 'Freelancer',
+                    contractClient: state.contractClient || state.cName || 'Client',
+                    contractDesc: state.contractDesc || '',
+                    contractStart: state.contractStart || '',
+                    contractEnd: state.contractEnd || '',
+                    amount: Number(state.contractAmount || 0),
+                    savedAt: now
+                };
+            } else {
+                syncPaymentStatus();
+                record = {
+                    id: now,
+                    recordType: 'invoice',
+                    invNum: state.invNum,
+                    cName: state.cName,
+                    cPhone: state.cPhone,
+                    total: grandTotalToExport,
+                    date: state.invDate,
+                    dueDate: state.dueDate,
+                    status: state.paymentStatus === 'paid' ? 'Paid' : (state.paymentStatus === 'partial' ? 'Partial Paid' : 'Unpaid'),
+                    paymentStatus: state.paymentStatus || 'unpaid',
+                    paidAmount: Number(state.paidAmount || 0),
+                    lastReminderSent: null,
+                    daysOverdue: 0,
+                    savedAt: now
+                };
+            }
+
+            const result = await apiRequest('SAVE_INVOICE', record);
+
+            if (result.success) {
+                if (state.mode === 'contract') {
+                    state.savedContracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
+                    state.savedContracts.unshift(record);
+                } else {
+                    state.savedInvoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
+                    state.savedInvoices.unshift(record);
+                }
+                saveState();
+                renderTrackerList();
+                if (state.mode !== 'contract') refreshInvoiceStatuses();
+
+                const toast = document.getElementById('save-toast');
+                toast.classList.remove('-translate-y-24', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('-translate-y-24', 'opacity-0');
+                }, 3000);
+            } else {
+                alert("Pro Feature Blocked: Upgrade to Pro to save unlimited records!");
+            }
+        }
+ // --- 3. DOM & PREVIEW ---
         function populateForm() {
             const styleRadio = document.querySelector(`input[name="style"][value="${state.style}"]`);
             if(styleRadio) styleRadio.checked = true;
