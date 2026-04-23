@@ -1,4 +1,4 @@
-012
+uuu
 
 <!DOCTYPE html>
 <html lang="en">
@@ -549,7 +549,7 @@
         Refresh QR
     </button>
 
-    <a id="wa-pc-link" href="#" target="_blank" onclick="sendAllReminders();" rel="noopener noreferrer" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">
+    <a id="wa-pc-link" href="#" onclick="openWhatsAppPC(); return false;" rel="noopener noreferrer" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">
         Open on PC
     </a>
 </div>
@@ -2060,6 +2060,33 @@ function closeNudgeModal() {
 }
 
 window.onload = initApp;
-    </script>
+
+function openWhatsAppPC() {
+    const invoices = (state.savedInvoices || []).filter(
+        i =>
+            (i.recordType || 'invoice') === 'invoice' &&
+            (i.status === 'Overdue' || i.paymentStatus === 'partial')
+    );
+
+    if (!invoices.length) {
+        alert("No reminders to send");
+        return;
+    }
+
+    const message = invoices.map((inv, i) => {
+        const total = Number(inv.total || 0);
+        const paid = Number(inv.paidAmount || 0);
+        const balance = Math.max(total - paid, 0);
+
+        return `${i+1}. ${inv.cName || 'Client'} - ${inv.invNum || ''}\nBalance: ₹${balance}`;
+    }).join('\n\n');
+
+    const encoded = encodeURIComponent(message);
+    const url = `https://web.whatsapp.com/send?text=${encoded}`;
+
+    window.open(url, "_blank");
+}    
+
+</script>
 </body>
 </html>
