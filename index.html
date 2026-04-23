@@ -1107,6 +1107,10 @@ function applyTierLimits() {
         }
 
         async function sendSmartReminder(id) {
+            if (state.userTier !== 'Pro') {
+                openUpgradeModal("send smart reminders");
+                return;
+            }
             const inv = (state.savedInvoices || []).find(i => i.id === id && (i.recordType || 'invoice') === 'invoice');
             if (!inv || !inv.dueDate) return;
 
@@ -1217,6 +1221,10 @@ function applyTierLimits() {
         }
 
               async function saveToHistory() {
+            if (state.userTier !== 'Pro') {
+                openUpgradeModal("save invoices to tracker");
+                return;
+            }
             const now = Date.now();
             let record;
 
@@ -1746,7 +1754,7 @@ function applyTierLimits() {
         
         function generatePDF() { 
             if (state.mode === 'contract' && state.userTier !== 'Pro') {
-                alert("Pro Feature Blocked: Upgrade to Pro to download custom contracts.");
+                openUpgradeModal("download custom contracts");
                 return;
             }
 
@@ -1881,6 +1889,25 @@ function applyTierLimits() {
         }
 
         function initApp() {
+function openUpgradeModal(context) {
+            const contextEl = document.getElementById('upgrade-context');
+            if (contextEl) contextEl.innerText = `Upgrade required to ${context}. Unlock your full workspace and sync your data to the cloud.`;
+            
+            const modal = document.getElementById('upgrade-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeUpgradeModal() {
+            const modal = document.getElementById('upgrade-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function handleUpgrade() {
+            alert("Redirecting to Pro Payment Flow...");
+        }
             const params = new URLSearchParams(window.location.search);
             
             if (params.get('mobile') === '1') {
@@ -2071,5 +2098,32 @@ function logoutUser() {
             location.reload();
         }
     </script>
+<div id="upgrade-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl transform transition-all fade-in">
+            <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            </div>
+            <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Unlock Pro Features</h2>
+            <p class="text-sm text-gray-500 mb-6 font-medium leading-relaxed" id="upgrade-context">Upgrade to Pro to continue.</p>
+            <div class="space-y-3 mb-8">
+                <div class="flex items-center gap-3 text-sm font-bold text-gray-700">
+                    <svg class="text-green-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Save unlimited invoices
+                </div>
+                <div class="flex items-center gap-3 text-sm font-bold text-gray-700">
+                    <svg class="text-green-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Send smart reminders
+                </div>
+                <div class="flex items-center gap-3 text-sm font-bold text-gray-700">
+                    <svg class="text-green-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Download PDF contracts
+                </div>
+            </div>
+            <div class="flex flex-col gap-3">
+                <button onclick="handleUpgrade()" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-black text-sm shadow-lg shadow-brand-200 transition-all">Upgrade to Pro Now</button>
+                <button onclick="closeUpgradeModal()" class="w-full text-gray-400 hover:text-gray-600 py-2 font-bold text-xs transition-colors">Maybe Later</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
