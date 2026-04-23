@@ -1,4 +1,4 @@
-deploy fix
+deploy
 
 <!DOCTYPE html>
 <html lang="en">
@@ -47,6 +47,9 @@ async function handleCredentialResponse(response) {
             
             // Hide the lock screen
             document.getElementById('auth-gate').classList.add('hidden');
+            
+            // Load tracker data after successful auth
+            await loadState();
         } else {
             // Fail: User not on your Master Sheet list
             errorEl.innerText = result.message;
@@ -1842,7 +1845,9 @@ function applyTierLimits() {
                     generatePDF();
                 };
             } else {
+                if (state.userToken) {
                 loadState();
+            }
                 populateForm();
                 renderItems();
                 setMode(state.mode || 'invoice');
