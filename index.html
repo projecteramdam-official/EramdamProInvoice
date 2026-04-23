@@ -1,4 +1,4 @@
-deployfix
+deploy fix1
 
 <!DOCTYPE html>
 <html lang="en">
@@ -1048,79 +1048,35 @@ function applyTierLimits() {
             return /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent);
         }
 
-        // --- FIXED PROBLEM #3 & #5: Unified Message Builder ---
-        function buildUnifiedReminderMessage(inv) {
-            const dayMs = 24 * 60 * 60 * 1000;
-            const now = new Date();
-            now.setHours(0, 0, 0, 0);
-            const due = new Date(inv.dueDate);
-            due.setHours(0, 0, 0, 0);
-            const daysDiff = Math.floor((now - due) / dayMs);
+        let currentNudgeMessage = "";
 
-            const client = inv.cName || "Client";
-            const invNum = inv.invNum || '—';
-            const totalAmount = Number(inv.total || 0);
-            const paidAmount = Number(inv.paidAmount || 0);
-            const balanceDue = Math.max(totalAmount - paidAmount, 0);
-            const hasPartialPayment = paidAmount > 0 && balanceDue > 0;
-            const isFullyPaid = inv.status === 'Paid' || balanceDue <= 0;
-
-            const totalText = formatINR(totalAmount);
-            const paidText = formatINR(paidAmount);
-            const balanceText = formatINR(balanceDue);
-
-            let message = "";
-
-            if (isFullyPaid) {
-                message = `Hi ${client}, thanks for the payment for invoice #${invNum}. I've marked it as settled.`;
-            }
-            else if (hasPartialPayment) {
-                message = `Hi ${client}, thanks for the partial payment of ${paidText} for invoice #${invNum}. The remaining balance is ${balanceText}. Since the work is completed, I'm just following up on the balance when convenient.`;
-            }
-            else if (daysDiff <= 0 && daysDiff >= -2) {
-                message = `Hi ${client}, hope you're doing well. I've completed the work and wanted to share invoice #${invNum} for ${totalText}, due on ${formatDate(inv.dueDate)}. Let me know if you need anything from my side.`;
-            }
-            else if (daysDiff >= 1 && daysDiff < 3) {
-                message = `Hi ${client}, I've completed the work and wanted to follow up on invoice #${invNum} for ${totalText}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
-            }
-            else if (daysDiff >= 3 && daysDiff < 7) {
-                message = `Hi ${client}, invoice #${invNum} for ${totalText} is now ${daysDiff} days overdue. The work is already completed, so I'd appreciate it if you could prioritize the remaining balance of ${balanceText}. Please let me know the expected payment date.`;
-            }
-            else if (daysDiff >= 7 && daysDiff < 14) {
-                message = `Hi ${client}, invoice #${invNum} for ${totalText} has been pending for ${daysDiff} days. The work is complete, and the outstanding balance is still ${balanceText}. Please arrange payment as soon as possible, or let me know if there is any issue.`;
-            }
-            else if (daysDiff >= 14) {
-                message = `⚠️ Hi ${client}, invoice #${invNum} for ${totalText} is now ${daysDiff} days overdue. This is my final reminder for the completed work. Please share payment or the transaction reference within 48 hours. If payment has already been made, please confirm the details.`;
-            }
-            else {
-                message = `Hi ${client}, I'm sharing invoice #${invNum} for ${totalText} related to the completed work.`;
-            }
-
-            return { message, daysDiff };
-        }
-
-        // --- FIXED PROBLEM #4: Use Phone in WhatsApp URLs ---
+        // --- PHASE 4: API-Driven Reminder Message ---
         function buildWhatsAppLink(inv, isQR = false) {
-            const { message } = buildUnifiedReminderMessage(inv);
+            const message = currentNudgeMessage;
             const phone = (inv.cPhone || '').replace(/\D/g, '');
             
             if (!phone) {
-                // Fallback if no phone provided
                 return isQR 
                     ? `https://wa.me/?text=${encodeURIComponent(message)}`
                     : `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`;
             }
             
-            // Use phone to target specific contact
             return isQR
                 ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
                 : `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
         }
 
-        function sendSmartReminder(id) {
+        async function sendSmartReminder(id) {
             const inv = (state.savedInvoices || []).find(i => i.id === id && (i.recordType || 'invoice') === 'invoice');
             if (!inv || !inv.dueDate) return;
 
+            const result = await apiRequest('GET_REMINDER', { invoice: inv });
+            if (!result.success) {
+                alert("Pro Feature Blocked: " + result.message);
+                return;
+            }
+
+            currentNudgeMessage = result.message;
             inv.lastReminderSent = Date.now();
             saveState();
 
@@ -1131,6 +1087,7 @@ function applyTierLimits() {
 
             openReminderShare(inv);
         }
+
 
         function openReminderShare(inv) {
             currentReminderInvoiceId = inv.id;
@@ -1188,7 +1145,6 @@ function applyTierLimits() {
             const totalAmount = Number(inv.total || 0);
             const paidAmount = Number(inv.paidAmount || 0);
             const balance = Math.max(totalAmount - paidAmount, 0);
-            const { message } = buildUnifiedReminderMessage(inv);
 
             list.innerHTML = `
                 <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
@@ -1203,11 +1159,12 @@ function applyTierLimits() {
                         </p>
                     ` : ''}
                     <div class="bg-gray-50 p-3 rounded-lg mt-3 text-xs text-gray-700 italic">
-                        "${message}"
+                        "${currentNudgeMessage}"
                     </div>
                 </div>
             `;
         }
+
 
         function closeNudgeModal() {
             const modal = document.getElementById('nudge-modal');
@@ -1687,6 +1644,11 @@ function applyTierLimits() {
         function adjustZoom(amount) { currentZoom = Math.max(0.4, Math.min(currentZoom + amount, 1.5)); document.getElementById('scale-wrapper').style.transform = `scale(${currentZoom})`; document.getElementById('zoom-level').innerText = `${Math.round(currentZoom * 100)}%`; }
         
         function generatePDF() { 
+            if (state.mode === 'contract' && state.userTier !== 'Pro') {
+                alert("Pro Feature Blocked: Upgrade to Pro to download custom contracts.");
+                return;
+            }
+
             const element = document.getElementById('invoice-target');
             const wrapper = document.getElementById('scale-wrapper');
             const prev = wrapper.style.transform;
