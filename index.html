@@ -1,4 +1,4 @@
-1
+123
 
 <!DOCTYPE html>
 <html lang="en">
@@ -93,17 +93,19 @@
             <div class="w-20 h-20 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </div>
-            
+            <!-- FIXED: Added id="m-title" -->
             <h1 class="text-2xl font-black text-gray-900 mb-2 tracking-tight" id="m-title">Invoice Ready</h1>
+            <!-- FIXED: Added id="m-label" -->
             <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex flex-col gap-1">
-    <span id="m-label">#<span id="m-inv"></span></span>
-    <span id="m-client" class="text-gray-800 truncate"></span>
-</p>
-
-<div class="py-6 border-y border-gray-100 mb-8">
-    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1" id="m-amount-label">Total Amount</p>
-    <div class="text-4xl font-black text-brand-600 tracking-tighter" id="m-total">₹0</div>
-</div>
+                <span id="m-label">#<span id="m-inv"></span></span>
+                <span id="m-client" class="text-gray-800 truncate"></span>
+            </p>
+            
+            <div class="py-6 border-y border-gray-100 mb-8">
+                <!-- FIXED: Added id="m-amount-label" -->
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1" id="m-amount-label">Total Amount</p>
+                <div class="text-4xl font-black text-brand-600 tracking-tighter" id="m-total">₹0</div>
+            </div>
             
             <div class="space-y-3">
                 <button id="btn-m-pdf" class="w-full bg-brand-900 text-white py-4 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-brand-800 transition-colors shadow-md">
@@ -406,16 +408,16 @@
                     </div>
 
                     <!-- NEW: Contract QR Share System -->
-<div id="contract-qr-section" class="hidden bg-brand-50 border border-brand-200 rounded-xl p-5 shadow-sm mt-4 text-center">
-    <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700 flex items-center justify-center gap-1.5">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-        Send Contract via Phone
-    </h2>
-    <p class="text-[10px] text-brand-600/80 mb-4 font-medium">Scan to open on mobile, download contract, and send via WhatsApp.</p>
-    <div id="contract-share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100">
-        <!-- QRCode for contract injected here -->
-    </div>
-</div>
+                    <div id="contract-qr-section" class="hidden bg-brand-50 border border-brand-200 rounded-xl p-5 shadow-sm mt-4 text-center">
+                        <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700 flex items-center justify-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                            Send Contract via Phone
+                        </h2>
+                        <p class="text-[10px] text-brand-600/80 mb-4 font-medium">Scan to open on mobile, download contract, and send via WhatsApp.</p>
+                        <div id="contract-share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100">
+                            <!-- QRCode for contract injected here -->
+                        </div>
+                    </div>
                     
                 </div>
 
@@ -429,17 +431,13 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
                         </button>
                     </div>
-                    <!-- NEW FEATURE: Contract Actions (WhatsApp + QR) -->
-<div id="contract-actions" class="hidden grid grid-cols-2 gap-3 mb-3">
-    <button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
-    </button>
-    <button onclick="sendContractWhatsApp()" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
-    </button>
-</div>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> 
-                            Download Contract PDF
+                    <!-- NEW FEATURE: Contract Actions (WhatsApp + Download) -->
+                    <div id="contract-actions" class="hidden grid grid-cols-2 gap-3 mb-3">
+                        <button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
+                        </button>
+                        <button onclick="sendContractWhatsApp()" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
                         </button>
                     </div>
                     <div class="grid grid-cols-1">
@@ -643,11 +641,11 @@
             // Re-render appropriate preview
             if (state.mode === 'invoice') {
                 renderPreview();
+                updateShareQR(); // FIXED: Update QR when invoice state changes
             } else {
                 renderContractPreview();
+                updateContractShareQR(); // FIXED: Update QR when contract state changes
             }
-            
-            if(!isMobileFlow) updateShareQR(); // Keep QR in sync with changes
         }
 
         // --- 2. TRACKER UI & LOGIC ---
@@ -729,59 +727,60 @@
         }
 
         // ENHANCED: Smart Reminder with 5 Message Variations Based on Days Overdue
-function sendSmartReminder(id) {
-    const inv = state.savedInvoices.find(i => i.id === id);
-    if (!inv) return;
+        function sendSmartReminder(id) {
+            const inv = state.savedInvoices.find(i => i.id === id);
+            if (!inv) return;
 
-    const now = new Date().setHours(0,0,0,0);
-    const due = new Date(inv.dueDate).setHours(0,0,0,0);
-    const daysDiff = Math.floor((now - due) / (1000 * 60 * 60 * 24));
-    
-    let message = "";
-    const client = inv.cName || "Client";
-    const amount = formatINR(inv.total);
-    const invNum = inv.invNum;
+            const now = new Date().setHours(0,0,0,0);
+            const due = new Date(inv.dueDate).setHours(0,0,0,0);
+            const daysDiff = Math.floor((now - due) / (1000 * 60 * 60 * 24));
+            
+            let message = "";
+            const client = inv.cName || "Client";
+            const amount = formatINR(inv.total);
+            const invNum = inv.invNum;
 
-    // NEW: 5 Tone-Adjusted Messages
-    if (inv.status === 'Due Soon') {
-        // Message 1: FRIENDLY (Due in 1-2 days)
-        message = `Hi ${client}, hope you're having a great day! 😊 Just a friendly reminder that invoice #${invNum} for ${amount} is due on ${formatDate(inv.dueDate)}. Let me know if you need anything.`;
-    } 
-    else if (daysDiff >= 1 && daysDiff < 3) {
-        // Message 2: PROFESSIONAL (1-2 days overdue)
-        message = `Hi ${client}, I wanted to follow up on invoice #${invNum} for ${amount}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
-    } 
-    else if (daysDiff >= 3 && daysDiff < 7) {
-        // Message 3: FIRM (3-6 days overdue)
-        message = `Hi ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. I'd appreciate it if you could prioritize this payment. Please let me know the expected payment date.`;
-    } 
-    else if (daysDiff >= 7 && daysDiff < 14) {
-        // Message 4: URGENT (7-13 days overdue)
-        message = `Hi ${client}, invoice #${invNum} for ${amount} has been pending for ${daysDiff} days. This is urgent. Please arrange payment immediately to avoid any service delays. Contact me ASAP if there are any issues.`;
-    } 
-    else if (daysDiff >= 14) {
-        // Message 5: FINAL NOTICE (14+ days overdue)
-        message = `⚠️ ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. This is a final payment reminder. Please remit payment within 48 hours to avoid further action. If already paid, please confirm transaction details.`;
-    } 
-    else {
-        // Default for upcoming invoices
-        message = `Hi ${client}, checking in regarding invoice #${invNum} for ${amount} due on ${formatDate(inv.dueDate)}.`;
-    }
+            // NEW: 5 Tone-Adjusted Messages
+            if (inv.status === 'Due Soon') {
+                // Message 1: FRIENDLY (Due in 1-2 days)
+                message = `Hi ${client}, hope you're having a great day! 😊 Just a friendly reminder that invoice #${invNum} for ${amount} is due on ${formatDate(inv.dueDate)}. Let me know if you need anything.`;
+            } 
+            else if (daysDiff >= 1 && daysDiff < 3) {
+                // Message 2: PROFESSIONAL (1-2 days overdue)
+                message = `Hi ${client}, I wanted to follow up on invoice #${invNum} for ${amount}, which was due on ${formatDate(inv.dueDate)}. Could you please update me on the payment status? Thanks!`;
+            } 
+            else if (daysDiff >= 3 && daysDiff < 7) {
+                // Message 3: FIRM (3-6 days overdue)
+                message = `Hi ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. I'd appreciate it if you could prioritize this payment. Please let me know the expected payment date.`;
+            } 
+            else if (daysDiff >= 7 && daysDiff < 14) {
+                // Message 4: URGENT (7-13 days overdue)
+                message = `Hi ${client}, invoice #${invNum} for ${amount} has been pending for ${daysDiff} days. This is urgent. Please arrange payment immediately to avoid any service delays. Contact me ASAP if there are any issues.`;
+            } 
+            else if (daysDiff >= 14) {
+                // Message 5: FINAL NOTICE (14+ days overdue)
+                message = `⚠️ ${client}, invoice #${invNum} for ${amount} is now ${daysDiff} days overdue. This is a final payment reminder. Please remit payment within 48 hours to avoid further action. If already paid, please confirm transaction details.`;
+            } 
+            else {
+                // Default for upcoming invoices
+                message = `Hi ${client}, checking in regarding invoice #${invNum} for ${amount} due on ${formatDate(inv.dueDate)}.`;
+            }
 
-    // Update timestamp
-    inv.lastReminderSent = Date.now();
-    inv.daysOverdue = daysDiff; // NEW: Track for future reference
-    saveState();
+            // Update timestamp
+            inv.lastReminderSent = Date.now();
+            inv.daysOverdue = daysDiff; // Track for future reference
+            saveState();
 
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-}
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
 
         function saveToHistory() {
-             // NEW: Only save invoices to tracker, not contracts
-    if (state.mode === 'contract') {
-        alert('Contracts are saved as reference only. Payment tracking is for invoices.');
-        return;
-    }
+            // FIXED: Only save invoices to tracker, not contracts
+            if (state.mode === 'contract') {
+                alert('Contracts are saved as reference only. Payment tracking is for invoices.');
+                return;
+            }
+
             const record = {
                 id: Date.now(),
                 invNum: state.invNum,
@@ -790,7 +789,8 @@ function sendSmartReminder(id) {
                 date: state.invDate,
                 dueDate: state.dueDate,
                 status: 'Unpaid',
-                lastReminderSent: null
+                lastReminderSent: null,
+                daysOverdue: 0
             };
             state.savedInvoices.unshift(record); // Add to top
             saveState();
@@ -862,11 +862,8 @@ function sendSmartReminder(id) {
         const formatINR = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
         const formatDate = (ds) => ds ? new Date(ds).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
-        // --- 4. PREVIEW RENDER ---
+        // --- 4. PREVIEW RENDER (LOCKED - DO NOT MODIFY STRUCTURE) ---
         function renderPreview() {
-            // LOCKED: DO NOT MODIFY STRUCTURE
-            // ONLY ADD SMALL INSERTIONS
-            
             const target = document.getElementById('invoice-target');
             
             const subtotal = state.items.reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -905,19 +902,15 @@ function sendSmartReminder(id) {
             const grandTotal = subtotal + taxAmount;
             grandTotalToExport = grandTotal;
 
-            // Payment Logic Evaluation
             const hasBank = state.bankName || state.bankAccountName || state.bankAccountNo || state.bankIfsc;
             const hasPayment = state.qrImage || state.upiId || hasBank;
 
-            // Terms & Conditions Processing
             let termsDays = 7;
             if (state.paymentTerms === 'receipt') termsDays = 0;
             else if (state.paymentTerms === 'net3') termsDays = 3;
             else if (state.paymentTerms === 'net7') termsDays = 7;
             else if (state.paymentTerms === 'net15') termsDays = 15;
 
-
-            // Brand Watermark
             const watermarkHTML = `
                 <div class="mt-auto pt-16 pb-4 flex justify-center items-center opacity-[0.20] pointer-events-none select-none text-[10px] text-gray-900 font-medium w-full text-center">
                     Invoice generated using <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> Project Eramdam
@@ -926,12 +919,7 @@ function sendSmartReminder(id) {
 
             let htmlContent = '';
 
-            // ==========================================
-            // STYLE 1: BASIC
-            // ==========================================
             if (state.style === 'basic') {
-                // LOCKED: DO NOT MODIFY STRUCTURE
-                
                 const itemsHTML = state.items.map((item, index) => `
                     <tr class="border-b border-gray-100 last:border-0">
                         <td class="py-3 px-2 text-sm text-gray-400">${index + 1}</td>
@@ -949,29 +937,21 @@ function sendSmartReminder(id) {
 
                 htmlContent = `
                     <div class="p-14 font-sans flex flex-col min-h-full w-full">
-                        
-                        <!-- Single Column Flow Header -->
                         <div class="mb-10 pb-6 border-b border-gray-200 flex flex-col items-start w-full">
                             <h1 class="text-3xl font-semibold text-gray-900 tracking-tight mb-1">${state.fName || 'Brand Name'}</h1>
                             ${state.fEmail ? `<p class="text-sm text-gray-500">${state.fEmail}</p>` : ''}
                             ${state.fAddress ? `<p class="text-sm text-gray-500 mt-1 max-w-sm">${state.fAddress}</p>` : ''}
                             ${state.myState && state.userType === 'registered' ? `<p class="text-xs text-gray-400 mt-2 uppercase tracking-wider">State: ${state.myState}</p>` : ''}
-                            
                             <h2 class="text-xl font-medium text-gray-400 mt-10 uppercase tracking-widest">${invoiceLabel} <span class="text-gray-800 ml-2">#${state.invNum || '---'}</span></h2>
                             <p class="text-sm text-gray-500 mt-1">Date: ${formatDate(state.invDate)}</p>
-                            <!-- Due Date Basic Style -->
                             <p class="text-sm font-semibold text-gray-700 mt-0.5">Due Date: ${formatDate(state.dueDate)}</p>
                         </div>
-
-                        <!-- Single Column Client -->
                         <div class="mb-10 w-full">
                             <p class="text-[10px] uppercase tracking-widest text-gray-400 mb-1 font-semibold">Billed To</p>
                             <h3 class="text-lg font-medium text-gray-900">${state.cName || 'Client Name'}</h3>
                             ${state.cAddress ? `<p class="text-sm text-gray-600 mt-1 max-w-sm leading-relaxed">${state.cAddress}</p>` : ''}
                             ${state.clientState && state.userType === 'registered' ? `<p class="text-xs text-gray-400 mt-2 uppercase tracking-wider">State: ${state.clientState}</p>` : ''}
                         </div>
-
-                        <!-- Table -->
                         <div class="mb-10 w-full">
                             <table class="w-full text-left">
                                 <thead>
@@ -986,8 +966,6 @@ function sendSmartReminder(id) {
                                 </tbody>
                             </table>
                         </div>
-
-                        <!-- Inline Totals (Right Aligned) -->
                         <div class="flex flex-col items-end mb-16 w-full">
                             <div class="w-64">
                                 <div class="flex justify-between py-2 border-b border-gray-200 text-sm font-medium text-gray-600">
@@ -1002,8 +980,6 @@ function sendSmartReminder(id) {
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Footer (Inline Payment, Terms & Watermark) -->
                         <div class="mt-auto flex flex-col w-full">
                             <div class="border-t border-gray-200 pt-6 flex flex-col gap-6">
                                 ${hasPayment ? `
@@ -1024,8 +1000,6 @@ function sendSmartReminder(id) {
                                         </div>
                                     </div>
                                 ` : ''}
-
-                                <!-- Legal terms clause -->
                                 <div class="${hasPayment ? 'border-t border-gray-100 pt-6' : ''} text-[10px] text-gray-500 space-y-1 w-full max-w-lg">
                                     <p class="font-bold uppercase tracking-widest text-gray-400 mb-2">Terms & Conditions</p>
                                     <p>• Payment is due within ${termsDays} days from invoice date.</p>
@@ -1035,19 +1009,12 @@ function sendSmartReminder(id) {
                                     <p>• Automated reminders may be sent for overdue invoices.</p>
                                 </div>
                             </div>
-
                             ${watermarkHTML}
                         </div>
                     </div>
                 `;
             }
-
-            // ==========================================
-            // STYLE 2: BUSINESS
-            // ==========================================
             else if (state.style === 'business') {
-                // LOCKED: DO NOT MODIFY STRUCTURE
-                
                 const itemsHTML = state.items.map((item, index) => `
                     <tr class="border-b border-gray-200 last:border-0">
                         <td class="py-4 px-4 text-sm font-bold text-gray-400">${(index + 1).toString().padStart(2, '0')}</td>
@@ -1065,8 +1032,6 @@ function sendSmartReminder(id) {
 
                 htmlContent = `
                     <div class="p-12 font-roboto flex flex-col min-h-full w-full bg-white">
-                        
-                        <!-- Two-Column Header -->
                         <div class="flex justify-between items-start mb-8 pb-8 border-b border-gray-200 w-full">
                             <div class="max-w-[50%]">
                                 <h1 class="text-2xl font-bold text-slate-900 uppercase tracking-wide mb-2">${state.fName || 'Brand Name'}</h1>
@@ -1079,21 +1044,16 @@ function sendSmartReminder(id) {
                                 <table class="text-sm ml-auto text-left">
                                     <tr><td class="pr-4 py-1 font-bold text-gray-500 uppercase text-xs">Inv No.</td><td class="font-bold text-gray-900">${state.invNum || '---'}</td></tr>
                                     <tr><td class="pr-4 py-1 font-bold text-gray-500 uppercase text-xs">Date</td><td class="font-bold text-gray-900">${formatDate(state.invDate)}</td></tr>
-                                    <!-- Due Date Business Style -->
                                     <tr><td class="pr-4 py-1 font-bold text-gray-500 uppercase text-xs">Due Date</td><td class="font-bold text-brand-600">${formatDate(state.dueDate)}</td></tr>
                                 </table>
                             </div>
                         </div>
-
-                        <!-- Card Client -->
                         <div class="bg-gray-50 border border-gray-200 p-6 rounded-lg mb-8 w-2/3">
                             <p class="text-[10px] uppercase font-bold text-gray-500 mb-2 tracking-widest">Billed To</p>
                             <h3 class="text-lg font-bold text-gray-900">${state.cName || 'Client Name'}</h3>
                             ${state.cAddress ? `<p class="text-sm text-gray-600 mt-1 max-w-sm leading-relaxed">${state.cAddress}</p>` : ''}
                             ${state.clientState && state.userType === 'registered' ? `<p class="text-[10px] font-bold text-gray-400 mt-3 uppercase tracking-widest">State: ${state.clientState}</p>` : ''}
                         </div>
-
-                        <!-- Table -->
                         <div class="flex-grow mb-8 w-full">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -1108,11 +1068,7 @@ function sendSmartReminder(id) {
                                 </tbody>
                             </table>
                         </div>
-
-                        <!-- Bottom Section (Payment Left, Total Right) -->
                         <div class="mt-8 flex gap-8 items-start break-inside-avoid w-full">
-                            
-                            <!-- Payment Card & Terms -->
                             <div class="flex-1 bg-gray-50 border border-gray-200 p-6 rounded-lg flex flex-col">
                                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">Payment Details</p>
                                 ${hasPayment ? `
@@ -1133,8 +1089,6 @@ function sendSmartReminder(id) {
                                         ` : ''}
                                     </div>
                                 ` : `<p class="text-sm text-gray-400 italic">No payment details</p>`}
-
-                                <!-- Legal terms clause -->
                                 <div class="mt-6 pt-6 border-t border-gray-200 text-[10px] text-gray-500 space-y-1 w-full">
                                     <p class="font-bold uppercase tracking-widest text-gray-400 mb-2">Terms & Conditions</p>
                                     <p>• Payment is due within ${termsDays} days from invoice date.</p>
@@ -1144,8 +1098,6 @@ function sendSmartReminder(id) {
                                     <p>• Automated reminders may be sent for overdue invoices.</p>
                                 </div>
                             </div>
-
-                            <!-- Totals Box (Dark High Contrast) -->
                             <div class="w-[340px] bg-slate-900 text-white p-8 rounded-lg flex flex-col shadow-lg shrink-0">
                                 <div class="flex justify-between py-1.5 text-sm font-medium text-gray-300 border-b border-slate-700 mb-2 pb-3">
                                     <span class="uppercase tracking-widest text-xs">Subtotal</span>
@@ -1153,25 +1105,17 @@ function sendSmartReminder(id) {
                                 </div>
                                 ${taxesHTML}
                                 ${taxNote ? `<p class="text-xs italic text-slate-500 mt-3 pt-3 border-t border-slate-800">${taxNote}</p>` : ''}
-                                
                                 <div class="mt-6 pt-6 border-t border-slate-700 flex flex-col items-end">
                                     <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Due</span>
                                     <span class="text-3xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
                                 </div>
                             </div>
                         </div>
-
                         ${watermarkHTML}
                     </div>
                 `;
             }
-
-            // ==========================================
-            // STYLE 3: MODERN
-            // ==========================================
             else if (state.style === 'modern') {
-                // LOCKED: DO NOT MODIFY STRUCTURE
-                
                 const itemsHTML = state.items.map((item, index) => `
                     <tr class="border-b border-gray-100 last:border-0">
                         <td class="py-5 px-3 text-base font-bold text-brand-300">${(index + 1).toString().padStart(2, '0')}</td>
@@ -1189,8 +1133,6 @@ function sendSmartReminder(id) {
 
                 htmlContent = `
                     <div class="p-12 font-poppins flex flex-col min-h-full w-full bg-[#fafafa]">
-                        
-                        <!-- Expressive Header -->
                         <div class="pt-6 border-t-[10px] border-brand-500 mb-14 flex justify-between items-end w-full">
                             <div class="max-w-[55%]">
                                 <h1 class="text-4xl font-black tracking-tight text-brand-600 mb-3">${state.fName || 'Brand Name'}</h1>
@@ -1202,20 +1144,15 @@ function sendSmartReminder(id) {
                                 <h2 class="text-5xl font-black text-gray-200 uppercase tracking-tight mb-4">${invoiceLabel}</h2>
                                 <p class="text-sm font-bold text-gray-500">INV: <span class="text-gray-900 ml-2">${state.invNum || '---'}</span></p>
                                 <p class="text-sm font-bold text-gray-500 mt-1">DTE: <span class="text-gray-900 ml-2">${formatDate(state.invDate)}</span></p>
-                                <!-- Due Date Modern Style -->
                                 <p class="text-sm font-bold text-brand-500 mt-1">DUE: <span class="text-brand-600 ml-2">${formatDate(state.dueDate)}</span></p>
                             </div>
                         </div>
-
-                        <!-- Soft Client Box -->
                         <div class="mb-12 bg-white shadow-sm border border-gray-100 p-8 rounded-[2rem] w-fit min-w-[340px]">
                             <p class="text-[10px] font-black uppercase tracking-widest text-brand-500 mb-2">Billed To</p>
                             <h3 class="text-2xl font-bold text-gray-900">${state.cName || 'Client Name'}</h3>
                             ${state.cAddress ? `<p class="text-sm font-medium text-gray-500 mt-2 max-w-sm leading-relaxed">${state.cAddress}</p>` : ''}
                             ${state.clientState && state.userType === 'registered' ? `<p class="text-[10px] font-bold text-gray-400 mt-4 uppercase tracking-widest">State: ${state.clientState}</p>` : ''}
                         </div>
-
-                        <!-- Table -->
                         <div class="flex-grow mb-12 w-full">
                             <table class="w-full text-left">
                                 <thead>
@@ -1230,11 +1167,7 @@ function sendSmartReminder(id) {
                                 </tbody>
                             </table>
                         </div>
-
-                        <!-- Bottom Asymmetric Layout (Secondary Payment, Dominant Total) -->
                         <div class="mt-8 flex justify-between items-start gap-12 break-inside-avoid w-full">
-                            
-                            <!-- Payment Secondary Area & Terms -->
                             <div class="w-[35%] flex flex-col items-start pt-4">
                                 ${hasPayment ? `<p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-5">Payment Details</p>` : ''}
                                 ${state.qrImage ? `<img src="${state.qrImage}" class="w-20 h-20 object-contain rounded-xl border border-gray-100 p-1.5 mb-4 bg-white shadow-sm">` : ''}
@@ -1247,8 +1180,6 @@ function sendSmartReminder(id) {
                                         ${state.bankIfsc ? `<p>IFSC: ${state.bankIfsc}</p>` : ''}
                                     </div>
                                 ` : ''}
-
-                                <!-- Legal terms clause -->
                                 <div class="${hasPayment ? 'mt-8 pt-6 border-t border-gray-200 w-full' : 'w-full'} text-[10px] text-gray-500 space-y-1">
                                     <p class="font-black uppercase tracking-widest text-brand-500 mb-3">Terms & Conditions</p>
                                     <p>• Payment is due within ${termsDays} days from invoice date.</p>
@@ -1258,12 +1189,8 @@ function sendSmartReminder(id) {
                                     <p>• Automated reminders may be sent for overdue invoices.</p>
                                 </div>
                             </div>
-
-                            <!-- Total Dominant Element (High Contrast solid color) -->
                             <div class="bg-brand-900 text-white rounded-[2.5rem] p-10 w-[420px] shadow-2xl relative overflow-hidden shrink-0">
-                                <!-- Abstract decorative glow ensuring readability is intact -->
                                 <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-[0.03] rounded-full blur-2xl -mr-10 -mt-10"></div>
-                                
                                 <div class="flex justify-between py-2 text-sm font-medium text-brand-100 border-b border-brand-800 mb-3 pb-4 relative z-10">
                                     <span class="uppercase tracking-widest text-xs">Subtotal</span>
                                     <span>${formatINR(subtotal)}</span>
@@ -1272,15 +1199,12 @@ function sendSmartReminder(id) {
                                     ${taxesHTML}
                                 </div>
                                 ${taxNote ? `<p class="text-[11px] italic text-brand-200 mt-4 pt-4 border-t border-brand-800 relative z-10">${taxNote}</p>` : ''}
-                                
                                 <div class="mt-8 flex flex-col items-end relative z-10">
                                     <span class="text-[11px] font-black uppercase tracking-widest text-brand-200 mb-1">Total Due</span>
                                     <span class="text-5xl font-black text-white tracking-tight">${formatINR(grandTotal)}</span>
                                 </div>
                             </div>
-
                         </div>
-                        
                         ${watermarkHTML}
                     </div>
                 `;
@@ -1305,72 +1229,73 @@ function sendSmartReminder(id) {
                 html2pdf().set({ margin: 0, filename: fileName, html2canvas: { scale: 2 }, jsPDF: { unit: 'px', format: [794, 1123] } }).from(element).save().then(() => wrapper.style.transform = prev);
             }, 100);
         }
-
-        // QR SHARE SYSTEM
-let qrCodeInstance = null;
-function updateShareQR() {
-    const container = document.getElementById('share-qr-container');
-    if (!container) return;
-    container.innerHTML = ''; 
-
-    const baseUrl = window.location.href.split('?')[0];
-    const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of ${formatINR(grandTotalToExport)}. Please check.`;
-    
-    // Encode Minimal Data
-    const url = new URL(baseUrl);
-    url.searchParams.set('mobile', '1');
-    url.searchParams.set('inv', state.invNum);
-    url.searchParams.set('c', state.cName);
-    url.searchParams.set('t', grandTotalToExport);
-    url.searchParams.set('msg', msg);
-    
-    qrCodeInstance = new QRCode(container, {
-        text: url.toString(),
-        width: 140,
-        height: 140,
-        colorDark : "#111827",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.L
-    });
-}
         
         function sendWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent('Invoice #' + state.invNum + ' for ' + formatINR(grandTotalToExport) + ' is ready.')}`, '_blank'); }
+        
         // NEW: Contract WhatsApp Send
-function sendContractWhatsApp() { 
-    const client = state.contractClient || 'Client';
-    const msg = `Hi ${client}, sharing our freelance agreement. Please review and confirm. Amount: ${formatINR(state.contractAmount)}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'); 
-}
+        function sendContractWhatsApp() { 
+            const client = state.contractClient || 'Client';
+            const msg = `Hi ${client}, sharing our freelance agreement. Please review and confirm. Amount: ${formatINR(state.contractAmount)}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'); 
+        }
         
         function clearData() { if(confirm("Start fresh?")) { const h = state.savedInvoices; state = { ...defaultState, savedInvoices: h }; populateForm(); renderItems(); renderPreview(); if(!isMobileFlow) updateShareQR(); } }
 
-        // NEW: Contract QR Generation
-let contractQRInstance = null;
-function updateContractShareQR() {
-    const container = document.getElementById('contract-share-qr-container');
-    if (!container) return;
-    container.innerHTML = '';
+        // FIXED: Invoice QR Share System (MISSING FUNCTION - NOW ADDED)
+        let qrCodeInstance = null;
+        function updateShareQR() {
+            const container = document.getElementById('share-qr-container');
+            if (!container) return;
+            container.innerHTML = '';
 
-    const baseUrl = window.location.href.split('?')[0];
-    const msg = `Hi ${state.contractClient || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
-    
-    // Encode Minimal Data
-    const url = new URL(baseUrl);
-    url.searchParams.set('mobile', '1');
-    url.searchParams.set('mode', 'contract'); // NEW: Tell mobile it's a contract
-    url.searchParams.set('client', state.contractClient);
-    url.searchParams.set('amount', state.contractAmount);
-    url.searchParams.set('msg', msg);
-    
-    contractQRInstance = new QRCode(container, {
-        text: url.toString(),
-        width: 140,
-        height: 140,
-        colorDark : "#111827",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.L
-    });
-}
+            const baseUrl = window.location.href.split('?')[0];
+            const msg = `Hi ${state.cName || 'Client'}, sharing invoice ${state.invNum} of ${formatINR(grandTotalToExport)}. Please check.`;
+            
+            // Encode Minimal Data
+            const url = new URL(baseUrl);
+            url.searchParams.set('mobile', '1');
+            url.searchParams.set('inv', state.invNum);
+            url.searchParams.set('c', state.cName);
+            url.searchParams.set('t', grandTotalToExport);
+            url.searchParams.set('msg', msg);
+            
+            qrCodeInstance = new QRCode(container, {
+                text: url.toString(),
+                width: 140,
+                height: 140,
+                colorDark : "#111827",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
+        }
+
+        // NEW: Contract QR Generation
+        let contractQRInstance = null;
+        function updateContractShareQR() {
+            const container = document.getElementById('contract-share-qr-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const baseUrl = window.location.href.split('?')[0];
+            const msg = `Hi ${state.contractClient || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
+            
+            // Encode Minimal Data
+            const url = new URL(baseUrl);
+            url.searchParams.set('mobile', '1');
+            url.searchParams.set('mode', 'contract');
+            url.searchParams.set('client', state.contractClient);
+            url.searchParams.set('amount', state.contractAmount);
+            url.searchParams.set('msg', msg);
+            
+            contractQRInstance = new QRCode(container, {
+                text: url.toString(),
+                width: 140,
+                height: 140,
+                colorDark : "#111827",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
+        }
 
         // Reminder Modal Logic
         function openNudgeModal() {
@@ -1421,7 +1346,6 @@ function updateContractShareQR() {
             const overdueInvoices = state.savedInvoices.filter(i => i.status === 'Overdue');
             if (overdueInvoices.length === 0) return;
             
-            // Loop through overdue invoices and trigger WhatsApp logic with slight delay to prevent complete browser block
             overdueInvoices.forEach((inv, index) => {
                 setTimeout(() => {
                     sendSmartReminder(inv.id);
@@ -1431,101 +1355,95 @@ function updateContractShareQR() {
             closeNudgeModal();
         }
 
-        // MOBILE MODE DETECTION
+        // FIXED: Mobile Mode Detection - Updated with ID attributes
         function initApp() {
             const params = new URLSearchParams(window.location.search);
             
             if (params.get('mobile') === '1') {
-    isMobileFlow = true;
-    document.getElementById('app-ui').classList.add('opacity-0', 'pointer-events-none', 'fixed', 'z-[-1]');
-    document.getElementById('mobile-ui').classList.remove('hidden');
-    
-    const mMode = params.get('mode') || 'invoice'; // NEW: Check if invoice or contract
-    const mInv = params.get('inv') || '---';
-    const mCname = params.get('client') || params.get('c') || 'Client';
-    const mTotal = parseFloat(params.get('amount') || params.get('t')) || 0;
-    const mMsg = params.get('msg') || '';
-    
-    // Populate Mobile Card
-    if (mMode === 'contract') {
-        // NEW: Contract mobile flow
-        document.getElementById('m-title').innerText = 'Contract Ready';
-        document.getElementById('m-label').classList.add('hidden');
-        document.getElementById('m-amount-label').innerText = 'Total Value';
-    } else {
-        document.getElementById('m-title').innerText = 'Invoice Ready';
-        document.getElementById('m-label').classList.remove('hidden');
-        document.getElementById('m-inv').innerText = mInv;
-    }
-    
-    document.getElementById('m-client').innerText = mCname;
-    document.getElementById('m-total').innerText = '₹' + mTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    
-    document.getElementById('btn-m-wa').onclick = () => {
-        window.open(`https://wa.me/?text=${encodeURIComponent(mMsg)}`, '_blank');
-    };
-    
-    document.getElementById('btn-m-pdf').onclick = () => {
-        if (mMode === 'contract') {
-            // NEW: Contract PDF download
-            state = { ...defaultState, contractClient: mCname, contractAmount: mTotal, contractFreelancer: state.fName };
-            renderContractPreview();
-        } else {
-            state = { ...defaultState, invNum: mInv, cName: mCname, items: [{ desc: 'Invoice Total', amount: mTotal }] };
-            renderPreview();
-        }
-        generatePDF();
-    };
+                isMobileFlow = true;
+                document.getElementById('app-ui').classList.add('opacity-0', 'pointer-events-none', 'fixed', 'z-[-1]');
+                document.getElementById('mobile-ui').classList.remove('hidden');
+                
+                const mMode = params.get('mode') || 'invoice';
+                const mInv = params.get('inv') || '---';
+                const mCname = params.get('client') || params.get('c') || 'Client';
+                const mTotal = parseFloat(params.get('amount') || params.get('t')) || 0;
+                const mMsg = params.get('msg') || '';
+                
+                // FIXED: Set all IDs correctly
+                if (mMode === 'contract') {
+                    document.getElementById('m-title').innerText = 'Contract Ready';
+                    document.getElementById('m-label').classList.add('hidden');
+                    document.getElementById('m-amount-label').innerText = 'Total Value';
+                } else {
+                    document.getElementById('m-title').innerText = 'Invoice Ready';
+                    document.getElementById('m-label').classList.remove('hidden');
+                    document.getElementById('m-inv').innerText = mInv;
+                }
+                
+                document.getElementById('m-client').innerText = mCname;
+                document.getElementById('m-total').innerText = '₹' + mTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                
+                document.getElementById('btn-m-wa').onclick = () => {
+                    window.open(`https://wa.me/?text=${encodeURIComponent(mMsg)}`, '_blank');
+                };
+                
+                document.getElementById('btn-m-pdf').onclick = () => {
+                    if (mMode === 'contract') {
+                        state = { ...defaultState, contractClient: mCname, contractAmount: mTotal, contractFreelancer: state.fName };
+                        renderContractPreview();
+                    } else {
+                        state = { ...defaultState, invNum: mInv, cName: mCname, items: [{ desc: 'Invoice Total', amount: mTotal }] };
+                        renderPreview();
+                    }
+                    generatePDF();
+                };
             } else {
-                // Normal Desktop Flow
                 loadState(); 
                 populateForm(); 
                 renderItems(); 
                 renderPreview();
-                updateShareQR(); // Initialize QR
+                updateShareQR();
             }
         }
 
+        // FIXED: setMode() with proper QR handling
         function setMode(mode) {
-    state.mode = mode;
-    const invTab = document.getElementById('btn-tab-invoice');
-    const conTab = document.getElementById('btn-tab-contract');
-    const invForm = document.getElementById('invoice-form-section');
-    const conForm = document.getElementById('contract-form-section');
-    const invActs = document.getElementById('invoice-actions');
-    const conActs = document.getElementById('contract-actions');
-    const invQR = document.getElementById('share-qr-container');
-    const conQR = document.getElementById('contract-share-qr-container');
+            state.mode = mode;
+            const invTab = document.getElementById('btn-tab-invoice');
+            const conTab = document.getElementById('btn-tab-contract');
+            const invForm = document.getElementById('invoice-form-section');
+            const conForm = document.getElementById('contract-form-section');
+            const invActs = document.getElementById('invoice-actions');
+            const conActs = document.getElementById('contract-actions');
 
-    if (mode === 'contract') {
-        invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
-        conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
-        invForm.classList.add('hidden');
-        conForm.classList.remove('hidden');
-        invActs.classList.add('hidden');
-        conActs.classList.remove('hidden');
-        document.getElementById('contract-qr-section').classList.remove('hidden');
-        renderContractPreview();
-        updateContractShareQR(); // NEW: Generate contract QR
-        
+            if (mode === 'contract') {
+                invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
+                conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
+                invForm.classList.add('hidden');
+                conForm.classList.remove('hidden');
+                invActs.classList.add('hidden');
+                conActs.classList.remove('hidden');
+                document.getElementById('contract-qr-section').classList.remove('hidden');
+                renderContractPreview();
+                updateContractShareQR();
             } else {
-        conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
-        invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
-        conForm.classList.add('hidden');
-        invForm.classList.remove('hidden');
-        conActs.classList.add('hidden');
-        invActs.classList.remove('hidden');
-        document.getElementById('contract-qr-section').classList.add('hidden');
-        renderPreview();
-        updateShareQR(); // NEW: Update invoice QR
-    }
+                invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
+                conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
+                conForm.classList.add('hidden');
+                invForm.classList.remove('hidden');
+                conActs.classList.add('hidden');
+                invActs.classList.remove('hidden');
+                document.getElementById('contract-qr-section').classList.add('hidden');
+                renderPreview();
+                updateShareQR();
+            }
             saveState();
         }
 
         function renderContractPreview() {
             const target = document.getElementById('invoice-target');
             
-            // Reusing existing logic for terms days
             let termsDays = 7;
             if (state.paymentTerms === 'receipt') termsDays = 0;
             else if (state.paymentTerms === 'net3') termsDays = 3;
