@@ -1893,16 +1893,17 @@ function applyTierLimits() {
         }
 
         function closeNudgeModal() {
-            const modal = document.getElementById('nudge-modal');
-            const content = document.getElementById('nudge-modal-content');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
+    const modal = document.getElementById('nudge-modal');
+    const content = document.getElementById('nudge-modal-content');
+    modal.classList.add('opacity-0');
+    content.classList.add('scale-95');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
 
-                    const params = new URLSearchParams(window.location.search);
+function initApp() {
+    const params = new URLSearchParams(window.location.search);
             
             if (params.get('mobile') === '1') {
                 isMobileFlow = true;
@@ -2070,48 +2071,49 @@ function applyTierLimits() {
         }
 
         window.onload = initApp;
+
 function logoutUser() {
-            // Clear state
-            state.userToken = null;
-            state.userEmail = null;
-            state.userTier = null;
-            state.userSheetId = null;
+    // Clear state
+    state.userToken = null;
+    state.userEmail = null;
+    state.userTier = null;
+    state.userSheetId = null;
 
-            // Clear localStorage
-            localStorage.removeItem('proinvoice_last_email');
+    // Clear localStorage
+    localStorage.removeItem('proinvoice_last_email');
 
-            function initApp() {
+    // Full Google logout
+    if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+    }
+
+    // Show login screen again
+    document.getElementById('auth-gate').classList.remove('hidden');
+
+    // Hard reset UI
+    location.reload();
+}
+
 function openUpgradeModal(context) {
-            const contextEl = document.getElementById('upgrade-context');
-            if (contextEl) contextEl.innerText = `Upgrade required to ${context}. Unlock your full workspace and sync your data to the cloud.`;
-            
-            const modal = document.getElementById('upgrade-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        }
+    const contextEl = document.getElementById('upgrade-context');
+    if (contextEl) contextEl.innerText = `Upgrade required to ${context}. Unlock your full workspace and sync your data to the cloud.`;
 
-        function closeUpgradeModal() {
-            const modal = document.getElementById('upgrade-modal');
-            if (modal) modal.classList.add('hidden');
-        }
+    const modal = document.getElementById('upgrade-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
 
-        function handleUpgrade() {
-            alert("Redirecting to Pro Payment Flow...");
-        }
-// Full Google logout
-            if (window.google && google.accounts && google.accounts.id) {
-                google.accounts.id.disableAutoSelect();
-            }
+function closeUpgradeModal() {
+    const modal = document.getElementById('upgrade-modal');
+    if (modal) modal.classList.add('hidden');
+}
 
-            // Show login screen again
-            document.getElementById('auth-gate').classList.remove('hidden');
-
-            // Hard reset UI
-            location.reload();
-        }
-    </script>
+function handleUpgrade() {
+    alert("Redirecting to Pro Payment Flow...");
+}
+</script>
 <div id="upgrade-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl transform transition-all fade-in">
             <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mb-6">
