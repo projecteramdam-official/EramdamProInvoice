@@ -1,4 +1,4 @@
-12300
+Gnmail?
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProInvoice - Payment Tracking & Invoice System</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +16,74 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyueDHAoCdL42O9zOwfA7FAwY7NninmnPLDVdjGnPFjA1t2LiCC65jNkG8mQF1lanFr/exec";
+
+async function handleCredentialResponse(response) {
+    const errorEl = document.getElementById('auth-error');
+    errorEl.innerText = "Verifying license...";
+    errorEl.classList.remove('hidden', 'text-red-500');
+    errorEl.classList.add('text-brand-600');
+    
+    // 1. Decode the Google Token
+    const base64Url = response.credential.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(window.atob(base64));
+    const email = payload.email;
+
+    // 2. Call your Google Apps Script Backend
+    try {
+        const res = await fetch(BACKEND_URL, {
+            method: 'POST',
+            body: JSON.stringify({ email: email })
+        });
+        const result = await res.json();
+
+        if (result.success) {
+            // Success: Unlock the app
+            state.userTier = result.tier; 
+            state.userSheetId = result.userSheetId;
+            state.userEmail = email; // Save for later sheet sync
+    localStorage.setItem('proinvoice_last_email', email); // Auto-fill on refresh
+            
+            // Apply features based on Tier (Friction)
+            applyTierLimits();
+            
+            // Hide the lock screen
+            document.getElementById('auth-gate').classList.add('hidden');
+        } else {
+            // Fail: User not on your Master Sheet list
+            errorEl.innerText = result.message;
+            errorEl.classList.remove('text-brand-600');
+            errorEl.classList.add('text-red-500');
+        }
+    } catch (e) {
+        errorEl.innerText = "Connection Error. Is the Backend URL correct?";
+        errorEl.classList.add('text-red-500');
+    }
+}
+
+function applyTierLimits() {
+    const contractTab = document.getElementById('btn-tab-contract');
+    if (state.userTier !== 'Pro') {
+        // Starve the Contract Generator
+        if (contractTab) contractTab.remove(); 
+        
+        // Starve the Tracker Panel
+        const trackerPanel = document.getElementById('tracker-panel');
+        if (trackerPanel) {
+            trackerPanel.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center p-12 text-center bg-gray-50">
+                    <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    <h3 class="font-black text-gray-900 uppercase tracking-tighter text-lg">Pro Tracker Locked</h3>
+                    <p class="text-xs text-gray-500 mt-2 leading-relaxed">Continuous payment tracking is a Pro-only feature.</p>
+                    <button class="mt-6 bg-brand-600 text-white px-8 py-3 rounded-xl font-bold text-xs shadow-md">Upgrade to Pro</button>
+                </div>
+            `;
+        }
+    }
+}
         tailwind.config = {
             theme: {
                 extend: {
@@ -82,6 +151,25 @@
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 h-screen overflow-hidden flex flex-col relative">
+    <div id="auth-gate" class="fixed inset-0 z-[100] bg-brand-900 flex flex-col items-center justify-center p-6 text-center">
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl max-w-sm w-full fade-in">
+        <div class="w-20 h-20 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">ProInvoice Access</h2>
+        <p class="text-sm text-gray-500 mb-8 font-medium leading-relaxed">Please sign in with your registered Google account to activate your workspace.</p>
+        
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin flex justify-center" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
+        
+        <p id="auth-error" class="text-red-500 text-xs font-bold mt-6 hidden italic"></p>
+    </div>
+    <p class="mt-8 text-brand-200/50 text-[10px] font-bold uppercase tracking-widest">Protected by ProInvoice Security Layer</p>
+</div>
 
     <!-- MOBILE UI -->
     <div id="mobile-ui" class="hidden absolute inset-0 z-50 bg-gray-50 flex flex-col items-center justify-center p-6 h-full w-full">
