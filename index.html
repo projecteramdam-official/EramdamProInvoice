@@ -728,9 +728,43 @@ function applyTierLimits() {
             // Then, fetch core record data from GAS Backend (Data Starvation)
             const result = await apiRequest('FETCH_DATA');
             if (result.success) {
-                state.savedInvoices = Array.isArray(result.invoices)
-                    ? result.invoices.map(inv => normalizeTrackerRecord(inv, 'invoice'))
-                    : [];
+                // If no real invoices exist, inject Ghost Data (Conversion Engine)
+                if (!result.invoices || result.invoices.length === 0) {
+                    state.savedInvoices = [
+                        {
+                            id: 101,
+                            invNum: "INV-DEMO-001",
+                            cName: "John Doe (Demo)",
+                            total: 5000,
+                            status: "Overdue",
+                            dueDate: "2026-04-10",
+                            isDemo: true,
+                            recordType: 'invoice'
+                        },
+                        {
+                            id: 102,
+                            invNum: "INV-DEMO-002",
+                            cName: "Acme Corp (Demo)",
+                            total: 12000,
+                            status: "Unpaid",
+                            dueDate: "2026-04-28",
+                            isDemo: true,
+                            recordType: 'invoice'
+                        },
+                        {
+                            id: 103,
+                            invNum: "INV-DEMO-003",
+                            cName: "Startup XYZ (Demo)",
+                            total: 8000,
+                            status: "Paid",
+                            dueDate: "2026-04-15",
+                            isDemo: true,
+                            recordType: 'invoice'
+                        }
+                    ];
+                } else {
+                    state.savedInvoices = result.invoices.map(inv => normalizeTrackerRecord(inv, 'invoice'));
+                }
                 
                 state.savedContracts = Array.isArray(result.contracts)
                     ? result.contracts.map(ct => normalizeTrackerRecord(ct, 'contract'))
@@ -984,7 +1018,7 @@ function applyTierLimits() {
                     <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
                         <div class="flex justify-between items-start mb-2">
                             <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">#${record.invNum}</p>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">#${record.invNum} ${record.isDemo ? '<span class="ml-2 bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px]">DEMO</span>' : ''}</p>
                                 <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${record.cName || 'Unnamed'}</h4>
                             </div>
                             <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest ${badgeClass}">${badgeLabel}</span>
@@ -1020,6 +1054,11 @@ function applyTierLimits() {
         }
 
         function deleteTrackerRecord(id, type) {
+            const record = (type === 'contract' ? state.savedContracts : state.savedInvoices).find(r => r.id === id);
+            if (record && record.isDemo) {
+                alert("This is sample data for demonstration. It cannot be deleted.");
+                return;
+            }
             if (!confirm("Remove this record from tracker?")) return;
 
             if (type === 'contract') {
