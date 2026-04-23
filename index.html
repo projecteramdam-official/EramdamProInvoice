@@ -1,4 +1,4 @@
-QR for reminder2
+QR for reminder3
 
 <!DOCTYPE html>
 <html lang="en">
@@ -1074,20 +1074,22 @@ function sendSmartReminder(id) {
 }
 
 function sendAllReminders() {
-    const overdueInvoices = (state.savedInvoices || []).filter(i => (i.recordType || 'invoice') === 'invoice' && i.status === 'Overdue');
+    const overdueInvoices = (state.savedInvoices || []).filter(
+        i => (i.recordType || 'invoice') === 'invoice' && i.status !== 'Paid'
+    );
+
     if (overdueInvoices.length === 0) return;
 
-    overdueInvoices.forEach((inv, index) => {
-        setTimeout(() => {
-            const { daysDiff } = buildSmartReminderMessage(inv);
-            inv.lastReminderSent = Date.now();
-            inv.daysOverdue = Math.max(0, daysDiff);
-            saveState();
-            window.open(getReminderWaLink(inv), '_blank');
-        }, index * 800);
-    });
+    // Desktop: show QR reminder flow for the first invoice.
+    // This avoids browser popup blocking from multiple WhatsApp tabs.
+    if (!isMobileDevice()) {
+        currentReminderInvoiceId = overdueInvoices[0].id;
+        openReminderShare(overdueInvoices[0]);
+        return;
+    }
 
-    closeNudgeModal();
+    // Mobile: open the first reminder directly.
+    window.open(getReminderWaLink(overdueInvoices[0]), '_blank');
 }
 
         function saveToHistory() {
