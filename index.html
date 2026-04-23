@@ -1,4 +1,4 @@
-blang
+bb
 
 
 <!DOCTYPE html>
@@ -943,7 +943,10 @@ function deleteTrackerRecord(id, type) {
         let currentReminderInvoiceId = null;
 
 function isMobileDevice() {
-    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent);
+    // Check for mobile user agent AND ensure it's a touch device or small screen
+    const isUA = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent);
+    const isSmallScreen = window.innerWidth <= 768;
+    return isUA || isSmallScreen;
 }
 
 function getReminderTargetInvoice() {
@@ -1092,14 +1095,14 @@ function sendAllReminders() {
 
     if (overdueInvoices.length === 0) return;
 
+    // Use a small delay to ensure the browser registers the click intent
     if (!isMobileDevice()) {
-        // PC Logic: Focus on the first one or open the Reminder QR flow
-        // To prevent popup blocking, we open the most critical one in WhatsApp Web
         const target = overdueInvoices[0];
         const { message } = buildSmartReminderMessage(target);
-        window.open(`https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+        // Using window.location.href for the same window or _blank for new tab
+        const waUrl = `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+        window.open(waUrl, '_blank');
     } else {
-        // Mobile Logic: Open the first one directly in the app
         window.open(getReminderWaLink(overdueInvoices[0]), '_blank');
     }
 
