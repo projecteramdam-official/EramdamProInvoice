@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProInvoice - Payment Tracking & Invoice System</title>
+    <title>Eramdam PayFlow</title>
+<meta name="description" content="Get Paid Faster. Track Everything.">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <!-- Google Fonts -->
@@ -39,7 +40,7 @@ async function handleCredentialResponse(response) {
             state.userTier = result.tier; 
             state.userSheetId = result.userSheetId;
             state.userEmail = email; // Save for later sheet sync
-    localStorage.setItem('proinvoice_last_email', email); // Auto-fill on refresh
+    localStorage.setItem('Eramdam PayFlow_last_email', email); // Auto-fill on refresh
             
             // Apply features based on Tier (Friction)
             applyTierLimits();
@@ -109,7 +110,7 @@ function applyTierLimits() {
                         </div>
                         <h3 class="font-black text-gray-900 uppercase tracking-tighter text-lg">Pro Tracker Locked</h3>
                         <p class="text-xs text-gray-500 mt-2 leading-relaxed">Ghost mode active. Upgrade to sync real data to your cloud sheet.</p>
-                        <button onclick="handleUpgrade()" class="mt-6 bg-brand-600 text-white px-8 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-brand-700 transition-all">Upgrade to Pro</button>
+                        <button onclick="handleUpgrade()" class="mt-6 bg-brand-600 text-white px-8 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-brand-700 transition-all">Activate Your Workspace</button>
                     `;
                     trackerList.appendChild(overlay);
                 }
@@ -196,7 +197,7 @@ function applyTierLimits() {
         <div class="w-20 h-20 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
         </div>
-        <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">ProInvoice Access</h2>
+        <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Eramdam PayFlow Access</h2>
         <p class="text-sm text-gray-500 mb-8 font-medium leading-relaxed">Please sign in with your registered Google account to activate your workspace.</p>
         
         <div id="g_id_onload"
@@ -208,7 +209,7 @@ function applyTierLimits() {
         
         <p id="auth-error" class="text-red-500 text-xs font-bold mt-6 hidden italic"></p>
     </div>
-    <p class="mt-8 text-brand-200/50 text-[10px] font-bold uppercase tracking-widest">Protected by ProInvoice Security Layer</p>
+    <p class="mt-8 text-brand-200/50 text-[10px] font-bold uppercase tracking-widest">Protected by Eramdam PayFlow Security Layer</p>
 </div>
 
     <!-- MOBILE UI -->
@@ -238,7 +239,7 @@ function applyTierLimits() {
                     Open WhatsApp
                 </button>
             </div>
-            <div class="mt-8 opacity-30 text-[10px] font-bold uppercase tracking-widest text-gray-500">ProInvoice SAAS</div>
+            <div class="mt-8 opacity-30 text-[10px] font-bold uppercase tracking-widest text-gray-500">Eramdam PayFlow</div>
         </div>
     </div>
 
@@ -250,7 +251,7 @@ function applyTierLimits() {
                 <div class="bg-brand-600 text-white p-2 rounded-lg shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight text-gray-900">ProInvoice <span class="text-xs font-bold text-brand-600 ml-1 bg-brand-50 px-2 py-1 rounded">PHASE 3</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-gray-900">Eramdam PayFlow <span class="text-xs font-bold text-brand-600 ml-1 bg-brand-50 px-2 py-1 rounded">PHASE 3</span></h1>
             </div>
             <div class="flex gap-4 items-center">
                 <button onclick="toggleTracker()" class="relative p-2 text-gray-500 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-all">
@@ -1297,7 +1298,7 @@ function applyTierLimits() {
                     toast.classList.add('-translate-y-24', 'opacity-0');
                 }, 3000);
             } else {
-                alert("Pro Feature Blocked: Upgrade to Pro to save unlimited records!");
+                alert("Pro Feature Blocked: Activate Your Workspace to save unlimited records!");
             }
         }
  // --- 3. DOM & PREVIEW ---
@@ -2068,7 +2069,7 @@ function initApp() {
                     </div>
 
                     <div class="mt-auto pt-16 flex justify-center opacity-20 text-[9px] font-bold uppercase tracking-widest">
-                        Contract generated via ProInvoice SAAS
+                        Contract generated via Eramdam PayFlow SAAS
                     </div>
                 </div>
             `;
@@ -2085,7 +2086,7 @@ function logoutUser() {
     state.userSheetId = null;
 
     // Clear localStorage
-    localStorage.removeItem('proinvoice_last_email');
+    localStorage.removeItem('Eramdam PayFlow_last_email');
 
     // Full Google logout
     if (window.google && google.accounts && google.accounts.id) {
@@ -2161,7 +2162,7 @@ Please activate my access. I’ve attached the payment screenshot if needed.`;
                 Built by a freelancer, for freelancers.
             </p>
             
-            <img src="https://raw.githubusercontent.com/projecteramdam-official/EramdamProInvoice/main/payment/upi_qr.png" alt="UPI QR" class="mx-auto w-48 h-48 object-contain mb-4 rounded-xl border border-gray-200 p-2 shadow-sm"/>
+            <img src="https://raw.githubusercontent.com/projecteramdam-official/EramdamEramdam PayFlow/main/payment/upi_qr.png" alt="UPI QR" class="mx-auto w-48 h-48 object-contain mb-4 rounded-xl border border-gray-200 p-2 shadow-sm"/>
             
             <div class="text-xs text-gray-600 mb-6 font-medium bg-brand-50 p-4 rounded-xl text-left border border-brand-100">
                 1. Scan & Pay using any UPI app<br>
@@ -2185,8 +2186,8 @@ Please activate my access. I’ve attached the payment screenshot if needed.`;
             <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
             </div>
-            <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Unlock Pro Features</h2>
-            <p class="text-sm text-gray-500 mb-6 font-medium leading-relaxed" id="upgrade-context">Upgrade to Pro to continue.</p>
+            <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Unlock Your Workspace</h2>
+            <p class="text-sm text-gray-500 mb-6 font-medium leading-relaxed" id="upgrade-context">Activate Your Workspace to continue.</p>
             <div class="space-y-3 mb-8">
                 <div class="flex items-center gap-3 text-sm font-bold text-gray-700">
                     <svg class="text-green-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -2202,7 +2203,7 @@ Please activate my access. I’ve attached the payment screenshot if needed.`;
                 </div>
             </div>
             <div class="flex flex-col gap-3">
-                <button onclick="handleUpgrade()" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-black text-sm shadow-lg shadow-brand-200 transition-all">Upgrade to Pro Now</button>
+                <button onclick="handleUpgrade()" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-black text-sm shadow-lg shadow-brand-200 transition-all">Activate Your Workspace Now</button>
                 <button onclick="closeUpgradeModal()" class="w-full text-gray-400 hover:text-gray-600 py-2 font-bold text-xs transition-colors">Maybe Later</button>
             </div>
         </div>
