@@ -1,5 +1,3 @@
-work
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,21 +85,35 @@ async function apiRequest(action, payload = {}) {
 }
 
 function applyTierLimits() {
-            const contractTab = document.getElementById('btn-tab-contract');
             const trackerList = document.getElementById('tracker-list');
+            const contractTab = document.getElementById('btn-tab-contract');
+            
+            // Ensure Contract tab is ALWAYS visible so Free users can try it
+            if (contractTab) {
+                contractTab.classList.remove('hidden');
+                contractTab.style.display = 'block';
+            }
             
             if (state.userTier === 'Pro') {
-                if (contractTab) contractTab.classList.remove('hidden');
                 const existingOverlay = document.getElementById('tracker-lock-overlay');
                 if (existingOverlay) existingOverlay.remove();
             } else {
-                // FORCE HIDE for Free users
-                if (contractTab) {
-                    contractTab.classList.add('hidden');
-                    contractTab.style.display = 'none'; 
-                }
-                
                 if (trackerList && !document.getElementById('tracker-lock-overlay')) {
+                    const overlay = document.createElement('div');
+                    overlay.id = 'tracker-lock-overlay';
+                    overlay.className = 'bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-8 text-center';
+                    overlay.innerHTML = `
+                        <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <h3 class="font-black text-gray-900 uppercase tracking-tighter text-lg">Pro Tracker Locked</h3>
+                        <p class="text-xs text-gray-500 mt-2 leading-relaxed">Ghost mode active. Upgrade to sync real data to your cloud sheet.</p>
+                        <button onclick="handleUpgrade()" class="mt-6 bg-brand-600 text-white px-8 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-brand-700 transition-all">Upgrade to Pro</button>
+                    `;
+                    trackerList.appendChild(overlay);
+                }
+            }
+        }
                     const overlay = document.createElement('div');
                     overlay.id = 'tracker-lock-overlay';
                     overlay.className = 'bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-8 text-center';
@@ -1796,11 +1808,15 @@ function applyTierLimits() {
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
         
-        function sendContractWhatsApp() { 
-            const client = state.contractClient || 'Client';
-            const msg = `Hi ${client}, sharing our freelance agreement. Please review and confirm. Amount: ${formatINR(state.contractAmount)}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank'); 
-        }
+        function sendContractWhatsApp() {
+if (state.userTier !== 'Pro') {
+    openUpgradeModal("send custom contracts via WhatsApp");
+    return;
+}
+const client = state.contractClient || 'Client';
+const msg = `Hi ${client}, sharing our freelance agreement. Please review and confirm. Amount: ${formatINR(state.contractAmount)}`;
+window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
         
         function clearData() {
             if (confirm("Start fresh?")) {
