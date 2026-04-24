@@ -251,7 +251,7 @@ function applyTierLimits() {
                 <div class="bg-brand-600 text-white p-2 rounded-lg shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight text-gray-900">Eramdam PayFlow <span class="text-xs font-bold text-brand-600 ml-1 bg-brand-50 px-2 py-1 rounded">PHASE 3</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-gray-900">Eramdam PayFlow <span class="text-xs font-bold text-brand-600 ml-1 bg-brand-50 px-2 py-1 rounded">Workspace</span></h1>
             </div>
             <div class="flex gap-4 items-center">
                 <button onclick="toggleTracker()" class="relative p-2 text-gray-500 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-all">
@@ -1456,7 +1456,7 @@ function applyTierLimits() {
 
             const watermarkHTML = `
                 <div class="mt-auto pt-16 pb-4 flex justify-center items-center opacity-[0.20] pointer-events-none select-none text-[10px] text-gray-900 font-medium w-full text-center">
-                    Invoice generated using <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> Project Eramdam
+                    Invoice generated using <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> Eramdam PayFlow
                 </div>
             `;
 
@@ -2068,9 +2068,11 @@ function initApp() {
                         </div>
                     </div>
 
-                    <div class="mt-auto pt-16 flex justify-center opacity-20 text-[9px] font-bold uppercase tracking-widest">
-                        Contract generated via Eramdam PayFlow SAAS
-                    </div>
+                    <div class="mt-auto pt-16 pb-4 flex justify-center items-center opacity-[0.20] pointer-events-none select-none text-[10px] text-gray-900 font-medium w-full text-center">
+    Contract generated using 
+    <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> 
+    Eramdam PayFlow Workspace
+</div>
                 </div>
             `;
             target.innerHTML = html;
