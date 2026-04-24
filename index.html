@@ -2043,7 +2043,8 @@ function initApp() {
                     state = { ...defaultState, mode: 'invoice', invNum: mInv, cName: mCname, items: [{ id: 1, desc: 'Freelance Services (Summary)', amount: mTotal }] };
                 }
 
-                // Hide App UI
+                // Hide App UI AND Login Gate
+                document.getElementById('auth-gate').classList.add('hidden');
                 document.querySelector('nav').classList.add('hidden'); 
                 const editorPane = document.querySelector('section.lg\\:w-\\[480px\\]');
                 if (editorPane) editorPane.classList.add('hidden'); 
