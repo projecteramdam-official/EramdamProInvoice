@@ -2055,7 +2055,7 @@ function initApp() {
             const conForm = document.getElementById('contract-form-section');
             const invActs = document.getElementById('invoice-actions');
             const conActs = document.getElementById('contract-actions');
-
+            
             if (mode === 'contract') {
                 invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
                 conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
@@ -2063,19 +2063,15 @@ function initApp() {
                 conForm.classList.remove('hidden');
                 invActs.classList.add('hidden');
                 conActs.classList.remove('hidden');
-                document.getElementById('contract-qr-section').classList.remove('hidden');
                 renderContractPreview();
-                updateContractShareQR();
             } else {
-    invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
-    conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all " + (state.userTier !== 'Pro' ? 'hidden' : '');
+                invTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
+                conTab.className = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all " + (state.userTier !== 'Pro' ? 'hidden' : '');
                 conForm.classList.add('hidden');
                 invForm.classList.remove('hidden');
                 conActs.classList.add('hidden');
                 invActs.classList.remove('hidden');
-                document.getElementById('contract-qr-section').classList.add('hidden');
                 renderPreview();
-                updateShareQR();
             }
             saveState();
         }
