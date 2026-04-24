@@ -1145,7 +1145,9 @@ function applyTierLimits() {
         function triggerReminderCheckout() {
             closeNudgeModal();
             setTimeout(() => {
-                openUpgradeModal("send smart reminders");
+                // DIRECT JUMP TO PAYMENT MODAL (Skipping generic upgrade)
+                document.getElementById('payment-modal').classList.remove('hidden');
+                document.getElementById('payment-modal').classList.add('flex');
             }, 300);
         }
         
@@ -1164,6 +1166,8 @@ function applyTierLimits() {
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.L
             });
+            const pcLink = document.getElementById('wa-pc-link');
+            if (pcLink) pcLink.href = buildWhatsAppLink(inv, false);
         }
 
         function renderNudgeList(inv) {
@@ -1175,11 +1179,12 @@ function applyTierLimits() {
             const balance = Math.max(totalAmount - paidAmount, 0);
 
             if (state.userTier !== 'Pro') {
-                // PREMIUM BAIT FOR FREE USERS
+                // HIGH-CONVERSION BAIT UI
                 area.innerHTML = `
                     <div class="p-8 overflow-y-auto max-h-[75vh] bg-white relative">
-                        <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Stop chasing payments manually.</h2>
-                        <p class="text-sm text-gray-500 font-medium mb-8">Let the system handle it professionally.</p>
+                        <h2 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">Stop chasing payments manually.</h2>
+                        <p class="text-sm text-brand-600 font-bold mb-1">No awkward conversations. No follow-up stress.</p>
+                        <p class="text-xs text-gray-500 font-medium mb-8">Let the system handle it professionally.</p>
                         
                         <div class="bg-gray-50 border border-gray-100 rounded-2xl p-6 shadow-sm mb-8">
                             <h4 class="text-[10px] font-black uppercase tracking-widest text-brand-500 mb-5">Smart Tone Adjustment</h4>
@@ -1205,17 +1210,20 @@ function applyTierLimits() {
                         <div class="bg-white p-6 rounded-2xl border border-gray-200 relative overflow-hidden shadow-sm">
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Message Preview</p>
                             <p class="text-sm text-gray-800 font-bold">Hi ${inv.cName || 'Client'}, just a quick reminder that...</p>
-                            <div class="blur-sm select-none opacity-40 mt-3 space-y-3">
+                            
+                            <div class="blur-[6px] select-none opacity-30 mt-3 space-y-3 pointer-events-none">
                                 <div class="h-3 bg-gray-400 rounded w-full"></div>
                                 <div class="h-3 bg-gray-400 rounded w-5/6"></div>
                                 <div class="h-3 bg-gray-400 rounded w-4/6"></div>
                             </div>
                             
-                            <div class="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent flex flex-col items-center justify-end pb-6 pt-12">
-                                <button onclick="triggerReminderCheckout()" class="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-black text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                    Unlock to Send Instantly
+                            <div class="absolute inset-0 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 pt-12">
+                                <p class="text-sm font-black text-gray-900 mb-3 text-center">This message is ready to send right now.</p>
+                                <button onclick="triggerReminderCheckout()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-4 rounded-xl font-black text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2 w-full max-w-[280px] justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
+                                    Send This Message Now
                                 </button>
+                                <p class="text-[10px] font-bold text-brand-600 mt-2 uppercase tracking-widest">(Unlock required)</p>
                             </div>
                         </div>
                     </div>
@@ -1246,12 +1254,13 @@ function applyTierLimits() {
                         <button onclick="closeNudgeModal()" class="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors">Cancel</button>
                         <div class="flex gap-3">
                             <button id="wa-all-link" onclick="refreshReminderQr()" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">Refresh QR</button>
-                            <a id="wa-pc-link" href="${buildWhatsAppLink(inv, false)}" target="_blank" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-black transition-colors shadow-lg hover:shadow-xl flex items-center gap-2">Open on PC</a>
+                            <a id="wa-pc-link" href="#" target="_blank" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-black transition-colors shadow-lg hover:shadow-xl flex items-center gap-2">Open on PC</a>
                         </div>
                     </div>
                 `;
-                setTimeout(() => refreshReminderQr(), 50); // Bind the QR code after HTML injects
+                setTimeout(() => refreshReminderQr(), 50); 
             }
+        }
         }
 
 
@@ -2132,35 +2141,13 @@ function logoutUser() {
 }
 
 function openUpgradeModal(context) {
-    const contextEl = document.getElementById('upgrade-context');
-    
-    // Dynamic Context Messaging (Loss + Value Balance)
-    let message = `Activate Your Workspace to continue.`;
-    if (context === "save invoices to tracker") {
-        message = `You're about to lose this invoice. Unlock now to save and track it permanently.`;
-    } else if (context === "send smart reminders") {
-        message = `Unlock now to send professional reminders and get paid faster.`;
-    } else if (context === "download custom contracts") {
-        message = `Unlock now to export your business documents professionally.`;
-    }
-    
-    if (contextEl) contextEl.innerText = message;
+            // Direct jump to checkout
+            document.getElementById('payment-modal').classList.remove('hidden');
+            document.getElementById('payment-modal').classList.add('flex');
+        }
 
-    const modal = document.getElementById('upgrade-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-}
-
-function closeUpgradeModal() {
-    const modal = document.getElementById('upgrade-modal');
-    if (modal) modal.classList.add('hidden');
-}
-
-function handleUpgrade() {
-            // Close the first modal, open the payment modal
-            closeUpgradeModal();
+        function handleUpgrade() {
+            // Direct jump to checkout
             document.getElementById('payment-modal').classList.remove('hidden');
             document.getElementById('payment-modal').classList.add('flex');
         }
@@ -2224,12 +2211,7 @@ Please activate my access. I’ve attached the payment screenshot if needed.`;
     </div>
 </div>
     
-    <div id="upgrade-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] backdrop-blur-sm">
-    <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl transform transition-all fade-in">
-        <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mb-5">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        </div>
-        <h2 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">Unlock Your Workspace</h2>
+           <h2 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">Unlock Your Workspace</h2>
         
         <p class="text-sm text-red-500 font-bold mb-2">⚠ Action requires activation</p>
         <p class="text-sm text-gray-500 mb-4 font-medium leading-relaxed" id="upgrade-context">Activate Your Workspace to continue.</p>
