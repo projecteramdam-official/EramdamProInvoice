@@ -1083,12 +1083,12 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
                 
                 const baseUrl = window.location.href.split('?')[0];
                 const url = new URL(baseUrl);
-                url.searchParams.set('mobile', '1');
-                url.searchParams.set('inv', state.invNum);
-                url.searchParams.set('c', state.cName);
+                url.searchParams.set('view', 'doc');
+                url.searchParams.set('inv', state.invNum || '');
+                url.searchParams.set('c', state.cName || '');
                 url.searchParams.set('t', amount);
                 
-                message = `Hi ${client},\n\nSharing the invoice ${state.invNum || ''} for ${formatINR(amount)}.\n\nYou can view or download it here:\n${url.toString()}\n\nPlease let me know if everything looks good.\n\nThank you.`;
+                message = `Hi ${client},\n\nPlease find your invoice (${state.invNum || ''}) here:\n${url.toString()}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
             } else if (type === 'contract') {
                 client = state.contractClient || "Client";
                 amount = state.contractAmount;
@@ -1096,12 +1096,13 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
                 
                 const baseUrl = window.location.href.split('?')[0];
                 const url = new URL(baseUrl);
-                url.searchParams.set('mobile', '1');
+                url.searchParams.set('view', 'doc');
                 url.searchParams.set('mode', 'contract');
-                url.searchParams.set('client', client);
-                url.searchParams.set('amount', amount);
+                url.searchParams.set('c', client);
+                url.searchParams.set('t', amount);
 
-                message = `Hi ${client},\n\nSharing our freelance agreement for ${formatINR(amount)}.\n\nYou can view it here:\n${url.toString()}\n\nPlease review and confirm.\n\nThank you.`;
+                message = `Hi ${client},\n\nPlease find our freelance agreement here:\n${url.toString()}\n\nKindly review and confirm.\n\nThank you.`;
+
             } else if (type === 'reminder') {
                 title = "Payment Reminder";
                 invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
@@ -2024,54 +2025,68 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         
 
 function initApp() {
-    const params = new URLSearchParams(window.location.search);
-            
-            if (params.get('mobile') === '1') {
+            const params = new URLSearchParams(window.location.search);
+
+            // --- SAFE CLIENT READ-ONLY DOCUMENT MODE ---
+            if (params.get('view') === 'doc') {
                 isMobileFlow = true;
-                document.getElementById('app-ui').classList.add('opacity-0', 'pointer-events-none', 'fixed', 'z-[-1]');
-                document.getElementById('mobile-ui').classList.remove('hidden');
                 
                 const mMode = params.get('mode') || 'invoice';
-                const mInv = params.get('inv') || '---';
-                const mCname = params.get('client') || params.get('c') || 'Client';
-                const mTotal = parseFloat(params.get('amount') || params.get('t')) || 0;
-                const mMsg = params.get('msg') || '';
-                
+                const mCname = params.get('c') || 'Client';
+                const mTotal = parseFloat(params.get('t')) || 0;
+                const mInv = params.get('inv') || '';
+
+                // Inject the minimal data into state to render a summary document
                 if (mMode === 'contract') {
-                    document.getElementById('m-title').innerText = 'Contract Ready';
-                    document.getElementById('m-label').classList.add('hidden');
-                    document.getElementById('m-amount-label').innerText = 'Total Value';
+                    state = { ...defaultState, mode: 'contract', contractClient: mCname, contractAmount: mTotal, contractDesc: 'Freelance Services Agreement' };
                 } else {
-                    document.getElementById('m-title').innerText = 'Invoice Ready';
-                    document.getElementById('m-label').classList.remove('hidden');
-                    document.getElementById('m-inv').innerText = mInv;
+                    state = { ...defaultState, mode: 'invoice', invNum: mInv, cName: mCname, items: [{ id: 1, desc: 'Freelance Services (Summary)', amount: mTotal }] };
                 }
+
+                // Hide App UI
+                document.querySelector('nav').classList.add('hidden'); 
+                const editorPane = document.querySelector('section.lg\\:w-\\[480px\\]');
+                if (editorPane) editorPane.classList.add('hidden'); 
+                const zoomControls = document.querySelector('.fixed.bottom-6.right-6');
+                if (zoomControls) zoomControls.classList.add('hidden'); 
                 
-                document.getElementById('m-client').innerText = mCname;
-                document.getElementById('m-total').innerText = '₹' + mTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                // Full Screen Preview
+                const previewSection = document.getElementById('preview-section');
+                previewSection.className = 'w-full h-full bg-gray-200/80 overflow-y-auto flex justify-center py-10 pb-32 relative';
                 
-                document.getElementById('btn-m-wa').onclick = () => {
-                    window.open(`https://wa.me/?text=${encodeURIComponent(mMsg)}`, '_blank');
-                };
-                
-                document.getElementById('btn-m-pdf').onclick = () => {
-                    if (mMode === 'contract') {
-                        state = { ...defaultState, contractClient: mCname, contractAmount: mTotal, contractFreelancer: state.fName };
-                        renderContractPreview();
-                    } else {
-                        state = { ...defaultState, invNum: mInv, cName: mCname, items: [{ desc: 'Invoice Total', amount: mTotal }] };
-                        renderPreview();
+                // Add Download Button
+                const clientBar = document.createElement('div');
+                clientBar.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50';
+                clientBar.innerHTML = `
+                    <button onclick="generatePDF()" class="bg-gray-900 text-white px-8 py-4 rounded-full font-black text-sm shadow-2xl flex items-center gap-3 hover:bg-gray-800 transition-transform hover:-translate-y-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download PDF
+                    </button>
+                `;
+                document.body.appendChild(clientBar);
+
+                // Auto-scale for mobile
+                setTimeout(() => {
+                    const wrapper = document.getElementById('scale-wrapper');
+                    if (window.innerWidth < 800) {
+                        wrapper.style.transform = `scale(${window.innerWidth / 840})`;
+                        wrapper.style.transformOrigin = 'top center';
                     }
-                    generatePDF();
-                };
-            } else {
-                if (state.userToken) {
+                }, 50);
+
+                if (mMode === 'contract') renderContractPreview();
+                else renderPreview();
+                
+                return; 
+            }
+
+            // --- STANDARD FREELANCER APP FLOW ---
+            if (state.userToken) {
                 loadState();
             }
-                populateForm();
-                renderItems();
-                setMode(state.mode || 'invoice');
-            }
+            populateForm();
+            renderItems();
+            setMode(state.mode || 'invoice');
         }
 
         function setMode(mode) {
