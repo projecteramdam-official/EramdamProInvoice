@@ -26,7 +26,8 @@ async function handleCredentialResponse(response) {
     const base64Url = response.credential.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const payload = JSON.parse(window.atob(base64));
-    const email = payload.email;
+            const email = payload.email;
+            state.userName = payload.name || "User"; // Capture name for payment flow
 
     // 2. Call your Google Apps Script Backend
     try {
@@ -2115,10 +2116,71 @@ function closeUpgradeModal() {
 }
 
 function handleUpgrade() {
-    alert("Redirecting to Pro Payment Flow...");
-}
+            // Close the first modal, open the payment modal
+            closeUpgradeModal();
+            document.getElementById('payment-modal').classList.remove('hidden');
+            document.getElementById('payment-modal').classList.add('flex');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function openWhatsAppPayment() {
+            const name = state.userName || "User";
+            const email = state.userEmail || "Not provided";
+
+            const message = 
+`Hi, I’ve just completed the payment to unlock my invoice system.
+
+Name: ${name}
+Email: ${email}
+Amount: ₹49
+
+Please activate my access. I’ve attached the payment screenshot if needed.`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const phoneNumber = "919366659414"; 
+
+            const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            window.open(url, '_blank');
+        }
 </script>
-<div id="upgrade-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] backdrop-blur-sm">
+<div id="payment-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[110] backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl text-center transform transition-all fade-in">
+            <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Unlock My Invoice System – ₹49</h2>
+            <p class="text-sm text-gray-500 mb-5 font-medium leading-relaxed">
+                Get paid faster. Track everything in one place.
+            </p>
+            <div class="text-left text-sm font-bold text-gray-700 mb-6 space-y-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <div class="flex items-center gap-2"><svg class="text-green-500 w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Save and track all your invoices</div>
+                <div class="flex items-center gap-2"><svg class="text-green-500 w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Send professional reminders in 1 click</div>
+                <div class="flex items-center gap-2"><svg class="text-green-500 w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Keep your work organized and stress-free</div>
+            </div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-brand-500 mb-4">
+                Built by a freelancer, for freelancers.
+            </p>
+            
+            <img src="https://raw.githubusercontent.com/projecteramdam-official/EramdamProInvoice/main/payment/upi_qr.png" alt="UPI QR" class="mx-auto w-48 h-48 object-contain mb-4 rounded-xl border border-gray-200 p-2 shadow-sm"/>
+            
+            <div class="text-xs text-gray-600 mb-6 font-medium bg-brand-50 p-4 rounded-xl text-left border border-brand-100">
+                1. Scan & Pay using any UPI app<br>
+                2. Click “I’ve Paid”<br>
+                3. Send the WhatsApp message<br><br>
+                <span class="text-brand-600 font-black">Activation time: 5–10 minutes<br>(No subscription • One-time unlock)</span>
+            </div>
+            <div class="flex flex-col gap-3">
+                <button onclick="openWhatsAppPayment()" class="w-full bg-[#25D366] hover:bg-[#1DA851] text-white py-4 rounded-xl font-black text-sm shadow-lg shadow-[#25D366]/30 transition-all">
+                    I’ve Paid – Activate Now
+                </button>
+                <button onclick="closePaymentModal()" class="w-full text-gray-400 hover:text-gray-600 py-2 font-bold text-xs transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="upgrade-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl transform transition-all fade-in">
             <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
