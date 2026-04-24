@@ -1018,11 +1018,12 @@ function applyTierLimits() {
                         </div>
 
                         <div class="flex justify-between items-end mt-4">
-                            <div>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase">Due: ${formatDate(record.dueDate)}</p>
-                                <p class="text-sm font-black text-gray-900">${formatINR(record.total)}</p>
-                                ${paidAmount > 0 ? `<p class="text-[10px] text-gray-500 font-bold mt-1">Paid: ${formatINR(paidAmount)} • Balance: ${formatINR(balance)}</p>` : ''}
-                            </div>
+<div>
+<p class="text-[10px] text-gray-400 font-bold uppercase">Due: ${formatDate(record.dueDate)}</p>
+<p class="text-sm font-black text-gray-900">${formatINR(record.total)}</p>
+${paidAmount > 0 ? `<p class="text-[10px] text-gray-500 font-bold mt-1 mb-1">Paid: ${formatINR(paidAmount)} • Balance: ${formatINR(balance)}</p>` : ''}
+${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1 bg-brand-50 inline-block px-2 py-0.5 rounded-full">Reminded: ${new Date(record.lastReminderSent).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})} (${record.lastReminderTone || 'Polite'})</p>` : ''}
+</div>
                             <div class="flex gap-2">
                                 ${badgeLabel !== 'Paid' ? `
                                     <button onclick="markAsPaid(${record.id})" class="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors" title="Mark as Paid">
@@ -1083,17 +1084,35 @@ function applyTierLimits() {
 
         let currentNudgeMessage = "";
 
-        // --- PHASE 4: API-Driven Reminder Message ---
+        // --- PRO CORE: SMART TEXT ENGINE ---
+        function generateSmartMessage(inv, toneLevel) {
+            const client = inv.cName ? inv.cName.split(' ')[0] : "Client";
+            const total = Number(inv.total || 0);
+            const paid = Number(inv.paidAmount || 0);
+            const balance = formatINR(Math.max(total - paid, 0));
+            const invNum = inv.invNum || "your invoice";
+
+            let message = "";
+
+            if (toneLevel === "Polite") {
+                message = `Hi ${client},\n\nJust a quick friendly reminder regarding ${invNum} for ${balance}.\n\nNo rush, but please let me know if you need any additional details from my end to process it.\n\nThanks!`;
+            } else if (toneLevel === "Firm") {
+                message = `Hi ${client},\n\nI’m following up on ${invNum} for ${balance}, which is now overdue.\n\nPlease process this payment at your earliest convenience and share the transaction receipt so I can update my records.\n\nThank you.`;
+            } else if (toneLevel === "Final") {
+                message = `Hi ${client},\n\nThis is a final reminder regarding the overdue balance of ${balance} for ${invNum}.\n\nTo avoid any pause in our ongoing services, I request you to clear this today.\n\nPlease confirm once the transfer is done.`;
+            }
+
+            return message;
+        }
+
         function buildWhatsAppLink(inv, isQR = false) {
             const message = currentNudgeMessage;
             const phone = (inv.cPhone || '').replace(/\D/g, '');
-
             if (!phone) {
                 return isQR
                     ? `https://wa.me/?text=${encodeURIComponent(message)}`
                     : `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`;
             }
-
             return isQR
                 ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
                 : `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
@@ -1108,21 +1127,32 @@ function applyTierLimits() {
                 return;
             }
 
-            const result = await apiRequest('GET_REMINDER', { invoice: inv });
-            if (!result.success) {
-                alert("Error: " + result.message);
-                return;
-            }
-            currentNudgeMessage = result.message;
+            // --- PRO USER REAL FLOW - LOCAL ENGINE ---
+            const dueDate = new Date(inv.dueDate).setHours(0,0,0,0);
+            const today = new Date().setHours(0,0,0,0);
+            const diffTime = today - dueDate;
+            const daysOverdue = diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
+
+            let autoTone = "Polite";
+            if (daysOverdue > 1 && daysOverdue <= 3) autoTone = "Firm";
+            if (daysOverdue > 3) autoTone = "Final";
+
+            // Generate message instantly
+            currentNudgeMessage = generateSmartMessage(inv, autoTone);
+
+            // Save follow-up history
             inv.lastReminderSent = Date.now();
+            inv.lastReminderTone = autoTone;
             saveState();
 
+            // Native WhatsApp trigger
             if (isMobileDevice()) {
                 window.open(buildWhatsAppLink(inv, true), '_blank');
                 return;
             }
             openReminderShare(inv);
         }
+
 
         function openReminderShare(inv) {
             currentReminderInvoiceId = inv.id;
