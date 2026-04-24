@@ -488,91 +488,30 @@ function applyTierLimits() {
                         </div>
                         
                         <!-- QR SHARE SYSTEM -->
-                        <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 shadow-sm mt-4 text-center">
-                            <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700 flex items-center justify-center gap-1.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-                                Send via Phone
-                            </h2>
-                            <p class="text-[10px] text-brand-600/80 mb-4 font-medium">Scan to open on mobile, download PDF, and forward via WhatsApp.</p>
-                            <div id="share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100">
-                                <!-- QRCode injected here -->
-                            </div>
                         </div>
-                    </div>
 
-                    <!-- CONTRACT GENERATOR FORM -->
-                    <div id="contract-form-section" class="hidden space-y-5">
-                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
-                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Contract Basics</h2>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Freelancer Name</label>
-                                    <input type="text" id="contractFreelancer" placeholder="Your Legal Name" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractFreelancer', this.value)">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-                                    <input type="text" id="contractClient" placeholder="Client Legal Name" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractClient', this.value)">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Project Scope / Description</label>
-                                    <textarea id="contractDesc" rows="4" placeholder="Briefly describe the work to be done..." class="w-full text-sm border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractDesc', this.value)"></textarea>
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-600 mb-1.5">Start Date</label>
-                                        <input type="date" id="contractStart" class="w-full text-sm border-gray-200 rounded-lg border p-2.5 bg-white" oninput="updateState('contractStart', this.value)">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-600 mb-1.5">Delivery Date</label>
-                                        <input type="date" id="contractEnd" class="w-full text-sm border-gray-200 rounded-lg border p-2.5 bg-white" oninput="updateState('contractEnd', this.value)">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Total Amount (₹)</label>
-                                    <input type="number" id="contractAmount" placeholder="0" class="w-full text-sm font-black border-gray-200 rounded-lg border p-2.5 bg-white" oninput="updateState('contractAmount', parseFloat(this.value) || 0)">
-                                </div>
-                                <p class="text-[10px] text-gray-400 italic">Note: Payment terms are linked to the Invoice Basics section.</p>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Contract QR Share System -->
-                    <div id="contract-qr-section" class="hidden bg-brand-50 border border-brand-200 rounded-xl p-5 shadow-sm mt-4 text-center">
-                        <h2 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700 flex items-center justify-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-                            Send Contract via Phone
-                        </h2>
-                        <p class="text-[10px] text-brand-600/80 mb-4 font-medium">Scan to open on mobile, download contract, and send via WhatsApp.</p>
-                        <div id="contract-share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100">
-                            <!-- QRCode for contract injected here -->
-                        </div>
                     </div>
-                    
-                </div>
 
                 <!-- Floating Action Bar -->
                 <div class="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm border-t border-gray-200 p-5 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.1)] z-20">
-                    <div id="invoice-actions" class="grid grid-cols-2 gap-3 mb-3">
-                        <button onclick="generatePDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
-                        </button>
-                        <button onclick="sendWhatsApp()" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
-                        </button>
-                    </div>
-                    <div id="contract-actions" class="hidden grid grid-cols-2 gap-3 mb-3">
-                        <button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
-                        </button>
-                        <button onclick="sendContractWhatsApp()" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1">
-                        <button onclick="saveToHistory()" class="bg-brand-50 text-brand-700 hover:bg-brand-100 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save to Tracker
-                        </button>
-                    </div>
+<div id="invoice-actions" class="grid grid-cols-2 gap-3 mb-3">
+<button onclick="generatePDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
+</button>
+<button onclick="openSendSystem('invoice')" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg> Send to Client
+</button>
+</div>
+<div id="contract-actions" class="hidden grid grid-cols-2 gap-3 mb-3">
+<button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
+</button>
+<button onclick="openSendSystem('contract')" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg> Send to Client
+</button>
+</div>
                 </div>
             </section>
 
@@ -621,23 +560,21 @@ function applyTierLimits() {
         </main>
         
         <!-- Reminder Modal -->
-        <div id="nudge-modal" class="hidden fixed inset-0 z-[100] bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden transform scale-95 transition-transform duration-300 relative" id="nudge-modal-content">
-            
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
-                <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
-                    <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                    Smart Reminder System
-                </h3>
-                <button onclick="closeNudgeModal()" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-200 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-            
-            <div id="nudge-dynamic-area" class="flex flex-col">
-                </div>
-            
+        <div id="send-modal" class="hidden fixed inset-0 z-[100] bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden transform scale-95 transition-transform duration-300 relative">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+            <h3 id="send-modal-title" class="text-lg font-black text-gray-900 flex items-center gap-2">
+                <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
+                Send to Client
+            </h3>
+            <button onclick="closeSendModal()" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
         </div>
+        <div id="send-dynamic-area" class="flex flex-col">
+            </div>
+    </div>
+</div>
     </div>
 
     </div>
@@ -1030,7 +967,7 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                     </button>
                                     ${showReminder ? `
-                                        <button onclick="sendSmartReminder(${record.id})" class="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
+                                        <button onclick="openSendSystem('reminder', ${record.id})" class="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                         </button>
                                     ` : ''}
@@ -1076,15 +1013,14 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
             }
         }
 
-        let currentReminderInvoiceId = null;
+        // --- 1. UNIFIED SEND SYSTEM LOGIC ---
+        let currentSendContext = {};
+        let currentActiveTone = "Polite";
 
-        function isMobileDevice() {
-            return /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent);
-        }
+        // Deprecated stubs to prevent form input errors
+        function updateShareQR() {} 
+        function updateContractShareQR() {} 
 
-        let currentNudgeMessage = "";
-
-        // --- PRO CORE: SMART TEXT ENGINE ---
         function generateSmartMessage(inv, toneLevel) {
             const client = inv.cName ? inv.cName.split(' ')[0] : "Client";
             const total = Number(inv.total || 0);
@@ -1093,247 +1029,308 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
             const invNum = inv.invNum || "your invoice";
 
             let message = "";
-
             if (toneLevel === "Polite") {
                 message = `Hi ${client},\n\nJust a quick friendly reminder regarding ${invNum} for ${balance}.\n\nNo rush, but please let me know if you need any additional details from my end to process it.\n\nThanks!`;
             } else if (toneLevel === "Firm") {
                 message = `Hi ${client},\n\nI’m following up on ${invNum} for ${balance}, which is now overdue.\n\nPlease process this payment at your earliest convenience and share the transaction receipt so I can update my records.\n\nThank you.`;
             } else if (toneLevel === "Final") {
-                message = `Hi ${client},\n\nThis is a final reminder regarding the overdue balance of ${balance} for ${invNum}.\n\nTo avoid any pause in our ongoing services, I request you to clear this today.\n\nPlease confirm once the transfer is done.`;
+                message = `Hi ${client},\n\nThis is a final reminder regarding the overdue balance of ${balance} for ${invNum}.\n\nI kindly request you to prioritize this and clear the amount today so we can settle this account.\n\nPlease confirm once the transfer is completed.`;
             }
-
             return message;
         }
 
-        function buildWhatsAppLink(inv, isQR = false) {
-            const message = currentNudgeMessage;
-            const phone = (inv.cPhone || '').replace(/\D/g, '');
-            if (!phone) {
-                return isQR
-                    ? `https://wa.me/?text=${encodeURIComponent(message)}`
-                    : `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+        function openSendSystem(type, id = null) {
+            let title = "Send to Client";
+            let client = "";
+            let amount = 0;
+            let contextText = "Everything is ready to send.";
+            let message = "";
+            let invoiceRecord = null;
+            let daysOverdue = 0;
+            let activeTone = null;
+
+            if (type === 'invoice') {
+                client = state.cName || "Client";
+                amount = grandTotalToExport;
+                contextText = `Invoice ready for ${client}`;
+                
+                const baseUrl = window.location.href.split('?')[0];
+                const url = new URL(baseUrl);
+                url.searchParams.set('mobile', '1');
+                url.searchParams.set('inv', state.invNum);
+                url.searchParams.set('c', state.cName);
+                url.searchParams.set('t', amount);
+                
+                message = `Hi ${client},\n\nSharing the invoice ${state.invNum || ''} for ${formatINR(amount)}.\n\nYou can view or download it here:\n${url.toString()}\n\nPlease let me know if everything looks good.\n\nThank you.`;
+            } else if (type === 'contract') {
+                client = state.contractClient || "Client";
+                amount = state.contractAmount;
+                contextText = `Contract ready for ${client}`;
+                
+                const baseUrl = window.location.href.split('?')[0];
+                const url = new URL(baseUrl);
+                url.searchParams.set('mobile', '1');
+                url.searchParams.set('mode', 'contract');
+                url.searchParams.set('client', client);
+                url.searchParams.set('amount', amount);
+
+                message = `Hi ${client},\n\nSharing our freelance agreement for ${formatINR(amount)}.\n\nYou can view it here:\n${url.toString()}\n\nPlease review and confirm.\n\nThank you.`;
+            } else if (type === 'reminder') {
+                title = "Payment Reminder";
+                invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
+                if(!invoiceRecord) return;
+                client = invoiceRecord.cName || "Client";
+                amount = Math.max((Number(invoiceRecord.total) || 0) - (Number(invoiceRecord.paidAmount) || 0), 0);
+                
+                const due = new Date(invoiceRecord.dueDate).setHours(0,0,0,0);
+                const today = new Date().setHours(0,0,0,0);
+                const diff = today - due;
+                daysOverdue = diff > 0 ? Math.ceil(diff / 86400000) : 0;
+                
+                contextText = daysOverdue > 0 ? `Invoice overdue by ${daysOverdue} days` : "Invoice due today";
+
+                activeTone = "Polite";
+                if (daysOverdue > 1 && daysOverdue <= 3) activeTone = "Firm";
+                if (daysOverdue > 3) activeTone = "Final";
+                
+                currentActiveTone = activeTone;
+                message = generateSmartMessage(invoiceRecord, activeTone);
             }
-            return isQR
-                ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
-                : `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-        }
 
-        async function sendSmartReminder(id) {
-            const inv = (state.savedInvoices || []).find(i => i.id === id && (i.recordType || 'invoice') === 'invoice');
-            if (!inv || !inv.dueDate) return;
+            currentSendContext = { type, id, title, client, amount, contextText, message, invoiceRecord, daysOverdue, activeTone };
 
-            if (state.userTier !== 'Pro') {
-                openReminderShare(inv); 
-                return;
-            }
+            document.getElementById('send-modal-title').innerHTML = `
+                <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
+                ${title}
+            `;
 
-            // --- PRO USER REAL FLOW - LOCAL ENGINE ---
-            const dueDate = new Date(inv.dueDate).setHours(0,0,0,0);
-            const today = new Date().setHours(0,0,0,0);
-            const diffTime = today - dueDate;
-            const daysOverdue = diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
-
-            let autoTone = "Polite";
-            if (daysOverdue > 1 && daysOverdue <= 3) autoTone = "Firm";
-            if (daysOverdue > 3) autoTone = "Final";
-
-            // Generate message instantly
-            currentNudgeMessage = generateSmartMessage(inv, autoTone);
-
-            // Save follow-up history
-            inv.lastReminderSent = Date.now();
-            inv.lastReminderTone = autoTone;
-            saveState();
-
-            // Native WhatsApp trigger
-            if (isMobileDevice()) {
-                window.open(buildWhatsAppLink(inv, true), '_blank');
-                return;
-            }
-            openReminderShare(inv);
-        }
-
-
-        function openReminderShare(inv) {
-            currentReminderInvoiceId = inv.id;
-            renderNudgeList(inv); 
-
-            const modal = document.getElementById('nudge-modal');
-            const content = document.getElementById('nudge-modal-content');
-            if (modal && content) {
-                modal.classList.remove('hidden');
-                requestAnimationFrame(() => {
-                    modal.classList.remove('opacity-0');
-                    content.classList.remove('scale-95');
-                });
-            }
-        }
-
-        function triggerReminderCheckout() {
-closeNudgeModal();
-setTimeout(() => {
-const ctxEl = document.getElementById('payment-dynamic-context');
-if (ctxEl) {
-ctxEl.innerText = "Send this payment reminder now";
-ctxEl.classList.remove('hidden');
-}
-document.getElementById('payment-modal').classList.remove('hidden');
-document.getElementById('payment-modal').classList.add('flex');
-}, 300);
-}
-        
-        function refreshReminderQr() {
-            const container = document.getElementById('reminder-share-qr-container');
-            if (!container) return;
-            container.innerHTML = '';
-            const inv = (state.savedInvoices || []).find(i => i.id === currentReminderInvoiceId);
-            if (!inv) return;
+            renderSendSystem();
             
+            const modal = document.getElementById('send-modal');
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => modal.classList.remove('opacity-0'));
+        }
+
+        function renderSendSystem() {
+            const area = document.getElementById('send-dynamic-area');
+            const ctx = currentSendContext;
+            const isPro = state.userTier === 'Pro';
+            
+            let isLocked = false;
+            if (!isPro && (ctx.type === 'contract' || ctx.type === 'reminder')) {
+                isLocked = true;
+            }
+
+            let toneSection = '';
+            let assistantLine = '';
+            
+            if (ctx.type === 'reminder') {
+                let toneDesc = "";
+                let nextStep = "";
+                let activeToneIdx = 0;
+
+                if (currentActiveTone === "Polite") {
+                    toneDesc = "A gentle nudge. Perfect for clients who just forgot.";
+                    nextStep = "Send firm reminder in 2 days";
+                    activeToneIdx = 0;
+                } else if (currentActiveTone === "Firm") {
+                    toneDesc = "Polite enough to keep the relationship. Clear enough to ask for payment.";
+                    nextStep = "Send final reminder tomorrow";
+                    activeToneIdx = 1;
+                } else if (currentActiveTone === "Final") {
+                    toneDesc = "Direct and uncompromising. Use when payment is severely delayed.";
+                    nextStep = "Pause work until payment clears";
+                    activeToneIdx = 2;
+                }
+
+                toneSection = `
+                    <div class="mb-6">
+                        <p class="text-sm font-black text-gray-900">Suggested tone: <span class="text-brand-600">${currentActiveTone}</span></p>
+                        <p class="text-xs text-gray-500 font-medium mt-1">${toneDesc}</p>
+                    </div>
+                    <div class="mb-6 ${isLocked ? 'opacity-60 pointer-events-none' : ''}">
+                        <div class="flex gap-2">
+                            <button onclick="changeSendTone('Polite')" class="flex-1 py-2.5 text-center text-xs font-bold rounded-lg border ${activeToneIdx === 0 ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100'} transition-colors">Polite</button>
+                            <button onclick="changeSendTone('Firm')" class="flex-1 py-2.5 text-center text-xs font-bold rounded-lg border ${activeToneIdx === 1 ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100'} transition-colors">Firm</button>
+                            <button onclick="changeSendTone('Final')" class="flex-1 py-2.5 text-center text-xs font-bold rounded-lg border ${activeToneIdx === 2 ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100'} transition-colors">Final</button>
+                        </div>
+                    </div>
+                `;
+
+                const lastRemDate = ctx.invoiceRecord.lastReminderSent ? new Date(ctx.invoiceRecord.lastReminderSent).toLocaleDateString('en-IN', {day:'2-digit', month:'short'}) : 'Never';
+                const lastRemTone = ctx.invoiceRecord.lastReminderTone || 'Polite';
+
+                assistantLine = `
+                    <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 shadow-sm mt-6 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-700 mb-1">Last reminder: <span class="text-gray-500 font-medium">${lastRemDate !== 'Never' ? lastRemDate + ' (' + lastRemTone + ')' : 'Never'}</span></p>
+                            <p class="text-xs font-bold text-brand-700">Next step: <span class="text-brand-600 font-medium">${nextStep}</span></p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const sendOptionsHTML = `
+                <div class="mt-6 border-t border-gray-100 pt-5">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">Choose how to send:</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="executeSend('pc')" class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 text-gray-700 hover:text-brand-600 transition-all gap-2 bg-white shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            <span class="text-[10px] font-bold text-center leading-tight">Send on this device</span>
+                        </button>
+                        <button onclick="toggleSendQR()" class="flex flex-col items-center justify-center p-3 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-100 text-brand-700 transition-all gap-2 shadow-sm relative overflow-hidden group">
+                            <div class="absolute top-0 w-full bg-brand-500 text-white text-[8px] font-black uppercase tracking-widest py-[2px] text-center">Recommended</div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="mt-2 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                            <span class="text-[10px] font-bold text-center leading-tight text-brand-700">Send to phone</span>
+                        </button>
+                        <button onclick="executeSend('email')" class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 text-gray-700 hover:text-brand-600 transition-all gap-2 bg-white shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            <span class="text-[10px] font-bold text-center leading-tight">Send via Email</span>
+                        </button>
+                    </div>
+                    <div id="send-qr-panel" class="hidden mt-4 p-5 border border-gray-200 rounded-xl bg-gray-50 flex-col items-center justify-center fade-in shadow-inner">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Scan → Review → Send</p>
+                        <div id="send-qr-canvas" class="bg-white p-2 rounded-lg shadow-sm border border-gray-100"></div>
+                    </div>
+                </div>
+            `;
+
+            area.innerHTML = `
+                <div class="p-8 overflow-y-auto max-h-[85vh] bg-white relative">
+                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-5 shadow-sm mb-6 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">${ctx.contextText}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">Amount: <span class="font-black text-gray-900">${formatINR(ctx.amount)}</span></p>
+                        </div>
+                        <div class="bg-brand-100 text-brand-700 p-2 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
+                        </div>
+                    </div>
+
+                    ${toneSection}
+
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 relative overflow-hidden shadow-sm">
+                        ${isLocked ? `
+                            <p class="text-[13px] text-gray-800 font-bold leading-relaxed mb-4">${ctx.message.replace(/\n/g, '<br>')}</p>
+                            <div class="absolute inset-0 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-5 pt-12 z-10">
+                                <button onclick="triggerSendCheckout('${ctx.type}')" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-4 rounded-xl font-black text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2 w-full max-w-[280px] justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    Unlock to Send – ₹49
+                                </button>
+                                <p class="text-[10px] font-bold text-gray-500 mt-2 uppercase tracking-widest">One-time unlock. No subscription.</p>
+                            </div>
+                        ` : `
+                            <div class="flex justify-between items-center mb-3">
+                                <p class="text-[10px] font-black text-brand-600 uppercase tracking-widest">Message Preview</p>
+                                <p class="text-[10px] font-bold text-gray-400 italic">Editable</p>
+                            </div>
+                            <textarea id="send-message-editor" class="w-full text-[13px] text-gray-800 font-medium leading-relaxed bg-gray-50 border border-gray-200 rounded-lg p-3 min-h-[140px] focus:ring-brand-500 focus:border-brand-500 transition-all resize-none shadow-inner" oninput="currentSendContext.message=this.value; if(document.getElementById('send-qr-panel').classList.contains('flex')) generateSendQR();">${ctx.message}</textarea>
+                            
+                            ${sendOptionsHTML}
+                        `}
+                    </div>
+
+                    ${assistantLine}
+                </div>
+            `;
+        }
+
+        function changeSendTone(tone) {
+            if (state.userTier !== 'Pro') return;
+            currentActiveTone = tone;
+            currentSendContext.message = generateSmartMessage(currentSendContext.invoiceRecord, tone);
+            renderSendSystem();
+        }
+
+        function markReminderSent(id) {
+    const inv = (state.savedInvoices || []).find(i => i.id === id);
+    if (inv) {
+        inv.lastReminderSent = Date.now();
+        inv.lastReminderTone = currentActiveTone;
+        saveState();
+        renderTrackerList();
+    }
+}
+
+function triggerSendCheckout(type) {
+    closeSendModal();
+            setTimeout(() => {
+                const ctxEl = document.getElementById('payment-dynamic-context');
+                if (ctxEl) {
+                    if(type === 'reminder') ctxEl.innerText = "Send this payment reminder now";
+                    else if(type === 'contract') ctxEl.innerText = "Send this contract now";
+                    ctxEl.classList.remove('hidden');
+                }
+                document.getElementById('payment-modal').classList.remove('hidden');
+                document.getElementById('payment-modal').classList.add('flex');
+            }, 300);
+        }
+
+        function closeSendModal() {
+            const modal = document.getElementById('send-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function buildUniversalLink(isQR = false) {
+            const msg = currentSendContext.message;
+            let targetPhone = "";
+            
+            if (currentSendContext.type === 'invoice') {
+                targetPhone = (state.cPhone || '').replace(/\D/g, '');
+            } else if (currentSendContext.type === 'reminder' && currentSendContext.invoiceRecord) {
+                targetPhone = (currentSendContext.invoiceRecord.cPhone || '').replace(/\D/g, '');
+            }
+
+            if (!targetPhone) {
+                return isQR ? `https://wa.me/?text=${encodeURIComponent(msg)}` : `https://web.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            }
+            return isQR ? `https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}` : `https://web.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(msg)}`;
+        }
+
+        function executeSend(channel) {
+            const msg = currentSendContext.message;
+            
+            if (currentSendContext.type === 'reminder' && currentSendContext.invoiceRecord) {
+                markReminderSent(currentSendContext.invoiceRecord.id);
+            }
+
+            if (channel === 'pc') {
+                window.open(buildUniversalLink(false), '_blank');
+            } else if (channel === 'email') {
+                let subject = "Document from " + (state.fName || 'Freelancer');
+                if (currentSendContext.type === 'reminder') subject = "Payment Reminder";
+                if (currentSendContext.type === 'invoice') subject = "Invoice " + (state.invNum || "");
+                if (currentSendContext.type === 'contract') subject = "Freelance Agreement";
+                window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`, '_blank');
+            }
+        }
+
+        function toggleSendQR() {
+            const panel = document.getElementById('send-qr-panel');
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                panel.classList.add('flex');
+                generateSendQR();
+            } else {
+                panel.classList.add('hidden');
+                panel.classList.remove('flex');
+            }
+        }
+
+        function generateSendQR() {
+            const container = document.getElementById('send-qr-canvas');
+            container.innerHTML = '';
             new QRCode(container, {
-                text: buildWhatsAppLink(inv, true),
+                text: buildUniversalLink(true),
                 width: 140,
                 height: 140,
                 colorDark: "#111827",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.L
             });
-            const pcLink = document.getElementById('wa-pc-link');
-            if (pcLink) pcLink.href = buildWhatsAppLink(inv, false);
         }
 
-        function renderNudgeList(inv) {
-            const area = document.getElementById('nudge-dynamic-area');
-            if (!inv) return;
-
-            const totalAmount = Number(inv.total || 0);
-            const paidAmount = Number(inv.paidAmount || 0);
-            const balance = Math.max(totalAmount - paidAmount, 0);
-
-            // --- SMART SYSTEM CALCULATIONS ---
-            const dueDate = new Date(inv.dueDate).setHours(0,0,0,0);
-            const today = new Date().setHours(0,0,0,0);
-            const diffTime = today - dueDate;
-            const daysOverdue = diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
-            
-            let suggestedTone = "Polite (Friendly)";
-            let toneDesc = "A gentle nudge. Perfect for clients who just forgot.";
-            let nextStep = "Send firm reminder in 2 days";
-            let activeToneIdx = 0;
-
-            if (daysOverdue > 1 && daysOverdue <= 3) {
-                suggestedTone = "Firm (Professional)";
-                toneDesc = "Polite enough to keep the relationship. Clear enough to ask for payment.";
-                nextStep = "Send final reminder tomorrow";
-                activeToneIdx = 1;
-            } else if (daysOverdue > 3) {
-                suggestedTone = "Final (Urgent)";
-                toneDesc = "Direct and uncompromising. Use when payment is severely delayed.";
-                nextStep = "Pause work until payment clears";
-                activeToneIdx = 2;
-            }
-
-            if (state.userTier !== 'Pro') {
-                // HIGH-CONVERSION "SILENT ASSISTANT" UI
-                area.innerHTML = `
-                    <div class="p-8 overflow-y-auto max-h-[75vh] bg-white relative">
-                        <h2 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">Send Payment Reminder</h2>
-                        <p class="text-[13px] text-gray-500 font-medium mb-6">A message is ready to send—polite, professional, and designed to get a response.</p>
-                        
-                        <div class="bg-gray-50 border border-gray-100 rounded-2xl p-5 shadow-sm mb-6">
-                            <div class="grid grid-cols-2 gap-y-3 text-sm">
-                                <div class="text-gray-500 font-bold">Client:</div> <div class="text-gray-900 font-black truncate">${inv.cName || 'Client'}</div>
-                                <div class="text-gray-500 font-bold">Amount:</div> <div class="text-gray-900 font-black">${formatINR(balance || totalAmount)}</div>
-                                <div class="text-gray-500 font-bold">Status:</div> <div class="text-red-500 font-black">${daysOverdue > 0 ? daysOverdue + ' days overdue' : 'Due today'}</div>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <p class="text-sm font-black text-gray-900">Suggested tone: <span class="text-brand-600">${suggestedTone}</span></p>
-                            <p class="text-xs text-gray-500 font-medium mt-1">${toneDesc}</p>
-                        </div>
-
-                        <div class="mb-6 opacity-60 pointer-events-none">
-                            <div class="flex gap-2">
-                                <div class="flex-1 py-2.5 text-center text-xs font-bold rounded-lg border ${activeToneIdx === 0 ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50'}">Polite</div>
-                                <div class="flex-1 py-2.5 text-center text-xs font-bold rounded-lg border ${activeToneIdx === 1 ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50'}">Firm</div>
-                                <div class="flex-1 py-2.5 text-center text-xs font-bold rounded-lg border ${activeToneIdx === 2 ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50'}">Final</div>
-                            </div>
-                            <p class="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-widest text-center">Choose how direct you want the reminder to be.</p>
-                        </div>
-
-                        <div class="bg-white p-5 rounded-2xl border border-gray-200 relative overflow-hidden shadow-sm mb-6">
-                            <p class="text-[13px] text-gray-800 font-bold leading-relaxed mb-4">
-                                Hi ${inv.cName || 'Client'}, just a quick reminder that your invoice of ${formatINR(balance || totalAmount)} is now overdue.<br><br>
-                                Please let me know when I can expect the payment.<br><br>
-                                Thank you.
-                            </p>
-                            <div class="space-y-1.5 border-t border-gray-100 pt-3 pb-8">
-                                <p class="text-[11px] font-black text-green-600 uppercase tracking-wider flex items-center gap-2">✔ Sounds professional</p>
-                                <p class="text-[11px] font-black text-green-600 uppercase tracking-wider flex items-center gap-2">✔ Avoids awkward wording</p>
-                                <p class="text-[11px] font-black text-green-600 uppercase tracking-wider flex items-center gap-2">✔ Built to get replies</p>
-                            </div>
-
-                            <div class="absolute inset-0 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-5 pt-12">
-                                <button onclick="triggerReminderCheckout()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-4 rounded-xl font-black text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2 w-full max-w-[280px] justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
-                                    Send via WhatsApp – ₹49
-                                </button>
-                                <p class="text-[10px] font-bold text-gray-500 mt-2 uppercase tracking-widest">One-time unlock. No subscription.</p>
-                            </div>
-                        </div>
-
-                        <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 shadow-sm mb-4">
-                            <p class="text-xs font-bold text-gray-700 mb-1">Last reminder: <span class="text-gray-500 font-medium">Never</span></p>
-                            <p class="text-xs font-bold text-brand-700">Next step: <span class="text-brand-600 font-medium">${nextStep}</span></p>
-                        </div>
-
-                        <p class="text-[11px] font-black text-gray-400 mt-6 uppercase tracking-wider text-center">No awkward conversations. No follow-up stress.</p>
-                    </div>
-                `;
-            } else {
-                // REAL DELIVERY FOR PRO USERS
-                area.innerHTML = `
-                    <div class="p-6 overflow-y-auto max-h-[60vh] bg-gray-50/50 space-y-4">
-                        <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-2">#${inv.invNum}</p>
-                            <h4 class="text-lg font-bold text-gray-900 mb-1">${inv.cName || 'Client'}</h4>
-                            ${inv.cPhone ? `<p class="text-xs text-gray-600 mb-3">📱 ${inv.cPhone}</p>` : ''}
-                            <p class="text-sm font-black text-gray-900 mb-3">${formatINR(totalAmount)}</p>
-                            ${paidAmount > 0 ? `<p class="text-xs text-gray-600 mb-3">Paid: ${formatINR(paidAmount)}<br>Balance: ${formatINR(balance)}</p>` : ''}
-                            <div class="bg-gray-50 p-4 rounded-lg mt-4 text-sm text-gray-800 italic border border-gray-100">
-                                "${currentNudgeMessage}"
-                            </div>
-                        </div>
-                    </div>
-                    <div class="px-6 pb-6 bg-white">
-                        <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 text-center shadow-sm">
-                            <h4 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700">Reminder via Phone</h4>
-                            <p class="text-[10px] text-brand-600/80 mb-4 font-medium">Scan this QR on your phone to open WhatsApp with the reminder message already filled in.</p>
-                            <div id="reminder-share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100"></div>
-                        </div>
-                    </div>
-                    <div class="p-6 border-t border-gray-100 bg-white flex justify-between items-center">
-                        <button onclick="closeNudgeModal()" class="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors">Cancel</button>
-                        <div class="flex gap-3">
-                            <button id="wa-all-link" onclick="refreshReminderQr()" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">Refresh QR</button>
-                            <a id="wa-pc-link" href="${buildWhatsAppLink(inv, false)}" target="_blank" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-black transition-colors shadow-lg hover:shadow-xl flex items-center gap-2">Open on PC</a>
-                        </div>
-                    </div>
-                `;
-                setTimeout(() => refreshReminderQr(), 50); 
-            }
-        }
-
-
-        function closeNudgeModal() {
-            const modal = document.getElementById('nudge-modal');
-            const content = document.getElementById('nudge-modal-content');
-            if(modal) modal.classList.add('opacity-0');
-            if(content) content.classList.add('scale-95');
-            setTimeout(() => {
-                if(modal) modal.classList.add('hidden');
-            }, 300);
-        }
 
               async function saveToHistory() {
             if (state.userTier !== 'Pro') {
@@ -1997,15 +1994,7 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
             });
         }
 
-        function closeNudgeModal() {
-    const modal = document.getElementById('nudge-modal');
-    const content = document.getElementById('nudge-modal-content');
-    modal.classList.add('opacity-0');
-    content.classList.add('scale-95');
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
-}
+        
 
 function initApp() {
     const params = new URLSearchParams(window.location.search);
