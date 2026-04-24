@@ -478,22 +478,49 @@ function applyTierLimits() {
                                         <input type="text" id="bankName" placeholder="Bank Name" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankName', this.value)">
                                         <input type="text" id="bankAccountName" placeholder="Account Holder Name" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankAccountName', this.value)">
                                         <input type="text" id="bankAccountNo" placeholder="Account Number" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankAccountNo', this.value)">
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <input type="text" id="bankIfsc" placeholder="IFSC Code" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankIfsc', this.value)">
-                                            <input type="text" id="bankBranch" placeholder="Branch (Opt)" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankBranch', this.value)">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- QR SHARE SYSTEM -->
-                        </div>
-
-
-                    <!-- Contract QR Share System -->
+                                        <<div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="bankIfsc" placeholder="IFSC Code" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankIfsc', this.value)">
+                    <input type="text" id="bankBranch" placeholder="Branch (Opt)" class="w-full text-sm font-medium border-gray-300 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('bankBranch', this.value)">
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div> <div id="contract-form-section" class="hidden space-y-5">
+        <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Contract Details</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Freelancer Name</label>
+                    <input type="text" id="contractFreelancer" placeholder="Your Name / Brand" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractFreelancer', this.value)">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
+                    <input type="text" id="contractClient" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractClient', this.value)">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
+                    <textarea id="contractDesc" placeholder="Scope of Work / Deliverables" rows="4" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white resize-none" oninput="updateState('contractDesc', this.value)"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Total Project Value (₹)</label>
+                    <input type="number" id="contractAmount" placeholder="e.g. 50000" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractAmount', parseFloat(this.value) || 0)">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5">Start Date</label>
+                        <input type="date" id="contractStart" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractStart', this.value)">
                     </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5">Delivery Date</label>
+                        <input type="date" id="contractEnd" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractEnd', this.value)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    </div>
                 <!-- Floating Action Bar -->
                 <div class="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm border-t border-gray-200 p-5 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.1)] z-20">
 <div id="invoice-actions" class="grid grid-cols-2 gap-3 mb-3">
