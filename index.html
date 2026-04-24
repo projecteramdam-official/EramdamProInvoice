@@ -1140,132 +1140,17 @@ function applyTierLimits() {
         }
 
         function triggerReminderCheckout() {
-            closeNudgeModal();
-            setTimeout(() => {
-                document.getElementById('payment-modal').classList.remove('hidden');
-                document.getElementById('payment-modal').classList.add('flex');
-            }, 300);
-        }
-        
-        function refreshReminderQr() {
-            const container = document.getElementById('reminder-share-qr-container');
-            if (!container) return;
-            container.innerHTML = '';
-            const inv = (state.savedInvoices || []).find(i => i.id === currentReminderInvoiceId);
-            if (!inv) return;
-            
-            new QRCode(container, {
-                text: buildWhatsAppLink(inv, true),
-                width: 140,
-                height: 140,
-                colorDark: "#111827",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.L
-            });
-            const pcLink = document.getElementById('wa-pc-link');
-            if (pcLink) pcLink.href = buildWhatsAppLink(inv, false);
-        }
-
-        function renderNudgeList(inv) {
-            const area = document.getElementById('nudge-dynamic-area');
-            if (!inv) return;
-
-            const totalAmount = Number(inv.total || 0);
-            const paidAmount = Number(inv.paidAmount || 0);
-            const balance = Math.max(totalAmount - paidAmount, 0);
-
-            if (state.userTier !== 'Pro') {
-                area.innerHTML = `
-                    <div class="p-8 overflow-y-auto max-h-[75vh] bg-white relative">
-                        <h2 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">Stop chasing payments manually.</h2>
-                        <p class="text-sm text-brand-600 font-bold mb-1">No awkward conversations. No follow-up stress.</p>
-                        <p class="text-xs text-gray-500 font-medium mb-8">Let the system handle it professionally.</p>
-                        
-                        <div class="bg-gray-50 border border-gray-100 rounded-2xl p-6 shadow-sm mb-8">
-                            <h4 class="text-[10px] font-black uppercase tracking-widest text-brand-500 mb-5">Smart Tone Adjustment</h4>
-                            <div class="space-y-6 relative before:absolute before:inset-y-0 before:left-2.5 before:w-0.5 before:bg-gray-200">
-                                <div class="relative pl-8">
-                                    <div class="absolute left-0 top-1 w-5 h-5 bg-white rounded-full border-2 border-green-500 flex items-center justify-center"><div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div></div>
-                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Day 1 (Polite)</p>
-                                    <p class="text-sm text-gray-900 font-black">"Just a quick reminder..."</p>
-                                </div>
-                                <div class="relative pl-8">
-                                    <div class="absolute left-0 top-1 w-5 h-5 bg-white rounded-full border-2 border-orange-500 flex items-center justify-center"><div class="w-1.5 h-1.5 bg-orange-500 rounded-full"></div></div>
-                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Day 3 (Firm)</p>
-                                    <p class="text-sm text-gray-900 font-black">"Kind reminder — this is now overdue..."</p>
-                                </div>
-                                <div class="relative pl-8">
-                                    <div class="absolute left-0 top-1 w-5 h-5 bg-white rounded-full border-2 border-red-500 flex items-center justify-center"><div class="w-1.5 h-1.5 bg-red-500 rounded-full"></div></div>
-                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Day 7 (Final)</p>
-                                    <p class="text-sm text-gray-900 font-black">"Please clear this today to avoid escalation..."</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl border border-gray-200 relative overflow-hidden shadow-sm">
-                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Message Preview</p>
-                            <p class="text-sm text-gray-800 font-bold">Hi ${inv.cName || 'Client'}, just a quick reminder that...</p>
-                            
-                            <div class="blur-[6px] select-none opacity-30 mt-3 space-y-3 pointer-events-none">
-                                <div class="h-3 bg-gray-400 rounded w-full"></div>
-                                <div class="h-3 bg-gray-400 rounded w-5/6"></div>
-                                <div class="h-3 bg-gray-400 rounded w-4/6"></div>
-                            </div>
-                            
-                            <div class="absolute inset-0 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 pt-12">
-                                <p class="text-sm font-black text-gray-900 mb-3 text-center">This message is ready to send right now.</p>
-                                <button onclick="triggerReminderCheckout()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-4 rounded-xl font-black text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2 w-full max-w-[280px] justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
-                                    Send This Message Now
-                                </button>
-                                <p class="text-[10px] font-bold text-brand-600 mt-2 uppercase tracking-widest">(Unlock required)</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                area.innerHTML = `
-                    <div class="p-6 overflow-y-auto max-h-[60vh] bg-gray-50/50 space-y-4">
-                        <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-2">#${inv.invNum}</p>
-                            <h4 class="text-lg font-bold text-gray-900 mb-1">${inv.cName || 'Client'}</h4>
-                            ${inv.cPhone ? `<p class="text-xs text-gray-600 mb-3">📱 ${inv.cPhone}</p>` : ''}
-                            <p class="text-sm font-black text-gray-900 mb-3">${formatINR(totalAmount)}</p>
-                            ${paidAmount > 0 ? `<p class="text-xs text-gray-600 mb-3">Paid: ${formatINR(paidAmount)}<br>Balance: ${formatINR(balance)}</p>` : ''}
-                            <div class="bg-gray-50 p-4 rounded-lg mt-4 text-sm text-gray-800 italic border border-gray-100">
-                                "${currentNudgeMessage}"
-                            </div>
-                        </div>
-                    </div>
-                    <div class="px-6 pb-6 bg-white">
-                        <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 text-center shadow-sm">
-                            <h4 class="text-xs font-bold uppercase tracking-widest mb-2 text-brand-700">Reminder via Phone</h4>
-                            <p class="text-[10px] text-brand-600/80 mb-4 font-medium">Scan this QR on your phone to open WhatsApp with the reminder message already filled in.</p>
-                            <div id="reminder-share-qr-container" class="flex justify-center bg-white p-3 rounded-xl shadow-sm mx-auto w-fit border border-brand-100"></div>
-                        </div>
-                    </div>
-                    <div class="p-6 border-t border-gray-100 bg-white flex justify-between items-center">
-                        <button onclick="closeNudgeModal()" class="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors">Cancel</button>
-                        <div class="flex gap-3">
-                            <button id="wa-all-link" onclick="refreshReminderQr()" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">Refresh QR</button>
-                            <a id="wa-pc-link" href="${buildWhatsAppLink(inv, false)}" target="_blank" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-black transition-colors shadow-lg hover:shadow-xl flex items-center gap-2">Open on PC</a>
-                        </div>
-                    </div>
-                `;
-                setTimeout(() => refreshReminderQr(), 50); 
-            }
-        }
-
-        function closeNudgeModal() {
-            const modal = document.getElementById('nudge-modal');
-            const content = document.getElementById('nudge-modal-content');
-            if(modal) modal.classList.add('opacity-0');
-            if(content) content.classList.add('scale-95');
-            setTimeout(() => {
-                if(modal) modal.classList.add('hidden');
-            }, 300);
-        }
-
+closeNudgeModal();
+setTimeout(() => {
+const ctxEl = document.getElementById('payment-dynamic-context');
+if (ctxEl) {
+ctxEl.innerText = "Send this payment reminder now";
+ctxEl.classList.remove('hidden');
+}
+document.getElementById('payment-modal').classList.remove('hidden');
+document.getElementById('payment-modal').classList.add('flex');
+}, 300);
+}
         
         function refreshReminderQr() {
             const container = document.getElementById('reminder-share-qr-container');
@@ -1334,12 +1219,15 @@ function applyTierLimits() {
                             </div>
                             
                             <div class="absolute inset-0 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 pt-12">
-                                <p class="text-sm font-black text-gray-900 mb-3 text-center">This message is ready to send right now.</p>
+                                <div class="text-center mb-4">
+                                    <p class="text-sm font-black text-gray-900">This message is ready to send right now.</p>
+                                    <p class="text-[11px] font-black text-brand-600 mt-1 uppercase tracking-wider">No awkward conversations. No follow-up stress.</p>
+                                </div>
                                 <button onclick="triggerReminderCheckout()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-4 rounded-xl font-black text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2 w-full max-w-[280px] justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
-                                    Send This Message Now
+                                    Send This Message Now – ₹49
                                 </button>
-                                <p class="text-[10px] font-bold text-brand-600 mt-2 uppercase tracking-widest">(Unlock required)</p>
+                                <p class="text-[10px] font-bold text-gray-500 mt-2 uppercase tracking-widest">One-time unlock required</p>
                             </div>
                         </div>
                     </div>
@@ -1370,23 +1258,21 @@ function applyTierLimits() {
                         <button onclick="closeNudgeModal()" class="text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors">Cancel</button>
                         <div class="flex gap-3">
                             <button id="wa-all-link" onclick="refreshReminderQr()" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">Refresh QR</button>
-                            <a id="wa-pc-link" href="#" target="_blank" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-black transition-colors shadow-lg hover:shadow-xl flex items-center gap-2">Open on PC</a>
+                            <a id="wa-pc-link" href="${buildWhatsAppLink(inv, false)}" target="_blank" class="bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl text-sm font-black transition-colors shadow-lg hover:shadow-xl flex items-center gap-2">Open on PC</a>
                         </div>
                     </div>
                 `;
                 setTimeout(() => refreshReminderQr(), 50); 
             }
         }
-        
-
 
         function closeNudgeModal() {
             const modal = document.getElementById('nudge-modal');
             const content = document.getElementById('nudge-modal-content');
-            modal.classList.add('opacity-0');
-            content.classList.add('scale-95');
+            if(modal) modal.classList.add('opacity-0');
+            if(content) content.classList.add('scale-95');
             setTimeout(() => {
-                modal.classList.add('hidden');
+                if(modal) modal.classList.add('hidden');
             }, 300);
         }
 
@@ -2257,16 +2143,25 @@ function logoutUser() {
 }
 
 function openUpgradeModal(context) {
-            // Direct jump to checkout
-            document.getElementById('payment-modal').classList.remove('hidden');
-            document.getElementById('payment-modal').classList.add('flex');
-        }
-
-        function handleUpgrade() {
-            // Direct jump to checkout
-            document.getElementById('payment-modal').classList.remove('hidden');
-            document.getElementById('payment-modal').classList.add('flex');
-        }
+const ctxEl = document.getElementById('payment-dynamic-context');
+if (ctxEl) {
+if (context && context.includes("save")) ctxEl.innerText = "Save this invoice securely";
+else if (context && context.includes("download")) ctxEl.innerText = "Download this PDF";
+else ctxEl.innerText = "Activate your workspace";
+ctxEl.classList.remove('hidden');
+}
+document.getElementById('payment-modal').classList.remove('hidden');
+document.getElementById('payment-modal').classList.add('flex');
+}
+function handleUpgrade() {
+const ctxEl = document.getElementById('payment-dynamic-context');
+if (ctxEl) {
+ctxEl.innerText = "Activate your workspace";
+ctxEl.classList.remove('hidden');
+}
+document.getElementById('payment-modal').classList.remove('hidden');
+document.getElementById('payment-modal').classList.add('flex');
+}
 
         function closePaymentModal() {
             document.getElementById('payment-modal').classList.add('hidden');
@@ -2294,10 +2189,11 @@ Please activate my access. I’ve attached the payment screenshot if needed.`;
 </script>
 <div id="payment-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[110] backdrop-blur-sm">
     <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl text-center transform transition-all fade-in">
-        <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Unlock My Invoice System – ₹49</h2>
-        <p class="text-sm text-gray-500 mb-4 font-medium leading-relaxed">
-            Get paid faster. Track everything in one place.
-        </p>
+        <h2 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">Unlock My Invoice System – ₹49</h2>
+<p id="payment-dynamic-context" class="text-brand-600 font-bold text-sm mb-2 hidden"></p>
+<p class="text-sm text-gray-500 mb-4 font-medium leading-relaxed">
+Get paid faster. Track everything in one place.
+</p>
 
         <p class="text-[11px] text-gray-600 font-bold mb-4 uppercase tracking-wider">
             <span class="text-orange-500">Early access</span> • One-time payment
