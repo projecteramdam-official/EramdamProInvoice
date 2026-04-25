@@ -986,7 +986,17 @@ function applyTierLimits() {
 <p class="text-[10px] text-gray-400 font-bold uppercase">Due: ${formatDate(record.dueDate)}</p>
 <p class="text-sm font-black text-gray-900">${formatINR(record.total)}</p>
 ${paidAmount > 0 ? `<p class="text-[10px] text-gray-500 font-bold mt-1 mb-1">Paid: ${formatINR(paidAmount)} • Balance: ${formatINR(balance)}</p>` : ''}
-${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1 bg-brand-50 inline-block px-2 py-0.5 rounded-full">Reminded: ${new Date(record.lastReminderSent).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})} (${record.lastReminderTone || 'Polite'})</p>` : ''}
+${(() => {
+    if (!record.dueDate) return '';
+    const intel = getAssistantIntelligence(record);
+    if (!record.lastReminderSent && intel.daysOverdue <= 0) return '';
+    return `
+        <div class="mt-2 bg-gray-50 border border-gray-100 p-2 rounded-lg text-[10px]">
+            <p class="font-bold text-gray-500 mb-0.5">Last: <span class="text-gray-800">${intel.lastRemText}</span></p>
+            <p class="font-black text-brand-600">Next: ${intel.nextStepText}</p>
+        </div>
+    `;
+})()}
 </div>
                             <div class="flex gap-2">
                                 ${badgeLabel !== 'Paid' ? `
@@ -1048,23 +1058,66 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
         function updateShareQR() {} 
         function updateContractShareQR() {} 
 
-        function generateSmartMessage(inv, toneLevel) {
+        // --- PRO CORE: ASSISTANT INTELLIGENCE ENGINE ---
+        function getAssistantIntelligence(invRecord) {
+            if (!invRecord || !invRecord.dueDate) return { lastRemText: "Never", nextStepText: "Wait until due", suggestedTone: "Polite", daysOverdue: 0 };
+            
+            const due = new Date(invRecord.dueDate).setHours(0,0,0,0);
+            const today = new Date().setHours(0,0,0,0);
+            const daysOverdue = Math.max(0, Math.ceil((today - due) / 86400000));
+            
+            let lastRemText = "Never";
+            let nextStepText = "Send Polite reminder";
+            let suggestedTone = "Polite";
+
+            // Base logic if no reminder has been sent yet
+            if (daysOverdue > 0) {
+                if (daysOverdue <= 2) { suggestedTone = "Polite"; nextStepText = "Send Firm reminder in 2 days"; }
+                else if (daysOverdue <= 5) { suggestedTone = "Firm"; nextStepText = "Send Final reminder in 2 days"; }
+                else { suggestedTone = "Final"; nextStepText = "Follow up via call if no reply"; }
+            }
+
+            // Advanced logic based on user's memory log
+            if (invRecord.lastReminderSent) {
+                const daysSince = Math.floor((Date.now() - invRecord.lastReminderSent) / 86400000);
+                lastRemText = `${daysSince === 0 ? 'Today' : daysSince + ' days ago'} (${invRecord.lastReminderTone || 'Polite'})`;
+                
+                if (invRecord.lastReminderTone === 'Polite') {
+                    suggestedTone = "Firm";
+                    nextStepText = daysSince < 2 ? `Send Firm reminder in ${2 - daysSince} days` : "Send Firm reminder now";
+                } else if (invRecord.lastReminderTone === 'Firm') {
+                    suggestedTone = "Final";
+                    nextStepText = daysSince < 2 ? `Send Final reminder in ${2 - daysSince} days` : "Send Final reminder now";
+                } else {
+                    suggestedTone = "Final";
+                    nextStepText = "Follow up via call";
+                }
+            }
+            return { lastRemText, nextStepText, suggestedTone, daysOverdue };
+        }
+
+        // --- SMART TEXT GENERATOR (WITH CLOSED LOOP LINK) ---
+        function generateSmartMessage(inv, toneLevel, docLink = "") {
             const client = inv.cName ? inv.cName.split(' ')[0] : "Client";
             const total = Number(inv.total || 0);
             const paid = Number(inv.paidAmount || 0);
             const balance = formatINR(Math.max(total - paid, 0));
             const invNum = inv.invNum || "your invoice";
+            
+            // The Closed Loop: Embedding the secure read-only view
+            const linkText = docLink ? `\n\nYou can securely view the invoice here:\n${docLink}` : "";
 
             let message = "";
             if (toneLevel === "Polite") {
-                message = `Hi ${client},\n\nJust a quick friendly reminder regarding ${invNum} for ${balance}.\n\nNo rush, but please let me know if you need any additional details from my end to process it.\n\nThanks!`;
+                message = `Hi ${client},\n\nJust a quick friendly reminder regarding ${invNum} for ${balance}.${linkText}\n\nNo rush, but please let me know if you need any additional details from my end to process it.\n\nThanks!`;
             } else if (toneLevel === "Firm") {
-                message = `Hi ${client},\n\nI’m following up on ${invNum} for ${balance}, which is now overdue.\n\nPlease process this payment at your earliest convenience and share the transaction receipt so I can update my records.\n\nThank you.`;
+                message = `Hi ${client},\n\nI’m following up on ${invNum} for ${balance}, which is now overdue.${linkText}\n\nPlease process this payment at your earliest convenience so I can update my records.\n\nThank you.`;
             } else if (toneLevel === "Final") {
-                message = `Hi ${client},\n\nThis is a final reminder regarding the overdue balance of ${balance} for ${invNum}.\n\nI kindly request you to prioritize this and clear the amount today so we can settle this account.\n\nPlease confirm once the transfer is completed.`;
+                message = `Hi ${client},\n\nThis is a final reminder regarding the overdue balance of ${balance} for ${invNum}.${linkText}\n\nI kindly request you to prioritize this and clear the amount today so we can close this out.\n\nPlease confirm once the transfer is completed.`;
             }
             return message;
         }
+
 
         function openSendSystem(type, id = null) {
             let title = "Send to Client";
@@ -1110,20 +1163,27 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
                 client = invoiceRecord.cName || "Client";
                 amount = Math.max((Number(invoiceRecord.total) || 0) - (Number(invoiceRecord.paidAmount) || 0), 0);
                 
-                const due = new Date(invoiceRecord.dueDate).setHours(0,0,0,0);
-                const today = new Date().setHours(0,0,0,0);
-                const diff = today - due;
-                daysOverdue = diff > 0 ? Math.ceil(diff / 86400000) : 0;
-                
+                // Fetch UI Intelligence
+                const intel = getAssistantIntelligence(invoiceRecord);
+                daysOverdue = intel.daysOverdue;
                 contextText = daysOverdue > 0 ? `Invoice overdue by ${daysOverdue} days` : "Invoice due today";
-
-                activeTone = "Polite";
-                if (daysOverdue > 1 && daysOverdue <= 3) activeTone = "Firm";
-                if (daysOverdue > 3) activeTone = "Final";
-                
+                activeTone = intel.suggestedTone;
                 currentActiveTone = activeTone;
-                message = generateSmartMessage(invoiceRecord, activeTone);
+
+                // Generate Safe Document Link for Reminder
+                const baseUrl = window.location.href.split('?')[0];
+                const url = new URL(baseUrl);
+                url.searchParams.set('view', 'doc');
+                url.searchParams.set('inv', invoiceRecord.invNum || '');
+                url.searchParams.set('c', invoiceRecord.cName || '');
+                url.searchParams.set('t', amount);
+                const docLink = url.toString();
+                
+                currentSendContext.intel = intel;
+                currentSendContext.docLink = docLink;
+                message = generateSmartMessage(invoiceRecord, activeTone, docLink);
             }
+
 
             currentSendContext = { type, id, title, client, amount, contextText, message, invoiceRecord, daysOverdue, activeTone };
 
@@ -1154,20 +1214,16 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
             
             if (ctx.type === 'reminder') {
                 let toneDesc = "";
-                let nextStep = "";
                 let activeToneIdx = 0;
 
                 if (currentActiveTone === "Polite") {
                     toneDesc = "A gentle nudge. Perfect for clients who just forgot.";
-                    nextStep = "Send firm reminder in 2 days";
                     activeToneIdx = 0;
                 } else if (currentActiveTone === "Firm") {
                     toneDesc = "Polite enough to keep the relationship. Clear enough to ask for payment.";
-                    nextStep = "Send final reminder tomorrow";
                     activeToneIdx = 1;
                 } else if (currentActiveTone === "Final") {
                     toneDesc = "Direct and uncompromising. Use when payment is severely delayed.";
-                    nextStep = "Pause work until payment clears";
                     activeToneIdx = 2;
                 }
 
@@ -1185,14 +1241,13 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
                     </div>
                 `;
 
-                const lastRemDate = ctx.invoiceRecord.lastReminderSent ? new Date(ctx.invoiceRecord.lastReminderSent).toLocaleDateString('en-IN', {day:'2-digit', month:'short'}) : 'Never';
-                const lastRemTone = ctx.invoiceRecord.lastReminderTone || 'Polite';
-
+                // Render dynamic intelligence from Context
+                const intel = ctx.intel || { lastRemText: "Never", nextStepText: "Wait until due" };
                 assistantLine = `
                     <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 shadow-sm mt-6 flex justify-between items-center">
                         <div>
-                            <p class="text-xs font-bold text-gray-700 mb-1">Last reminder: <span class="text-gray-500 font-medium">${lastRemDate !== 'Never' ? lastRemDate + ' (' + lastRemTone + ')' : 'Never'}</span></p>
-                            <p class="text-xs font-bold text-brand-700">Next step: <span class="text-brand-600 font-medium">${nextStep}</span></p>
+                            <p class="text-xs font-bold text-gray-700 mb-1">Last reminder: <span class="text-gray-500 font-medium">${intel.lastRemText}</span></p>
+                            <p class="text-xs font-bold text-brand-700">Next step: <span class="text-brand-600 font-medium">${intel.nextStepText}</span></p>
                         </div>
                     </div>
                 `;
@@ -1266,7 +1321,7 @@ ${record.lastReminderSent ? `<p class="text-[10px] text-brand-600 font-bold mt-1
         function changeSendTone(tone) {
             if (state.userTier !== 'Pro') return;
             currentActiveTone = tone;
-            currentSendContext.message = generateSmartMessage(currentSendContext.invoiceRecord, tone);
+            currentSendContext.message = generateSmartMessage(currentSendContext.invoiceRecord, tone, currentSendContext.docLink || "");
             renderSendSystem();
         }
 
