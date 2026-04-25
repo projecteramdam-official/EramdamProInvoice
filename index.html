@@ -17,34 +17,41 @@
     <script>
         const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyueDHAoCdL42O9zOwfA7FAwY7NninmnPLDVdjGnPFjA1t2LiCC65jNkG8mQF1lanFr/exec";
 
+        // --- GLOBAL PERMANENT FIELDS (THE VAULT) ---
+        const GLOBAL_KEYS = ['fName', 'fEmail', 'fAddress', 'myState', 'upiId', 'qrImage', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch'];
+
         // --- 1. GLOBAL STATE MANAGEMENT ---
         const defaultState = {
-            style: 'modern',
-            userType: 'registered',
-            isExport: false,
+            style: 'modern', userType: 'registered', isExport: false,
             invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
-            invDate: new Date().toISOString().split('T')[0],
-            paymentTerms: 'receipt',
-            dueDate: new Date().toISOString().split('T')[0],
-            lateFee: 0,
+            invDate: new Date().toISOString().split('T')[0], paymentTerms: 'receipt',
+            dueDate: new Date().toISOString().split('T')[0], lateFee: 0,
             fName: '', fEmail: '', fAddress: '', myState: '',
             cName: '', cPhone: '', cAddress: '', clientState: '',
             items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
             upiId: '', qrImage: null,
             bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
-            savedInvoices: [],
-            savedContracts: [],
-            paymentStatus: 'unpaid',
-            paidAmount: 0,
-            mode: 'invoice',
-            contractFreelancer: '',
-            contractClient: '',
-            contractDesc: '',
-            contractAmount: 0,
-            contractStart: '',
-            contractEnd: ''
+            savedInvoices: [], savedContracts: [], paymentStatus: 'unpaid', paidAmount: 0, mode: 'invoice',
+            contractFreelancer: '', contractClient: '', contractDesc: '', contractAmount: 0, contractStart: '', contractEnd: ''
         };
         let state = { ...defaultState };
+
+        // Helper: Save only Global Setup to separate key
+        function persistGlobalSetup() {
+            const globals = {};
+            GLOBAL_KEYS.forEach(key => globals[key] = state[key]);
+            localStorage.setItem('eramdam_global_setup', JSON.stringify(globals));
+        }
+
+        // Helper: Load Global Setup into current state
+        function injectGlobalSetup() {
+            const saved = localStorage.getItem('eramdam_global_setup');
+            if (saved) {
+                const globals = JSON.parse(saved);
+                Object.assign(state, globals);
+            }
+        }
+
 
         // --- 2. AUTHENTICATION HANDLERS ---
         async function handleCredentialResponse(response) {
@@ -610,44 +617,41 @@ Global Payment Setup
             return `${y}-${m}-${d}`;
         }
 
-        async function loadState() {
-            const localSaved = localStorage.getItem('invoiceAppPro_V4_Tracker');
-            if (localSaved) {
-                const parsed = JSON.parse(localSaved);
-                const currentToken = state.userToken;
-                const currentTier = state.userTier;
-                const currentSheetId = state.userSheetId;
-                const currentEmail = state.userEmail;
-                state = { ...defaultState, ...parsed };
-                state.userToken = currentToken;
-                state.userTier = currentTier;
-                state.userSheetId = currentSheetId;
-                state.userEmail = currentEmail;
-            }
-            const result = await apiRequest('FETCH_DATA');
-            if (result.success) {
-                if (!result.invoices || result.invoices.length === 0) {
-                    state.savedInvoices = [
-                        { id: 101, invNum: "INV-DEMO-001", cName: "John Doe (Demo)", total: 5000, status: "Overdue", dueDate: "2026-04-10", isDemo: true, recordType: 'invoice' },
-                        { id: 102, invNum: "INV-DEMO-002", cName: "Acme Corp (Demo)", total: 12000, status: "Unpaid", dueDate: "2026-04-28", isDemo: true, recordType: 'invoice' },
-                        { id: 103, invNum: "INV-DEMO-003", cName: "Startup XYZ (Demo)", total: 8000, status: "Paid", dueDate: "2026-04-15", isDemo: true, recordType: 'invoice' }
-                    ];
-                } else {
-                    state.savedInvoices = result.invoices.map(inv => normalizeTrackerRecord(inv, 'invoice'));
+        function updateState(key, value) {
+            state[key] = value;
+            if (key === 'invDate' || key === 'paymentTerms') state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
+            if (key === 'paymentStatus' || key === 'paidAmount') {
+                if (key === 'paymentStatus') {
+                    state.paidAmount = (value === 'paid') ? grandTotalToExport : 0;
+                    const el = document.getElementById('paidAmount');
+                    if (el) el.value = state.paidAmount;
                 }
-                state.savedContracts = Array.isArray(result.contracts) ? result.contracts.map(ct => normalizeTrackerRecord(ct, 'contract')) : [];
-                refreshInvoiceStatuses();
+                syncPaymentStatus();
             }
+            if (GLOBAL_KEYS.includes(key)) persistGlobalSetup();
+            saveState();
+            
+            // Performance: Skip heavy render for background fields
+            const visualFields = ['style', 'invNum', 'invDate', 'dueDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'paymentStatus', 'paidAmount'];
+            if (visualFields.includes(key)) renderPreview();
         }
 
-        function saveState() { localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state)); }
+        function saveState() { 
+            localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state)); 
+            persistGlobalSetup(); // Keep Vault synced
+        }
+
         function normalizeTrackerRecord(record, type) { return { ...record, recordType: record.recordType || type, savedAt: record.savedAt || record.id || Date.now() }; }
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
         function getContractRecords() { return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract')); }
         function getTrackerRecords() { return [...getInvoiceRecords(), ...getContractRecords()].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0)); }
-        
-        function syncPaymentStatus() {
 
+        function syncPaymentStatus() {
+            const sub = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
+            const paid = Number(state.paidAmount || 0);
+            if (paid <= 0) { state.paymentStatus = 'unpaid'; return; }
+            state.paymentStatus = (paid >= sub) ? 'paid' : 'partial';
+        }
             const itemsTotal = (state.items || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
             const total = Number(grandTotalToExport || itemsTotal || 0);
             const paid = Number(state.paidAmount || 0);
@@ -704,46 +708,7 @@ Global Payment Setup
                 badge.classList.add('hidden');
             }
             renderTrackerList();
-        }
-
-        function updateState(key, value) {
-            state[key] = value;
-
-            if (key === 'invDate' || key === 'paymentTerms') {
-                state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
-            }
-
-            if (key === 'paymentStatus') {
-                if (value === 'paid') {
-                    state.paidAmount = grandTotalToExport;
-                    document.getElementById('paidAmount').value = grandTotalToExport;
-                } else if (value === 'unpaid') {
-                    state.paidAmount = 0;
-                    document.getElementById('paidAmount').value = 0;
-                }
-            }
-
-            if (key === 'paidAmount' || key === 'paymentStatus' || key === 'lateFee' || key === 'invDate' || key === 'paymentTerms') {
-                syncPaymentStatus();
-            }
-
-            saveState();
-
-            if (key === 'userType') {
-                const extra = document.getElementById('gst-extra-settings');
-                if (value === 'registered') extra.classList.remove('hidden');
-                else extra.classList.add('hidden');
-            }
-
-            if (state.mode === 'invoice') {
-                renderPreview();
-                updateShareQR();
-            } else {
-                renderContractPreview();
-                updateContractShareQR();
-            }
-        }
-
+        }        
         // --- 2. TRACKER UI & LOGIC ---
         let trackerFilter = 'all';
 
@@ -1059,7 +1024,7 @@ ${(() => {
         function generateSmartMessage(type, client, amount, docLink, invRecord = null, tone = "Polite") {
             const firstName = client ? client.split(' ')[0] : "Client";
             const formattedAmount = formatINR(amount);
-            const linkAction = `\n\n 👉  View secure document below:\n${docLink}`;
+            const linkAction = `\n\n👉 View secure document below:\n${docLink}`;
 
             if (type === 'invoice') {
                 return `Hi ${firstName},\n\nYour invoice for ${formattedAmount} is ready.${linkAction}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
@@ -1067,22 +1032,14 @@ ${(() => {
                 return `Hi ${firstName},\n\nI've prepared our freelance agreement for ${formattedAmount}.${linkAction}\n\nKindly review and confirm.`;
             } else if (type === 'reminder' && invRecord) {
                 const invNum = invRecord.invNum || "your invoice";
-                if (tone === "Polite") {
-                    return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${formattedAmount}.${linkAction}\n\nNo rush, but please let me know if you have any questions!`;
-                } else if (tone === "Firm") {
-                    return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${formattedAmount}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
-                } else if (tone === "Final") {
-                    return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${formattedAmount} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this and clear the amount today.`;
-                }
-            } else if (type === 'thankyou' && invRecord) {
-                const invNum = invRecord.invNum || "your invoice";
-                const memoryStr = invRecord.daysToPay ? ` (cleared in ${invRecord.daysToPay} days)` : "";
-                return `Hi ${firstName},\n\nThis is to confirm that the payment of ${formattedAmount} for ${invNum} has been received successfully.\n\nThank you for your prompt payment${memoryStr}.\n\nIt was a pleasure working with you, and I look forward to collaborating again!\n\nBest regards,`;
+                if (tone === "Polite") return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${formattedAmount}.${linkAction}\n\nNo rush, but let me know if you have any questions!`;
+                if (tone === "Firm") return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${formattedAmount}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
+                if (tone === "Final") return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${formattedAmount} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this today.`;
+            } else if (type === 'thankyou') {
+                return `Hi ${firstName},\n\nPayment of ${formattedAmount} received. Thank you!`;
             }
             return "";
         }
-
-
 
         // --- 4. THE CLEAN CONTEXT BUILDER ---
         function openSendSystem(type, id = null) {
@@ -1716,20 +1673,15 @@ ${(() => {
                             <div class="border-t border-gray-200 pt-6 flex flex-col gap-6">
                                 ${hasPayment ? `
                                     <div class="flex items-start gap-6">
-                                        ${state.upiId ? `
-    <div class="flex flex-col items-center">
-        ${state.qrImage ? `<img src="${state.qrImage}" class="w-20 h-20 object-contain border border-gray-200 p-1.5 rounded-lg mb-2 bg-white">` : ''}
-        <p class="text-[9px] font-bold text-brand-600 uppercase tracking-widest text-center">Amount: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
-    </div>
-` : (state.qrImage ? `
-    <div class="flex flex-col items-center">
-        <img src="${state.qrImage}" class="w-16 h-16 object-contain border border-gray-200 p-1 rounded-lg mb-1.5 bg-white">
-        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest text-center">Scan to Pay</p>
-    </div>
-` : '')}
-                                        <div class="flex flex-col">
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Payment Details</p>
-                                            ${state.upiId ? `<p class="text-sm font-medium text-gray-800">UPI: ${state.upiId}</p>` : ''}
+                                        	
+    <div class="flex flex-col gap-2 items-center">
+    ${state.qrImage ? `<img src="${state.qrImage}" class="w-24 h-24 object-contain border border-gray-100 p-1 rounded-lg bg-white shadow-sm mb-2">` : ''}
+    ${state.upiId ? `<p class="text-[10px] font-bold text-gray-800">UPI ID: ${state.upiId}</p>` : ''}
+    <p class="text-[10px] font-bold text-brand-600 uppercase tracking-widest text-center">Balance Due: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
+</div>
+<div class="flex flex-col">
+<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Payment Details</p>
+
                                             ${hasBank ? `
                                                 <div class="text-xs text-gray-600 space-y-0.5 ${state.upiId ? 'mt-2' : ''}">
                                                     ${state.bankName ? `<p><span class="font-semibold text-gray-700">Bank:</span> ${state.bankName}</p>` : ''}
@@ -1814,22 +1766,11 @@ ${(() => {
                                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">Payment Details</p>
                                 ${hasPayment ? `
                                     <div class="flex flex-col gap-4">
-                                        ${state.upiId ? `
-    <div class="flex items-center gap-4 ${hasBank ? 'border-b border-gray-200 pb-4' : ''} w-full">
-        ${state.qrImage ? `<img src="${state.qrImage}" class="w-20 h-20 object-contain border border-gray-200 p-1.5 rounded-lg mb-2 bg-white">` : ''}
-        <div class="flex flex-col">
-            <p class="text-sm font-bold text-gray-800 truncate">${state.upiId}</p>
-            <p class="text-[10px] font-bold text-brand-600 uppercase tracking-widest mt-1">Requested: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
-        </div>
-    </div>
-` : (state.qrImage ? `
-    <div class="flex items-center gap-4 ${hasBank ? 'border-b border-gray-200 pb-4' : ''}">
-        <img src="${state.qrImage}" class="w-16 h-16 object-contain bg-white p-1 border border-gray-200 rounded shadow-sm">
-        <div class="flex flex-col">
-            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Scan to Pay</p>
-        </div>
-    </div>
-` : '')}
+                                        <div class="flex flex-col gap-2 items-center">
+    ${state.qrImage ? `<img src="${state.qrImage}" class="w-24 h-24 object-contain border border-gray-100 p-1 rounded-lg bg-white shadow-sm mb-2">` : ''}
+    ${state.upiId ? `<p class="text-[10px] font-bold text-gray-800">UPI ID: ${state.upiId}</p>` : ''}
+    <p class="text-[10px] font-bold text-brand-600 uppercase tracking-widest text-center">Balance Due: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
+</div>
                                         ${hasBank ? `
                                             <div class="text-xs text-gray-700 space-y-1.5">
                                                 ${state.bankName ? `<p><span class="text-gray-500 w-14 inline-block">Bank:</span> <span class="font-bold">${state.bankName}</span></p>` : ''}
@@ -1923,14 +1864,11 @@ ${(() => {
                         <div class="mt-8 flex justify-between items-start gap-12 break-inside-avoid w-full">
                             <div class="w-[35%] flex flex-col items-start pt-4">
                                 ${hasPayment ? `<p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-5">Payment Details</p>` : ''}
-                                ${state.upiId ? `
-    ${state.qrImage ? `<img src="${state.qrImage}" class="w-20 h-20 object-contain border border-gray-200 p-1.5 rounded-lg mb-2 bg-white">` : ''}
-    <p class="text-[10px] font-black text-brand-600 uppercase tracking-widest mb-4">Requested: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
-    <p class="text-xs font-bold text-gray-600 mb-4 truncate w-full border-b border-gray-200 pb-3">${state.upiId}</p>
-` : (state.qrImage ? `
-    <img src="${state.qrImage}" class="w-20 h-20 object-contain rounded-xl border border-gray-100 p-1.5 mb-2 bg-white shadow-sm">
-    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Scan to Pay</p>
-` : '')}
+                                <div class="flex flex-col gap-2 w-full border-b border-gray-200 pb-3 mb-4">
+    ${state.qrImage ? `<img src="${state.qrImage}" class="w-24 h-24 object-contain border border-gray-100 p-1 rounded-lg bg-white shadow-sm mb-2">` : ''}
+    ${state.upiId ? `<p class="text-xs font-bold text-gray-600 truncate w-full">UPI ID: ${state.upiId}</p>` : ''}
+    <p class="text-[10px] font-black text-brand-600 uppercase tracking-widest">Balance Due: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
+</div>
                                 ${hasBank ? `
                                     <div class="text-xs text-gray-500 space-y-1 w-full">
                                         ${state.bankName ? `<p class="font-bold text-gray-800">${state.bankName}</p>` : ''}
@@ -2017,45 +1955,21 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 }
         
         function clearData() {
-            if (confirm("Start fresh?")) {
-                const invoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
-                const contracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
+    if (confirm("Reset current invoice? Global Payment Setup and Identity will be preserved.")) {
+        const invoices = state.savedInvoices;
+        const contracts = state.savedContracts;
+        const meta = { userToken: state.userToken, userTier: state.userTier, userEmail: state.userEmail, userSheetId: state.userSheetId };
+        
+        const currentGlobals = {};
+        GLOBAL_KEYS.forEach(key => currentGlobals[key] = state[key]);
 
-                // Reset only invoice fields; preserve Global Payment Setup
-state = {
-    ...state,
-    ...defaultState,
-    // Restore the global payment setup after resetting defaults
-    upiId: state.upiId,
-    qrImage: state.qrImage,
-    bankName: state.bankName,
-    bankAccountName: state.bankAccountName,
-    bankAccountNo: state.bankAccountNo,
-    bankIfsc: state.bankIfsc,
-    bankBranch: state.bankBranch,
-    fName: state.fName,
-    fEmail: state.fEmail,
-    fAddress: state.fAddress,
-    myState: state.myState,
-    savedInvoices: invoices,
-    savedContracts: contracts
-};
-
-                populateForm();
-                renderItems();
-                setMode(state.mode || 'invoice');
-                renderTrackerList();
-
-                if (!isMobileFlow) {
-                    if (state.mode === 'invoice') {
-                        updateShareQR();
-                    } else {
-                        updateContractShareQR();
-                    }
-                }
-            }
-        }
-
+        state = { ...defaultState, ...currentGlobals, ...meta, savedInvoices: invoices, savedContracts: contracts };
+        saveState();
+        populateForm();
+        renderItems();
+        renderPreview();
+    }
+}
         let qrCodeInstance = null;
         function updateShareQR() {
             const container = document.getElementById('share-qr-container');
