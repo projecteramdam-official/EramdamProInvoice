@@ -1096,108 +1096,101 @@ ${(() => {
             return { lastRemText, nextStepText, suggestedTone, daysOverdue };
         }
 
-        // --- SMART TEXT GENERATOR (WITH CLOSED LOOP LINK) ---
-        function generateSmartMessage(inv, toneLevel, docLink = "") {
-            const client = inv.cName ? inv.cName.split(' ')[0] : "Client";
-            const total = Number(inv.total || 0);
-            const paid = Number(inv.paidAmount || 0);
-            const balance = formatINR(Math.max(total - paid, 0));
-            const invNum = inv.invNum || "your invoice";
+        // --- 2. SECURE LINK BUILDER ---
+        function buildDocumentLink(type, record = null, amount = 0) {
+            const baseUrl = window.location.href.split('?')[0];
+            const url = new URL(baseUrl);
+            url.searchParams.set('view', 'doc');
             
-            // The Closed Loop: Embedding the secure read-only view
-            const linkText = docLink ? `\n\nYou can securely view the invoice here:\n${docLink}` : "";
-
-            let message = "";
-            if (toneLevel === "Polite") {
-                message = `Hi ${client},\n\nJust a quick friendly reminder regarding ${invNum} for ${balance}.${linkText}\n\nNo rush, but please let me know if you need any additional details from my end to process it.\n\nThanks!`;
-            } else if (toneLevel === "Firm") {
-                message = `Hi ${client},\n\nI’m following up on ${invNum} for ${balance}, which is now overdue.${linkText}\n\nPlease process this payment at your earliest convenience so I can update my records.\n\nThank you.`;
-            } else if (toneLevel === "Final") {
-                message = `Hi ${client},\n\nThis is a final reminder regarding the overdue balance of ${balance} for ${invNum}.${linkText}\n\nI kindly request you to prioritize this and clear the amount today so we can close this out.\n\nPlease confirm once the transfer is completed.`;
-            }
-            return message;
-        }
-
-
-        function openSendSystem(type, id = null) {
-            let title = "Send to Client";
-            let client = "";
-            let amount = 0;
-            let contextText = "Everything is ready to send.";
-            let message = "";
-            let invoiceRecord = null;
-            let daysOverdue = 0;
-            let activeTone = null;
-
             if (type === 'invoice') {
-                client = state.cName || "Client";
-                amount = grandTotalToExport;
-                contextText = `Invoice ready for ${client}`;
-                
-                const baseUrl = window.location.href.split('?')[0];
-                const url = new URL(baseUrl);
-                url.searchParams.set('view', 'doc');
                 url.searchParams.set('inv', state.invNum || '');
                 url.searchParams.set('c', state.cName || '');
                 url.searchParams.set('t', amount);
-                
-                message = `Hi ${client},\n\nPlease find your invoice (${state.invNum || ''}) here:\n${url.toString()}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
             } else if (type === 'contract') {
-                client = state.contractClient || "Client";
-                amount = state.contractAmount;
-                contextText = `Contract ready for ${client}`;
-                
-                const baseUrl = window.location.href.split('?')[0];
-                const url = new URL(baseUrl);
-                url.searchParams.set('view', 'doc');
                 url.searchParams.set('mode', 'contract');
-                url.searchParams.set('c', client);
+                url.searchParams.set('c', state.contractClient || '');
                 url.searchParams.set('t', amount);
-
-                message = `Hi ${client},\n\nPlease find our freelance agreement here:\n${url.toString()}\n\nKindly review and confirm.\n\nThank you.`;
-
-            } else if (type === 'reminder') {
-                title = "Payment Reminder";
-                invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
-                if(!invoiceRecord) return;
-                client = invoiceRecord.cName || "Client";
-                amount = Math.max((Number(invoiceRecord.total) || 0) - (Number(invoiceRecord.paidAmount) || 0), 0);
-                
-                // Fetch UI Intelligence
-                const intel = getAssistantIntelligence(invoiceRecord);
-                daysOverdue = intel.daysOverdue;
-                contextText = daysOverdue > 0 ? `Invoice overdue by ${daysOverdue} days` : "Invoice due today";
-                activeTone = intel.suggestedTone;
-                currentActiveTone = activeTone;
-
-                // Generate Safe Document Link for Reminder
-                const baseUrl = window.location.href.split('?')[0];
-                const url = new URL(baseUrl);
-                url.searchParams.set('view', 'doc');
-                url.searchParams.set('inv', invoiceRecord.invNum || '');
-                url.searchParams.set('c', invoiceRecord.cName || '');
+            } else if (type === 'reminder' && record) {
+                url.searchParams.set('inv', record.invNum || '');
+                url.searchParams.set('c', record.cName || '');
                 url.searchParams.set('t', amount);
-                const docLink = url.toString();
+            }
+            return url.toString();
+        }
+
+        // --- 3. MESSAGE GENERATOR (CLOSED LOOP) ---
+        function generateSmartMessage(type, client, amount, docLink, invRecord = null, tone = "Polite") {
+            const firstName = client ? client.split(' ')[0] : "Client";
+            const formattedAmount = formatINR(amount);
+            const linkText = `\n\nYou can securely view the document here:\n${docLink}`;
+
+            if (type === 'invoice') {
+                return `Hi ${firstName},\n\nPlease find your invoice for ${formattedAmount} here:\n${docLink}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
+            } else if (type === 'contract') {
+                return `Hi ${firstName},\n\nPlease find our freelance agreement here:\n${docLink}\n\nKindly review and confirm.\n\nThank you.`;
+            } else if (type === 'reminder' && invRecord) {
+                const invNum = invRecord.invNum || "your invoice";
+                if (tone === "Polite") {
+                    return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${formattedAmount}.${linkText}\n\nNo rush, but please let me know if you need any additional details from my end.\n\nThanks!`;
+                } else if (tone === "Firm") {
+                    return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${formattedAmount}, which is now overdue.${linkText}\n\nPlease process this payment at your earliest convenience so I can update my records.\n\nThank you.`;
+                } else if (tone === "Final") {
+                    return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${formattedAmount} for ${invNum}.${linkText}\n\nI kindly request you to prioritize this and clear the amount today so we can close this out.\n\nPlease confirm once the transfer is completed.`;
+                }
+            }
+            return "";
+        }
+
+        // --- 4. THE CLEAN CONTEXT BUILDER ---
+        function openSendSystem(type, id = null) {
+            // 1. Build Base Data
+            let ctx = { type, id, title: "Send to Client", client: "", amount: 0, contextText: "", message: "", docLink: "", intel: null, savedAlready: false };
+
+            if (type === 'invoice') {
+                ctx.client = state.cName || "Client";
+                ctx.amount = grandTotalToExport;
+                ctx.contextText = `Invoice ready for ${ctx.client}`;
+                ctx.docLink = buildDocumentLink(type, null, ctx.amount);
+                ctx.message = generateSmartMessage(type, ctx.client, ctx.amount, ctx.docLink);
+            } 
+            else if (type === 'contract') {
+                ctx.client = state.contractClient || "Client";
+                ctx.amount = state.contractAmount;
+                ctx.contextText = `Contract ready for ${ctx.client}`;
+                ctx.docLink = buildDocumentLink(type, null, ctx.amount);
+                ctx.message = generateSmartMessage(type, ctx.client, ctx.amount, ctx.docLink);
+            } 
+            else if (type === 'reminder') {
+                ctx.title = "Payment Reminder";
+                ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
+                if(!ctx.invoiceRecord) return;
                 
-                currentSendContext.intel = intel;
-                currentSendContext.docLink = docLink;
-                message = generateSmartMessage(invoiceRecord, activeTone, docLink);
+                ctx.client = ctx.invoiceRecord.cName || "Client";
+                ctx.amount = Math.max((Number(ctx.invoiceRecord.total) || 0) - (Number(ctx.invoiceRecord.paidAmount) || 0), 0);
+                
+                ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+                ctx.contextText = ctx.intel.daysOverdue > 0 ? `Invoice overdue by ${ctx.intel.daysOverdue} days` : "Invoice due today";
+                currentActiveTone = ctx.intel.suggestedTone; // Global for UI state
+                
+                ctx.docLink = buildDocumentLink(type, ctx.invoiceRecord, ctx.amount);
+                ctx.message = generateSmartMessage(type, ctx.client, ctx.amount, ctx.docLink, ctx.invoiceRecord, currentActiveTone);
             }
 
+            // 2. Store Clean Context Globally
+            currentSendContext = ctx;
 
-            currentSendContext = { type, id, title, client, amount, contextText, message, invoiceRecord, daysOverdue, activeTone };
-
+            // 3. Render UI
             document.getElementById('send-modal-title').innerHTML = `
                 <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
-                ${title}
+                ${ctx.title}
             `;
-
             renderSendSystem();
             
             const modal = document.getElementById('send-modal');
             modal.classList.remove('hidden');
             requestAnimationFrame(() => modal.classList.remove('opacity-0'));
         }
+
 
         function renderSendSystem() {
             const area = document.getElementById('send-dynamic-area');
@@ -1321,22 +1314,41 @@ ${(() => {
         function changeSendTone(tone) {
             if (state.userTier !== 'Pro') return;
             currentActiveTone = tone;
-            currentSendContext.message = generateSmartMessage(currentSendContext.invoiceRecord, tone, currentSendContext.docLink || "");
+            // Passing the exact context variables so the link never breaks
+            currentSendContext.message = generateSmartMessage('reminder', currentSendContext.client, currentSendContext.amount, currentSendContext.docLink, currentSendContext.invoiceRecord, tone);
             renderSendSystem();
         }
 
-        function markReminderSent(id) {
-    const inv = (state.savedInvoices || []).find(i => i.id === id);
-    if (inv) {
-        inv.lastReminderSent = Date.now();
-        inv.lastReminderTone = currentActiveTone;
-        saveState();
-        renderTrackerList();
-    }
-}
+        // --- THE VALIDATED AUTO-SAVE LOGIC ---
+        function triggerIntentionalAutoSave() {
+            if (currentSendContext.savedAlready) return; 
+            
+            if (currentSendContext.type === 'invoice') {
+                // Must have a client name and a real amount to avoid ghost saves
+                if (state.cName && state.cName.trim() !== '' && grandTotalToExport > 0) {
+                    if (typeof saveToHistory === 'function') saveToHistory();
+                    currentSendContext.savedAlready = true;
+                }
+            } else if (currentSendContext.type === 'contract') {
+                if (state.contractClient && state.contractClient.trim() !== '' && state.contractAmount > 0) {
+                    if (typeof saveToHistory === 'function') saveToHistory();
+                    currentSendContext.savedAlready = true;
+                }
+            }
+        }
 
-function triggerSendCheckout(type) {
-    closeSendModal();
+        function markReminderSent(id) {
+            const inv = (state.savedInvoices || []).find(i => i.id === id);
+            if (inv) {
+                inv.lastReminderSent = Date.now();
+                inv.lastReminderTone = currentActiveTone;
+                saveState();
+                renderTrackerList();
+            }
+        }
+
+        function triggerSendCheckout(type) {
+            closeSendModal();
             setTimeout(() => {
                 const ctxEl = document.getElementById('payment-dynamic-context');
                 if (ctxEl) {
@@ -1358,13 +1370,12 @@ function triggerSendCheckout(type) {
         function buildUniversalLink(isQR = false) {
             const msg = currentSendContext.message;
             let targetPhone = "";
-            
+
             if (currentSendContext.type === 'invoice') {
                 targetPhone = (state.cPhone || '').replace(/\D/g, '');
             } else if (currentSendContext.type === 'reminder' && currentSendContext.invoiceRecord) {
                 targetPhone = (currentSendContext.invoiceRecord.cPhone || '').replace(/\D/g, '');
             }
-
             if (!targetPhone) {
                 return isQR ? `https://wa.me/?text=${encodeURIComponent(msg)}` : `https://web.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
             }
@@ -1372,12 +1383,13 @@ function triggerSendCheckout(type) {
         }
 
         function executeSend(channel) {
+            // Intentional Action = Trigger Validation & Save
+            triggerIntentionalAutoSave();
+
             const msg = currentSendContext.message;
-            
             if (currentSendContext.type === 'reminder' && currentSendContext.invoiceRecord) {
                 markReminderSent(currentSendContext.invoiceRecord.id);
             }
-
             if (channel === 'pc') {
                 window.open(buildUniversalLink(false), '_blank');
             } else if (channel === 'email') {
@@ -1394,12 +1406,16 @@ function triggerSendCheckout(type) {
             if (panel.classList.contains('hidden')) {
                 panel.classList.remove('hidden');
                 panel.classList.add('flex');
+                
+                // Intentional Action = Trigger Validation & Save
+                triggerIntentionalAutoSave();
                 generateSendQR();
             } else {
                 panel.classList.add('hidden');
                 panel.classList.remove('flex');
             }
         }
+
 
         function generateSendQR() {
             const container = document.getElementById('send-qr-canvas');
