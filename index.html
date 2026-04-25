@@ -587,7 +587,7 @@ function applyTierLimits() {
         </main>
         
         <!-- Reminder Modal -->
-        <div id="send-modal" class="hidden fixed inset-0 z-[100] bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div id="send-modal" class="hidden fixed inset-0 z-[100] bg-gray-900/60 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden transform scale-95 transition-transform duration-300 relative">
         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
             <h3 id="send-modal-title" class="text-lg font-black text-gray-900 flex items-center gap-2">
@@ -1208,6 +1208,7 @@ ${(() => {
             if (ctx.type === 'reminder') {
                 let toneDesc = "";
                 let activeToneIdx = 0;
+                const intel = ctx.intel || { lastRemText: "Never", nextStepText: "Wait until due", suggestedTone: "Polite" };
 
                 if (currentActiveTone === "Polite") {
                     toneDesc = "A gentle nudge. Perfect for clients who just forgot.";
@@ -1219,12 +1220,13 @@ ${(() => {
                     toneDesc = "Direct and uncompromising. Use when payment is severely delayed.";
                     activeToneIdx = 2;
                 }
-
+                
                 toneSection = `
                     <div class="mb-6">
-                        <p class="text-sm font-black text-gray-900">Suggested tone: <span class="text-brand-600">${currentActiveTone}</span></p>
-                        <p class="text-xs text-gray-500 font-medium mt-1">${toneDesc}</p>
+                        <p class="text-sm font-black text-gray-900">System Suggestion: <span class="text-brand-600">${intel.suggestedTone}</span></p>
+                        <p class="text-xs text-gray-500 font-medium mt-1">Current selection: ${toneDesc}</p>
                     </div>
+
                     <div class="mb-6 ${isLocked ? 'opacity-60 pointer-events-none' : ''}">
                         <div class="flex gap-2">
                             <button onclick="changeSendTone('Polite')" class="flex-1 py-2.5 text-center text-xs font-bold rounded-lg border ${activeToneIdx === 0 ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100'} transition-colors">Polite</button>
@@ -1300,7 +1302,7 @@ ${(() => {
                                 <p class="text-[10px] font-black text-brand-600 uppercase tracking-widest">Message Preview</p>
                                 <p class="text-[10px] font-bold text-gray-400 italic">Editable</p>
                             </div>
-                            <textarea id="send-message-editor" class="w-full text-[13px] text-gray-800 font-medium leading-relaxed bg-gray-50 border border-gray-200 rounded-lg p-3 min-h-[140px] focus:ring-brand-500 focus:border-brand-500 transition-all resize-none shadow-inner" oninput="currentSendContext.message=this.value; if(document.getElementById('send-qr-panel').classList.contains('flex')) generateSendQR();">${ctx.message}</textarea>
+                            <textarea id="send-message-editor" class="w-full text-[13px] text-gray-800 font-medium leading-relaxed bg-gray-50 border border-gray-200 rounded-lg p-3 min-h-[140px] focus:ring-brand-500 focus:border-brand-500 transition-all resize-none shadow-inner" oninput="currentSendContext.message=this.value;" onchange="if(document.getElementById('send-qr-panel').classList.contains('flex')) generateSendQR();">${ctx.message}</textarea>
                             
                             ${sendOptionsHTML}
                         `}
