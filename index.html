@@ -685,7 +685,51 @@ Global Payment Setup
 
     </div>
 
-    <!-- JavaScript Logic -->
+document.addEventListener('DOMContentLoaded', function () {
+    try {
+        // Load global payment setup FIRST
+        injectGlobalSetup();
+
+        // Load main state
+        const saved = localStorage.getItem('invoiceAppPro_V4_Tracker');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+
+            const meta = {
+                userToken: state.userToken,
+                userTier: state.userTier,
+                userSheetId: state.userSheetId,
+                userEmail: state.userEmail
+            };
+
+            state = { ...defaultState, ...parsed, ...meta };
+        }
+
+        // Populate UI
+        populateForm();
+        renderItems();
+        renderPreview();
+
+        // Restore QR UI
+        if (state.qrImage) {
+            const img = document.getElementById('qr-preview-img');
+            const container = document.getElementById('qr-preview-container');
+            const placeholder = document.getElementById('qr-placeholder');
+            const removeBtn = document.getElementById('remove-qr-btn');
+
+            if (img && container && placeholder) {
+                img.src = state.qrImage;
+                container.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+
+            if (removeBtn) removeBtn.classList.remove('hidden');
+        }
+
+    } catch (e) {
+        console.warn("Initial load failed");
+    }
+});
     <script>
         const FEATURES = { contract: true };
         let grandTotalToExport = 0;
@@ -1579,8 +1623,28 @@ ${(() => {
             });
             const termsSelect = document.getElementById('paymentTerms');
             if(termsSelect) termsSelect.value = state.paymentTerms || 'net7';
-            if (state.qrImage) showQRPreview(state.qrImage); else hideQRPreview();
+            if (state.qrImage) {
+    const img = document.getElementById('qr-preview-img');
+    const container = document.getElementById('qr-preview-container');
+    const placeholder = document.getElementById('qr-placeholder');
+    const removeBtn = document.getElementById('remove-qr-btn');
 
+    if (img && container && placeholder) {
+        img.src = state.qrImage;
+        container.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+    }
+
+    if (removeBtn) removeBtn.classList.remove('hidden');
+} else {
+    const container = document.getElementById('qr-preview-container');
+    const placeholder = document.getElementById('qr-placeholder');
+    const removeBtn = document.getElementById('remove-qr-btn');
+
+    if (container) container.classList.add('hidden');
+    if (placeholder) placeholder.classList.remove('hidden');
+    if (removeBtn) removeBtn.classList.add('hidden');
+}
             if (FEATURES.contract) {
                 document.getElementById('btn-tab-contract').classList.remove('hidden');
             }
