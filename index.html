@@ -240,7 +240,7 @@ function removeQR() {
         .slide-in { animation: slideIn 0.3s ease-out forwards; }
 #tracker-lock-overlay {
             pointer-events: auto;
-            p	osition: absolute;
+            position: absolute;
             height: 100%;
             width: 100%;
             top: 0;
@@ -685,52 +685,19 @@ Global Payment Setup
 
     </div>
 
+<script>
 document.addEventListener('DOMContentLoaded', function () {
     try {
         // Load global payment setup FIRST
-        injectGlobalSetup();
-
-        // Load main state
-        const saved = localStorage.getItem('invoiceAppPro_V4_Tracker');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-
-            const meta = {
-                userToken: state.userToken,
-                userTier: state.userTier,
-                userSheetId: state.userSheetId,
-                userEmail: state.userEmail
-            };
-
-            state = { ...defaultState, ...parsed, ...meta };
-        }
-
-        // Populate UI
-        populateForm();
-        renderItems();
-        renderPreview();
-
-        // Restore QR UI
-        if (state.qrImage) {
-            const img = document.getElementById('qr-preview-img');
-            const container = document.getElementById('qr-preview-container');
-            const placeholder = document.getElementById('qr-placeholder');
-            const removeBtn = document.getElementById('remove-qr-btn');
-
-            if (img && container && placeholder) {
-                img.src = state.qrImage;
-                container.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-            }
-
-            if (removeBtn) removeBtn.classList.remove('hidden');
-        }
-
+        
+// 🔥 APPLY GLOBAL AFTER MAIN LOAD
+injectGlobalSetup();
+        // DO NOTHING HERE — WAIT FOR loadState()
+        
     } catch (e) {
         console.warn("Initial load failed");
     }
 });
-    <script>
         const FEATURES = { contract: true };
         let grandTotalToExport = 0;
         let isMobileFlow = false;
@@ -773,17 +740,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function saveState() { 
     try {
-        localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state));
+        // 🔥 REMOVE GLOBAL KEYS BEFORE SAVE
+const cleanState = { ...state };
+GLOBAL_KEYS.forEach(k => delete cleanState[k]);
+
+localStorage.setItem('eramdam_main_state', JSON.stringify(cleanState));
     } catch (e) {
         console.warn("State save blocked");
     }
-    persistGlobalSetup(); // Keep Vault synced
+    
 }
 async function loadState() {
     try {
-        const localSaved = localStorage.getItem('invoiceAppPro_V4_Tracker');
+        const localSaved = localStorage.getItem('eramdam_main_state');
         if (localSaved) {
-            const parsed = JSON.parse(localSaved);
+            let parsed = {};
+try {
+    parsed = JSON.parse(localSaved);
+} catch (e) {
+    console.warn("Corrupted main state, resetting");
+    localStorage.removeItem('eramdam_main_state');
+}
 
             const meta = {
                 userToken: state.userToken,
@@ -805,6 +782,7 @@ async function loadState() {
     populateForm();
     renderItems();
     renderPreview();
+refreshInvoiceStatuses();
 
     // 🔥 QR RESTORE
     if (state.qrImage) {
