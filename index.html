@@ -1196,20 +1196,22 @@ ${(() => {
             const area = document.getElementById('send-dynamic-area');
             const ctx = currentSendContext;
             const isPro = state.userTier === 'Pro';
-            
+
             let isLocked = false;
             if (!isPro && (ctx.type === 'contract' || ctx.type === 'reminder')) {
                 isLocked = true;
             }
-
             let toneSection = '';
             let assistantLine = '';
-            
+
             if (ctx.type === 'reminder') {
                 let toneDesc = "";
                 let activeToneIdx = 0;
+                
+                // Fetch the system's static intelligence (Declared ONLY ONCE)
                 const intel = ctx.intel || { lastRemText: "Never", nextStepText: "Wait until due", suggestedTone: "Polite" };
 
+                // Track the user's manual selection
                 if (currentActiveTone === "Polite") {
                     toneDesc = "A gentle nudge. Perfect for clients who just forgot.";
                     activeToneIdx = 0;
@@ -1220,13 +1222,12 @@ ${(() => {
                     toneDesc = "Direct and uncompromising. Use when payment is severely delayed.";
                     activeToneIdx = 2;
                 }
-                
+
                 toneSection = `
                     <div class="mb-6">
                         <p class="text-sm font-black text-gray-900">System Suggestion: <span class="text-brand-600">${intel.suggestedTone}</span></p>
                         <p class="text-xs text-gray-500 font-medium mt-1">Current selection: ${toneDesc}</p>
                     </div>
-
                     <div class="mb-6 ${isLocked ? 'opacity-60 pointer-events-none' : ''}">
                         <div class="flex gap-2">
                             <button onclick="changeSendTone('Polite')" class="flex-1 py-2.5 text-center text-xs font-bold rounded-lg border ${activeToneIdx === 0 ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50 hover:bg-gray-100'} transition-colors">Polite</button>
@@ -1236,8 +1237,6 @@ ${(() => {
                     </div>
                 `;
 
-                // Render dynamic intelligence from Context
-                const intel = ctx.intel || { lastRemText: "Never", nextStepText: "Wait until due" };
                 assistantLine = `
                     <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 shadow-sm mt-6 flex justify-between items-center">
                         <div>
@@ -1312,6 +1311,7 @@ ${(() => {
                 </div>
             `;
         }
+
 
         function changeSendTone(tone) {
             if (state.userTier !== 'Pro') return;
