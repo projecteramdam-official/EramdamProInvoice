@@ -15,10 +15,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        <script>
         const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyueDHAoCdL42O9zOwfA7FAwY7NninmnPLDVdjGnPFjA1t2LiCC65jNkG8mQF1lanFr/exec";
 
-        // --- GLOBAL STATE MANAGEMENT (MOVED TO TOP TO PREVENT REFERENCE ERRORS) ---
+        // --- 1. GLOBAL STATE MANAGEMENT ---
         const defaultState = {
             style: 'modern',
             userType: 'registered',
@@ -47,131 +46,81 @@
         };
         let state = { ...defaultState };
 
+        // --- 2. AUTHENTICATION HANDLERS ---
         async function handleCredentialResponse(response) {
+            const errorEl = document.getElementById('auth-error');
+            errorEl.innerText = "Verifying license...";
+            errorEl.classList.remove('hidden', 'text-red-500');
+            errorEl.classList.add('text-brand-600');
 
-    const errorEl = document.getElementById('auth-error');
-    errorEl.innerText = "Verifying license...";
-    errorEl.classList.remove('hidden', 'text-red-500');
-    errorEl.classList.add('text-brand-600');
-    
-    // 1. Decode the Google Token
-    const base64Url = response.credential.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(window.atob(base64));
-            const email = payload.email;
-            state.userName = payload.name || "User"; // Capture name for payment flow
-
-    // 2. Call your Google Apps Script Backend
-    try {
-        state.userToken = response.credential; // Store JWT for subsequent API calls
-        const result = await apiRequest('AUTH_CHECK', { email: email });
-
-        if (result.success) {
-            // Success: Unlock the app
-            state.userTier = result.tier; 
-            state.userSheetId = result.userSheetId;
-            state.userEmail = email; // Save for later sheet sync
-    localStorage.setItem('Eramdam PayFlow_last_email', email); // Auto-fill on refresh
-            
-            // Apply features based on Tier (Friction)
-            applyTierLimits();
-            
-            // Hide the lock screen
-            document.getElementById('auth-gate').classList.add('hidden');
-            
-            // Load tracker data after successful auth
-            await loadState();
-        } else {
-            // Fail: User not on your Master Sheet list
-            errorEl.innerText = result.message;
-            errorEl.classList.remove('text-brand-600');
-            errorEl.classList.add('text-red-500');
+            try {
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const payload = JSON.parse(window.atob(base64));
+                const email = payload.email;
+                state.userName = payload.name || "User";
+                state.userToken = response.credential;
+                
+                const result = await apiRequest('AUTH_CHECK', { email: email });
+                if (result.success) {
+                    state.userTier = result.tier;
+                    state.userSheetId = result.userSheetId;
+                    state.userEmail = email;
+                    localStorage.setItem('Eramdam PayFlow_last_email', email);
+                    applyTierLimits();
+                    document.getElementById('auth-gate').classList.add('hidden');
+                    await loadState();
+                } else {
+                    errorEl.innerText = result.message;
+                    errorEl.classList.remove('text-brand-600');
+                    errorEl.classList.add('text-red-500');
+                }
+            } catch (e) {
+                errorEl.innerText = "Connection Error. Is the Backend URL correct?";
+                errorEl.classList.add('text-red-500');
+            }
         }
-    } catch (e) {
-        errorEl.innerText = "Connection Error. Is the Backend URL correct?";
-        errorEl.classList.add('text-red-500');
-    }
-}
 
-async function apiRequest(action, payload = {}) {
-    const token = state.userToken; 
-    if (!token && action !== 'AUTH_CHECK') {
-        console.error("No auth token found.");
-        return { success: false, message: "Authentication required." };
-    }
+        async function apiRequest(action, payload = {}) {
+            const token = state.userToken;
+            if (!token && action !== 'AUTH_CHECK') return { success: false, message: "Authentication required." };
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action, token, email: payload.email || state.userEmail, payload })
+                });
+                return await response.json();
+            } catch (error) {
+                return { success: false, message: "Network error." };
+            }
+        }
 
-    try {
-        const response = await fetch(BACKEND_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: action,
-                token: token,
-                email: payload.email || state.userEmail, // Prevents backend crash
-                payload: payload
-            })
-        });
-        return await response.json();
-    } catch (error) {
-        console.error(`API Error (${action}):`, error);
-        return { success: false, message: "Network error. Check connection." };
-    }
-}
-
-function applyTierLimits() {
+        function applyTierLimits() {
             const trackerList = document.getElementById('tracker-list');
             const contractTab = document.getElementById('btn-tab-contract');
-
-            // Ensure Contract tab is ALWAYS visible so Free users can try it
-            if (contractTab) {
-                contractTab.classList.remove('hidden');
-                contractTab.style.display = 'block';
-            }
-
+            if (contractTab) { contractTab.classList.remove('hidden'); contractTab.style.display = 'block'; }
             if (state.userTier === 'Pro') {
-                const existingOverlay = document.getElementById('tracker-lock-overlay');
-                if (existingOverlay) existingOverlay.remove();
-            } else {
-                if (trackerList && !document.getElementById('tracker-lock-overlay')) {
-                    const overlay = document.createElement('div');
-                    overlay.id = 'tracker-lock-overlay';
-                    overlay.className = 'bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-8 text-center';
-                    overlay.innerHTML = `
-                        <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-4 shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                        </div>
-                        <h3 class="font-black text-gray-900 uppercase tracking-tighter text-lg">Pro Tracker Locked</h3>
-                        <p class="text-xs text-gray-500 mt-2 leading-relaxed">Ghost mode active. Upgrade to sync real data to your cloud sheet.</p>
-                        <button onclick="handleUpgrade()" class="mt-6 bg-brand-600 text-white px-8 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-brand-700 transition-all">Activate Your Workspace</button>
-                    `;
-                    trackerList.appendChild(overlay);
-                }
+                const overlay = document.getElementById('tracker-lock-overlay');
+                if (overlay) overlay.remove();
+            } else if (trackerList && !document.getElementById('tracker-lock-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.id = 'tracker-lock-overlay';
+                overlay.className = 'bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-8 text-center';
+                overlay.innerHTML = `<div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-4 shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div><h3 class="font-black text-gray-900 uppercase tracking-tighter text-lg">Pro Tracker Locked</h3><p class="text-xs text-gray-500 mt-2 leading-relaxed">Ghost mode active. Upgrade to sync real data to your cloud sheet.</p><button onclick="handleUpgrade()" class="mt-6 bg-brand-600 text-white px-8 py-3 rounded-xl font-bold text-xs shadow-md hover:bg-brand-700 transition-all">Activate Your Workspace</button>`;
+                trackerList.appendChild(overlay);
             }
         }
 
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        poppins: ['Poppins', 'sans-serif'],
-                        roboto: ['Roboto', 'sans-serif'],
-                        meitei: ['"Noto Sans Meetei Mayek"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        }
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], poppins: ['Poppins', 'sans-serif'], roboto: ['Roboto', 'sans-serif'], meitei: ['"Noto Sans Meetei Mayek"', 'sans-serif'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 500: '#3b82f6', 600: '#2563eb', 800: '#1e40af', 900: '#1e3a8a' } }
                 }
             }
         }
     </script>
+
 
     <!-- html2pdf.js & QRCode.js (CDN) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -640,9 +589,9 @@ Global Payment Setup
 
     <!-- JavaScript Logic -->
     <script>
-
-        // FIXED: Feature flag
         const FEATURES = { contract: true };
+        let grandTotalToExport = 0;
+        let isMobileFlow = false;
 
         // --- 0. HELPER FUNCTIONS ---
         function calculateDueDate(dateStr, terms) {
@@ -660,109 +609,45 @@ Global Payment Setup
             const d = String(date.getDate()).padStart(2, '0');
             return `${y}-${m}-${d}`;
         }
-        let state = { ...defaultState };
-        let grandTotalToExport = 0;
-        let isMobileFlow = false;
 
         async function loadState() {
-            // First, load basic UI preferences from local (Style, etc)
             const localSaved = localStorage.getItem('invoiceAppPro_V4_Tracker');
             if (localSaved) {
                 const parsed = JSON.parse(localSaved);
-                
-                // CRITICAL: Save auth credentials before overwriting state
                 const currentToken = state.userToken;
                 const currentTier = state.userTier;
                 const currentSheetId = state.userSheetId;
                 const currentEmail = state.userEmail;
-                
                 state = { ...defaultState, ...parsed };
-                
-                // RESTORE auth credentials
                 state.userToken = currentToken;
                 state.userTier = currentTier;
                 state.userSheetId = currentSheetId;
                 state.userEmail = currentEmail;
             }
-
-            // Then, fetch core record data from GAS Backend (Data Starvation)
             const result = await apiRequest('FETCH_DATA');
             if (result.success) {
-                // If no real invoices exist, inject Ghost Data (Conversion Engine)
                 if (!result.invoices || result.invoices.length === 0) {
                     state.savedInvoices = [
-                        {
-                            id: 101,
-                            invNum: "INV-DEMO-001",
-                            cName: "John Doe (Demo)",
-                            total: 5000,
-                            status: "Overdue",
-                            dueDate: "2026-04-10",
-                            isDemo: true,
-                            recordType: 'invoice'
-                        },
-                        {
-                            id: 102,
-                            invNum: "INV-DEMO-002",
-                            cName: "Acme Corp (Demo)",
-                            total: 12000,
-                            status: "Unpaid",
-                            dueDate: "2026-04-28",
-                            isDemo: true,
-                            recordType: 'invoice'
-                        },
-                        {
-                            id: 103,
-                            invNum: "INV-DEMO-003",
-                            cName: "Startup XYZ (Demo)",
-                            total: 8000,
-                            status: "Paid",
-                            dueDate: "2026-04-15",
-                            isDemo: true,
-                            recordType: 'invoice'
-                        }
+                        { id: 101, invNum: "INV-DEMO-001", cName: "John Doe (Demo)", total: 5000, status: "Overdue", dueDate: "2026-04-10", isDemo: true, recordType: 'invoice' },
+                        { id: 102, invNum: "INV-DEMO-002", cName: "Acme Corp (Demo)", total: 12000, status: "Unpaid", dueDate: "2026-04-28", isDemo: true, recordType: 'invoice' },
+                        { id: 103, invNum: "INV-DEMO-003", cName: "Startup XYZ (Demo)", total: 8000, status: "Paid", dueDate: "2026-04-15", isDemo: true, recordType: 'invoice' }
                     ];
                 } else {
                     state.savedInvoices = result.invoices.map(inv => normalizeTrackerRecord(inv, 'invoice'));
                 }
-                
-                state.savedContracts = Array.isArray(result.contracts)
-                    ? result.contracts.map(ct => normalizeTrackerRecord(ct, 'contract'))
-                    : [];
-                
+                state.savedContracts = Array.isArray(result.contracts) ? result.contracts.map(ct => normalizeTrackerRecord(ct, 'contract')) : [];
                 refreshInvoiceStatuses();
-            } else {
-                console.warn("Could not sync with cloud tracker.");
             }
         }
 
-
-        function saveState() {
-            localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state));
-        }
-
-        function normalizeTrackerRecord(record, type) {
-            return {
-                ...record,
-                recordType: record.recordType || type,
-                savedAt: record.savedAt || record.id || Date.now()
-            };
-        }
-
-        function getInvoiceRecords() {
-            return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice'));
-        }
-
-        function getContractRecords() {
-            return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract'));
-        }
-
-        function getTrackerRecords() {
-            return [...getInvoiceRecords(), ...getContractRecords()]
-                .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
-        }
-
+        function saveState() { localStorage.setItem('invoiceAppPro_V4_Tracker', JSON.stringify(state)); }
+        function normalizeTrackerRecord(record, type) { return { ...record, recordType: record.recordType || type, savedAt: record.savedAt || record.id || Date.now() }; }
+        function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
+        function getContractRecords() { return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract')); }
+        function getTrackerRecords() { return [...getInvoiceRecords(), ...getContractRecords()].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0)); }
+        
         function syncPaymentStatus() {
+
             const itemsTotal = (state.items || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
             const total = Number(grandTotalToExport || itemsTotal || 0);
             const paid = Number(state.paidAmount || 0);
