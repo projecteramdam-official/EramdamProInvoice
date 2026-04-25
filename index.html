@@ -613,6 +613,52 @@ Global Payment Setup
         // FIXED: Feature flag
         const FEATURES = { contract: true };
 
+        // --- 1. STATE MANAGEMENT (MOVED TO TOP) ---
+        const defaultState = {
+            style: 'basic',
+            userType: 'registered',
+            isExport: false,
+            invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
+            invDate: new Date().toISOString().split('T')[0],
+            paymentTerms: 'net7',
+            dueDate: '', // Calculated in init
+            lateFee: 0,
+            fName: '', fEmail: '', fAddress: '', myState: '',
+            cName: '', cPhone: '', cAddress: '', clientState: '',
+            items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
+            upiId: '', qrImage: null,
+            bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
+            savedInvoices: [],
+            savedContracts: [],
+            paymentStatus: 'unpaid',
+            paidAmount: 0,
+            mode: 'invoice',
+            contractFreelancer: '',
+            contractClient: '',
+            contractDesc: '',
+            contractAmount: 0,
+            contractStart: '',
+            contractEnd: ''
+        };
+        // Initializing dueDate for the default state
+        defaultState.dueDate = (function(dateStr, terms) {
+            if (!dateStr) return '';
+            const [year, month, day] = dateStr.split('-');
+            const date = new Date(year, month - 1, day);
+            let days = 7;
+            if (terms === 'receipt') days = 0;
+            else if (terms === 'net3') days = 3;
+            else if (terms === 'net7') days = 7;
+            else if (terms === 'net15') days = 15;
+            date.setDate(date.getDate() + days);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        })(defaultState.invDate, 'net7');
+
+        let state = { ...defaultState };
+
         // --- 0. HELPER FUNCTIONS ---
         function calculateDueDate(dateStr, terms) {
             if (!dateStr) return '';
@@ -1168,45 +1214,33 @@ ${(() => {
 
 
 
-        // --- 3. MESSAGE GENERATOR (CLOSED LOOP) ---
+        // --- 3. MESSAGE GENERATOR (ACTION-FOCUSED) ---
         function generateSmartMessage(type, client, amount, docLink, invRecord = null, tone = "Polite") {
             const firstName = client ? client.split(' ')[0] : "Client";
             const formattedAmount = formatINR(amount);
-            // Presentation Layer: Make the link invisible through action-wrapping
-const linkAction = `\n\n👉 View secure document below:\n${docLink}`;
+            const linkAction = `\n\n 👉  View secure document below:\n${docLink}`;
 
-if (type === 'invoice') {
-    return `Hi ${firstName},\n\nYour invoice for ${formattedAmount} is ready.${linkAction}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
-} else if (type === 'contract') {
-    return `Hi ${firstName},\n\nI've prepared our freelance agreement for ${formattedAmount}.${linkAction}\n\nKindly review and confirm.`;
-} else if (type === 'reminder' && invRecord) {
-    const invNum = invRecord.invNum || "your invoice";
-    if (tone === "Polite") {
-        return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${formattedAmount}.${linkAction}\n\nNo rush, but please let me know if you have any questions!`;
-    } else if (tone === "Firm") {
-        return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${formattedAmount}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
-    } else if (tone === "Final") {
-        return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${formattedAmount} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this and clear the amount today.`;
-    }
-}
+            if (type === 'invoice') {
+                return `Hi ${firstName},\n\nYour invoice for ${formattedAmount} is ready.${linkAction}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
             } else if (type === 'contract') {
-                return `Hi ${firstName},\n\nPlease find our freelance agreement here:\n${docLink}\n\nKindly review and confirm.\n\nThank you.`;
+                return `Hi ${firstName},\n\nI've prepared our freelance agreement for ${formattedAmount}.${linkAction}\n\nKindly review and confirm.`;
             } else if (type === 'reminder' && invRecord) {
                 const invNum = invRecord.invNum || "your invoice";
                 if (tone === "Polite") {
-                    return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${formattedAmount}.${linkText}\n\nNo rush, but please let me know if you need any additional details from my end.\n\nThanks!`;
+                    return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${formattedAmount}.${linkAction}\n\nNo rush, but please let me know if you have any questions!`;
                 } else if (tone === "Firm") {
-                    return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${formattedAmount}, which is now overdue.${linkText}\n\nPlease process this payment at your earliest convenience so I can update my records.\n\nThank you.`;
+                    return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${formattedAmount}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
                 } else if (tone === "Final") {
-                    return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${formattedAmount} for ${invNum}.${linkText}\n\nI kindly request you to prioritize this and clear the amount today so we can close this out.\n\nPlease confirm once the transfer is completed.`;
+                    return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${formattedAmount} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this and clear the amount today.`;
                 }
             } else if (type === 'thankyou' && invRecord) {
                 const invNum = invRecord.invNum || "your invoice";
                 const memoryStr = invRecord.daysToPay ? ` (cleared in ${invRecord.daysToPay} days)` : "";
-                return `Hi ${firstName},\n\nThis is to confirm that the payment of ${formattedAmount} for ${invNum} has been received successfully.\n\nThank you for your prompt payment${memoryStr}. It was a pleasure working with you, and I look forward to collaborating again!\n\nBest regards,`;
+                return `Hi ${firstName},\n\nThis is to confirm that the payment of ${formattedAmount} for ${invNum} has been received successfully.\n\nThank you for your prompt payment${memoryStr}.\n\nIt was a pleasure working with you, and I look forward to collaborating again!\n\nBest regards,`;
             }
             return "";
         }
+
 
 
         // --- 4. THE CLEAN CONTEXT BUILDER ---
