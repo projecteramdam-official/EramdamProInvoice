@@ -446,10 +446,11 @@ function applyTierLimits() {
                         </div>
 
                         <!-- Payment Details -->
-                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm mt-4">
-                            <h2 class="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-gray-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>
-                                Payment Details
+                        <div class="bg-brand-50/50 border border-brand-100 rounded-xl p-5 shadow-sm mt-4">
+<h2 class="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-brand-700">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+Global Payment Setup
+
                             </h2>
                             <div class="space-y-4">
                                 <div>
@@ -1171,10 +1172,23 @@ ${(() => {
         function generateSmartMessage(type, client, amount, docLink, invRecord = null, tone = "Polite") {
             const firstName = client ? client.split(' ')[0] : "Client";
             const formattedAmount = formatINR(amount);
-            const linkText = `\n\nYou can securely view the document here:\n${docLink}`;
+            // Presentation Layer: Make the link invisible through action-wrapping
+const linkAction = `\n\n👉 View secure document below:\n${docLink}`;
 
-            if (type === 'invoice') {
-                return `Hi ${firstName},\n\nPlease find your invoice for ${formattedAmount} here:\n${docLink}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
+if (type === 'invoice') {
+    return `Hi ${firstName},\n\nYour invoice for ${formattedAmount} is ready.${linkAction}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
+} else if (type === 'contract') {
+    return `Hi ${firstName},\n\nI've prepared our freelance agreement for ${formattedAmount}.${linkAction}\n\nKindly review and confirm.`;
+} else if (type === 'reminder' && invRecord) {
+    const invNum = invRecord.invNum || "your invoice";
+    if (tone === "Polite") {
+        return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${formattedAmount}.${linkAction}\n\nNo rush, but please let me know if you have any questions!`;
+    } else if (tone === "Firm") {
+        return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${formattedAmount}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
+    } else if (tone === "Final") {
+        return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${formattedAmount} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this and clear the amount today.`;
+    }
+}
             } else if (type === 'contract') {
                 return `Hi ${firstName},\n\nPlease find our freelance agreement here:\n${docLink}\n\nKindly review and confirm.\n\nThank you.`;
             } else if (type === 'reminder' && invRecord) {
@@ -1829,7 +1843,7 @@ ${(() => {
                                     <div class="flex items-start gap-6">
                                         ${state.upiId ? `
     <div class="flex flex-col items-center">
-        <div id="dynamic-upi-qr" class="bg-white p-1.5 border border-gray-200 rounded-lg shadow-sm shrink-0 mb-1.5"></div>
+        ${state.qrImage ? `<img src="${state.qrImage}" class="w-20 h-20 object-contain border border-gray-200 p-1.5 rounded-lg mb-2 bg-white">` : ''}
         <p class="text-[9px] font-bold text-brand-600 uppercase tracking-widest text-center">Amount: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
     </div>
 ` : (state.qrImage ? `
@@ -1927,7 +1941,7 @@ ${(() => {
                                     <div class="flex flex-col gap-4">
                                         ${state.upiId ? `
     <div class="flex items-center gap-4 ${hasBank ? 'border-b border-gray-200 pb-4' : ''} w-full">
-        <div id="dynamic-upi-qr" class="bg-white p-1.5 border border-gray-200 rounded shadow-sm shrink-0"></div>
+        ${state.qrImage ? `<img src="${state.qrImage}" class="w-20 h-20 object-contain border border-gray-200 p-1.5 rounded-lg mb-2 bg-white">` : ''}
         <div class="flex flex-col">
             <p class="text-sm font-bold text-gray-800 truncate">${state.upiId}</p>
             <p class="text-[10px] font-bold text-brand-600 uppercase tracking-widest mt-1">Requested: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
@@ -2035,7 +2049,7 @@ ${(() => {
                             <div class="w-[35%] flex flex-col items-start pt-4">
                                 ${hasPayment ? `<p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-5">Payment Details</p>` : ''}
                                 ${state.upiId ? `
-    <div id="dynamic-upi-qr" class="bg-white p-1.5 border border-gray-100 rounded-xl shadow-sm mb-2 w-fit"></div>
+    ${state.qrImage ? `<img src="${state.qrImage}" class="w-20 h-20 object-contain border border-gray-200 p-1.5 rounded-lg mb-2 bg-white">` : ''}
     <p class="text-[10px] font-black text-brand-600 uppercase tracking-widest mb-4">Requested: ${formatINR(balance > 0 ? balance : grandTotalToExport)}</p>
     <p class="text-xs font-bold text-gray-600 mb-4 truncate w-full border-b border-gray-200 pb-3">${state.upiId}</p>
 ` : (state.qrImage ? `
@@ -2083,22 +2097,6 @@ ${(() => {
 
             target.innerHTML = htmlContent;
 
-    // Auto-Generate Smart UPI QR Code with pre-filled Amount
-    const qrContainer = document.getElementById('dynamic-upi-qr');
-    if (qrContainer && state.upiId) {
-        const payAmount = balance > 0 ? balance : grandTotalToExport;
-        const upiString = `upi://pay?pa=${state.upiId}&pn=${encodeURIComponent(state.fName || state.cName || 'Business')}&am=${payAmount}&cu=INR`;
-        
-        qrContainer.innerHTML = '';
-        new QRCode(qrContainer, {
-            text: upiString,
-            width: 72,
-            height: 72,
-            colorDark: "#111827",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.L
-        });
-    }
 }
 
         // --- 5. UTILS ---
@@ -2148,11 +2146,25 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
                 const invoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
                 const contracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
 
-                state = {
-                    ...defaultState,
-                    savedInvoices: invoices,
-                    savedContracts: contracts
-                };
+                // Reset only invoice fields; preserve Global Payment Setup
+state = {
+    ...state,
+    ...defaultState,
+    // Restore the global payment setup after resetting defaults
+    upiId: state.upiId,
+    qrImage: state.qrImage,
+    bankName: state.bankName,
+    bankAccountName: state.bankAccountName,
+    bankAccountNo: state.bankAccountNo,
+    bankIfsc: state.bankIfsc,
+    bankBranch: state.bankBranch,
+    fName: state.fName,
+    fEmail: state.fEmail,
+    fAddress: state.fAddress,
+    myState: state.myState,
+    savedInvoices: invoices,
+    savedContracts: contracts
+};
 
                 populateForm();
                 renderItems();
