@@ -1108,55 +1108,63 @@ ${(() => {
             return { lastRemText, nextStepText, suggestedTone, daysOverdue };
         }
 
-        // --- 2. SECURE LINK BUILDER ---
-function buildDocumentLink(type, record = null, amount = 0) {
-    const baseUrl = window.location.href.split('?')[0];
-    const url = new URL(baseUrl);
-    url.searchParams.set('view', 'doc');
+        // --- 2. SECURE LINK BUILDER (COMPRESSED) ---
+        function buildDocumentLink(type, record = null, amount = 0) {
+            const baseUrl = window.location.href.split('?')[0];
+            const url = new URL(baseUrl);
+            url.searchParams.set('view', 'doc');
 
-    const src = record || state;
-    // Fallback for old links
-    const payloadItems = (src.items && src.items.length > 0) ? src.items : [{ id: 1, desc: 'Freelance Services (Summary)', amount: amount || src.total || 0 }];
+            const src = record || state;
+            const payloadItems = (src.items && src.items.length > 0) ? src.items : [{ id: 1, desc: 'Services', amount: amount || src.total || 0 }];
 
-    // Construct 1:1 Blueprint payload
-    const payload = {
-        mode: type === 'contract' ? 'contract' : 'invoice',
-        style: src.style || state.style || 'basic',
-        invNum: src.invNum || '',
-        invDate: src.date || src.invDate || '',
-        dueDate: src.dueDate || '',
-        cName: src.cName || '',
-        cAddress: src.cAddress || '',
-        cPhone: src.cPhone || '',
-        clientState: src.clientState || '',
-        fName: src.fName || state.fName || '',
-        fEmail: src.fEmail || state.fEmail || '',
-        fAddress: src.fAddress || state.fAddress || '',
-        myState: src.myState || state.myState || '',
-        userType: src.userType || state.userType || 'not_registered',
-        isExport: src.isExport || false,
-        items: payloadItems,
-        upiId: src.upiId || state.upiId || '',
-        bankName: src.bankName || state.bankName || '',
-        bankAccountName: src.bankAccountName || state.bankAccountName || '',
-        bankAccountNo: src.bankAccountNo || state.bankAccountNo || '',
-        bankIfsc: src.bankIfsc || state.bankIfsc || '',
-        bankBranch: src.bankBranch || state.bankBranch || '',
-        lateFee: src.lateFee || state.lateFee || 0,
-        paymentTerms: src.paymentTerms || state.paymentTerms || 'receipt',
-        contractClient: src.contractClient || '',
-        contractFreelancer: src.contractFreelancer || '',
-        contractDesc: src.contractDesc || '',
-        contractAmount: src.amount || src.contractAmount || 0,
-        contractStart: src.contractStart || '',
-        contractEnd: src.contractEnd || '',
-        paidAmount: src.paidAmount || 0
-    };
+            // Minify keys to shrink URL and prevent mismatches
+            const rawPayload = {
+                m: type === 'contract' ? 'c' : 'i',
+                sty: src.style || state.style || 'basic',
+                in: src.invNum || '',
+                id: src.invDate || src.date || '',
+                dd: src.dueDate || '',
+                cn: src.cName || '',
+                ca: src.cAddress || '',
+                cp: src.cPhone || '',
+                cs: src.clientState || '',
+                fn: src.fName || state.fName || '',
+                fe: src.fEmail || state.fEmail || '',
+                fa: src.fAddress || state.fAddress || '',
+                ms: src.myState || state.myState || '',
+                ut: src.userType || state.userType || 'not_registered',
+                ex: src.isExport ? 1 : 0,
+                it: payloadItems.map(i => ({ d: i.desc, a: i.amount })),
+                ui: src.upiId || state.upiId || '',
+                bn: src.bankName || state.bankName || '',
+                ban: src.bankAccountName || state.bankAccountName || '',
+                bno: src.bankAccountNo || state.bankAccountNo || '',
+                bif: src.bankIfsc || state.bankIfsc || '',
+                bb: src.bankBranch || state.bankBranch || '',
+                lf: src.lateFee || state.lateFee || 0,
+                pt: src.paymentTerms || state.paymentTerms || 'receipt',
+                cc: src.contractClient || '',
+                cf: src.contractFreelancer || '',
+                cd: src.contractDesc || '',
+                ca_amt: src.amount || src.contractAmount || 0,
+                cs_dt: src.contractStart || '',
+                ce_dt: src.contractEnd || '',
+                pa: src.paidAmount || 0
+            };
 
-    // Safely compress into URL
-    url.searchParams.set('d', btoa(encodeURIComponent(JSON.stringify(payload))));
-    return url.toString();
-}
+            // Strip all empty values to shrink URL by 70%
+            const cleanPayload = {};
+            for (const key in rawPayload) {
+                if (rawPayload[key] !== '' && rawPayload[key] !== null && rawPayload[key] !== 0 && rawPayload[key] !== undefined && rawPayload[key] !== false) {
+                    if (Array.isArray(rawPayload[key]) && rawPayload[key].length === 0) continue;
+                    cleanPayload[key] = rawPayload[key];
+                }
+            }
+
+            url.searchParams.set('d', btoa(encodeURIComponent(JSON.stringify(cleanPayload))));
+            return url.toString();
+        }
+
 
 
         // --- 3. MESSAGE GENERATOR (CLOSED LOOP) ---
@@ -2254,54 +2262,61 @@ function initApp() {
     if (params.get('view') === 'doc') {
         isMobileFlow = true;
 
-        // 1. Unpack Full Blueprint
-        const dParam = params.get('d');
-        if (dParam) {
-            try {
-                const dec = JSON.parse(decodeURIComponent(atob(dParam)));
-                // Map minified keys back to state
-                state = {
-                    ...defaultState,
-                    mode: dec.m === 'c' ? 'contract' : 'invoice',
-                    style: dec.sty || 'basic',
-                    invNum: dec.in || '',
-                    invDate: dec.id || '',
-                    dueDate: dec.dd || '',
-                    cName: dec.cn || '',
-                    cAddress: dec.ca || '',
-                    cPhone: dec.cp || '',
-                    clientState: dec.cs || '',
-                    fName: dec.fn || '',
-                    fEmail: dec.fe || '',
-                    fAddress: dec.fa || '',
-                    myState: dec.ms || '',
-                    userType: dec.ut || 'not_registered',
-                    isExport: dec.ex === 1,
-                    items: dec.it ? dec.it.map((i, idx) => ({ id: idx, desc: i.d, amount: i.a })) : [],
-                    upiId: dec.ui || '',
-                    bankName: dec.bn || '',
-                    bankAccountName: dec.ban || '',
-                    bankAccountNo: dec.bano || '',
-                    bankIfsc: dec.bif || '',
-                    bankBranch: dec.bb || '',
-                    lateFee: dec.lf || 0,
-                    paymentTerms: dec.pt || 'receipt',
-                    paidAmount: dec.pa || 0
-                };
-            } catch(e) { 
-                // SAFETY NET: Clean Error UI if payload is corrupted
-                document.body.innerHTML = `
-                    <div class="h-screen w-full flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-                        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4 shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                        </div>
-                        <h2 class="text-xl font-black text-gray-900 mb-2 tracking-tight">Document Unavailable</h2>
-                        <p class="text-sm text-gray-500 font-medium">This secure link is invalid, corrupted, or has expired.<br>Please contact the sender for a new link.</p>
-                    </div>
-                `;
-                return; 
-            }
-        } else {
+        // 1. Unpack Compressed Blueprint
+                const dParam = params.get('d');
+                if (dParam) {
+                    try {
+                        const dec = JSON.parse(decodeURIComponent(atob(dParam)));
+                        // Reconstruct 1:1 exact state
+                        state = {
+                            ...defaultState,
+                            mode: dec.m === 'c' ? 'contract' : 'invoice',
+                            style: dec.sty || 'basic',
+                            invNum: dec.in || '',
+                            invDate: dec.id || '',
+                            dueDate: dec.dd || '',
+                            cName: dec.cn || '',
+                            cAddress: dec.ca || '',
+                            cPhone: dec.cp || '',
+                            clientState: dec.cs || '',
+                            fName: dec.fn || '',
+                            fEmail: dec.fe || '',
+                            fAddress: dec.fa || '',
+                            myState: dec.ms || '',
+                            userType: dec.ut || 'not_registered',
+                            isExport: dec.ex === 1,
+                            items: dec.it ? dec.it.map((i, idx) => ({ id: idx, desc: i.d, amount: i.a })) : [],
+                            upiId: dec.ui || '',
+                            bankName: dec.bn || '',
+                            bankAccountName: dec.ban || '',
+                            bankAccountNo: dec.bno || '',
+                            bankIfsc: dec.bif || '',
+                            bankBranch: dec.bb || '',
+                            lateFee: dec.lf || 0,
+                            paymentTerms: dec.pt || 'receipt',
+                            contractClient: dec.cc || '',
+                            contractFreelancer: dec.cf || '',
+                            contractDesc: dec.cd || '',
+                            contractAmount: dec.ca_amt || 0,
+                            contractStart: dec.cs_dt || '',
+                            contractEnd: dec.ce_dt || '',
+                            paidAmount: dec.pa || 0
+                        };
+                    } catch(e) { 
+                        // SAFETY NET: Clean Error UI if payload is corrupted by WhatsApp
+                        document.body.innerHTML = `
+                            <div class="h-screen w-full flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+                                <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                </div>
+                                <h2 class="text-xl font-black text-gray-900 mb-2 tracking-tight">Document Unavailable</h2>
+                                <p class="text-sm text-gray-500 font-medium">This secure link is invalid, corrupted, or has expired.<br>Please contact the sender for a new link.</p>
+                            </div>
+                        `;
+                        return; 
+                    }
+                } else {
+
             // Fallback for old links
             const mMode = params.get('mode') || 'invoice';
             const mCname = params.get('c') || 'Client';
