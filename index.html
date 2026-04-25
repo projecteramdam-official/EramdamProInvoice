@@ -1109,26 +1109,55 @@ ${(() => {
         }
 
         // --- 2. SECURE LINK BUILDER ---
-        function buildDocumentLink(type, record = null, amount = 0) {
-            const baseUrl = window.location.href.split('?')[0];
-            const url = new URL(baseUrl);
-            url.searchParams.set('view', 'doc');
-            
-            if (type === 'invoice') {
-                url.searchParams.set('inv', state.invNum || '');
-                url.searchParams.set('c', state.cName || '');
-                url.searchParams.set('t', amount);
-            } else if (type === 'contract') {
-                url.searchParams.set('mode', 'contract');
-                url.searchParams.set('c', state.contractClient || '');
-                url.searchParams.set('t', amount);
-            } else if (type === 'reminder' && record) {
-                url.searchParams.set('inv', record.invNum || '');
-                url.searchParams.set('c', record.cName || '');
-                url.searchParams.set('t', amount);
-            }
-            return url.toString();
-        }
+function buildDocumentLink(type, record = null, amount = 0) {
+    const baseUrl = window.location.href.split('?')[0];
+    const url = new URL(baseUrl);
+    url.searchParams.set('view', 'doc');
+
+    const src = record || state;
+    // Fallback for old links
+    const payloadItems = (src.items && src.items.length > 0) ? src.items : [{ id: 1, desc: 'Freelance Services (Summary)', amount: amount || src.total || 0 }];
+
+    // Construct 1:1 Blueprint payload
+    const payload = {
+        mode: type === 'contract' ? 'contract' : 'invoice',
+        style: src.style || state.style || 'basic',
+        invNum: src.invNum || '',
+        invDate: src.date || src.invDate || '',
+        dueDate: src.dueDate || '',
+        cName: src.cName || '',
+        cAddress: src.cAddress || '',
+        cPhone: src.cPhone || '',
+        clientState: src.clientState || '',
+        fName: src.fName || state.fName || '',
+        fEmail: src.fEmail || state.fEmail || '',
+        fAddress: src.fAddress || state.fAddress || '',
+        myState: src.myState || state.myState || '',
+        userType: src.userType || state.userType || 'not_registered',
+        isExport: src.isExport || false,
+        items: payloadItems,
+        upiId: src.upiId || state.upiId || '',
+        bankName: src.bankName || state.bankName || '',
+        bankAccountName: src.bankAccountName || state.bankAccountName || '',
+        bankAccountNo: src.bankAccountNo || state.bankAccountNo || '',
+        bankIfsc: src.bankIfsc || state.bankIfsc || '',
+        bankBranch: src.bankBranch || state.bankBranch || '',
+        lateFee: src.lateFee || state.lateFee || 0,
+        paymentTerms: src.paymentTerms || state.paymentTerms || 'receipt',
+        contractClient: src.contractClient || '',
+        contractFreelancer: src.contractFreelancer || '',
+        contractDesc: src.contractDesc || '',
+        contractAmount: src.amount || src.contractAmount || 0,
+        contractStart: src.contractStart || '',
+        contractEnd: src.contractEnd || '',
+        paidAmount: src.paidAmount || 0
+    };
+
+    // Safely compress into URL
+    url.searchParams.set('d', btoa(encodeURIComponent(JSON.stringify(payload))));
+    return url.toString();
+}
+
 
         // --- 3. MESSAGE GENERATOR (CLOSED LOOP) ---
         function generateSmartMessage(type, client, amount, docLink, invRecord = null, tone = "Polite") {
@@ -1494,24 +1523,44 @@ ${(() => {
                     savedAt: now
                 };
             } else {
-                syncPaymentStatus();
-                record = {
-                    id: now,
-                    recordType: 'invoice',
-                    invNum: state.invNum,
-                    cName: state.cName,
-                    cPhone: state.cPhone,
-                    total: grandTotalToExport,
-                    date: state.invDate,
-                    dueDate: state.dueDate,
-                    status: state.paymentStatus === 'paid' ? 'Paid' : (state.paymentStatus === 'partial' ? 'Partial Paid' : 'Unpaid'),
-                    paymentStatus: state.paymentStatus || 'unpaid',
-                    paidAmount: Number(state.paidAmount || 0),
-                    lastReminderSent: null,
-                    daysOverdue: 0,
-                    savedAt: now
-                };
-            }
+        syncPaymentStatus();
+        record = {
+            id: now,
+            recordType: 'invoice',
+            invNum: state.invNum,
+            cName: state.cName,
+            cPhone: state.cPhone,
+            total: grandTotalToExport,
+            date: state.invDate,
+            dueDate: state.dueDate,
+            status: state.paymentStatus === 'paid' ? 'Paid' : (state.paymentStatus === 'partial' ? 'Partial Paid' : 'Unpaid'),
+            paymentStatus: state.paymentStatus || 'unpaid',
+            paidAmount: Number(state.paidAmount || 0),
+            lastReminderSent: null,
+            daysOverdue: 0,
+            savedAt: now,
+            // Captured Blueprint (Fixes Mismatch)
+            items: JSON.parse(JSON.stringify(state.items || [])),
+            userType: state.userType,
+            isExport: state.isExport,
+            myState: state.myState,
+            clientState: state.clientState,
+            cAddress: state.cAddress,
+            fName: state.fName,
+            fEmail: state.fEmail,
+            fAddress: state.fAddress,
+            upiId: state.upiId,
+            bankName: state.bankName,
+            bankAccountName: state.bankAccountName,
+            bankAccountNo: state.bankAccountNo,
+            bankIfsc: state.bankIfsc,
+            bankBranch: state.bankBranch,
+            lateFee: state.lateFee,
+            paymentTerms: state.paymentTerms,
+            style: state.style
+        };
+    }
+
 
             const result = await apiRequest('SAVE_INVOICE', record);
 
@@ -2137,78 +2186,107 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 
         
 
-function initApp() {
-            const params = new URLSearchParams(window.location.search);
-
-            // --- SAFE CLIENT READ-ONLY DOCUMENT MODE ---
-            if (params.get('view') === 'doc') {
-                isMobileFlow = true;
-                
-                const mMode = params.get('mode') || 'invoice';
-                const mCname = params.get('c') || 'Client';
-                const mTotal = parseFloat(params.get('t')) || 0;
-                const mInv = params.get('inv') || '';
-
-                // Inject the minimal data into state to render a summary document
-                if (mMode === 'contract') {
-                    state = { ...defaultState, mode: 'contract', contractClient: mCname, contractAmount: mTotal, contractDesc: 'Freelance Services Agreement' };
-                } else {
-                    state = { ...defaultState, mode: 'invoice', invNum: mInv, cName: mCname, items: [{ id: 1, desc: 'Freelance Services (Summary)', amount: mTotal }] };
-                }
-
-                // Hide App UI AND Login Gate
-                document.getElementById('auth-gate').classList.add('hidden');
-                document.querySelector('nav').classList.add('hidden'); 
-                const editorPane = document.querySelector('section.lg\\:w-\\[480px\\]');
-                if (editorPane) editorPane.classList.add('hidden'); 
-                const zoomControls = document.querySelector('.fixed.bottom-6.right-6');
-                if (zoomControls) zoomControls.classList.add('hidden'); 
-                
-                // Full Screen Preview
-                const previewSection = document.getElementById('preview-section');
-                previewSection.className = 'w-full h-full bg-gray-200/80 overflow-y-auto flex justify-center py-10 pb-32 relative';
-                
-                // Add Post-Delivery Payment Closure Bar
-                const clientBar = document.createElement('div');
-                clientBar.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 w-max';
-                
-                const statusText = mTotal > 0 ? `Total Due: ${formatINR(mTotal)}` : 'Fully Paid';
-                const statusColor = mTotal > 0 ? 'text-white' : 'text-green-400';
-                const payBtn = mTotal > 0 ? `
-                    <button onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});" class="bg-brand-500 text-white px-5 py-2.5 rounded-full font-black text-sm hover:bg-brand-400 transition-colors shadow-lg hover:-translate-y-0.5 flex items-center gap-2">
-                        Pay Now
-                    </button>
-                ` : '';
-
-                clientBar.innerHTML = `
-                    <div class="bg-gray-900 p-2 pl-6 pr-2 rounded-full shadow-2xl flex items-center gap-5 border border-gray-700">
-                        <div class="flex flex-col pr-1">
-                            <span class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Status</span>
-                            <span class="text-[13px] font-black ${statusColor}">${statusText}</span>
-                        </div>
-                        ${payBtn}
-                        <button onclick="generatePDF()" class="bg-gray-800 text-gray-300 p-2.5 rounded-full hover:bg-gray-700 transition-colors" title="Download PDF">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        </button>
-                    </div>
-                `;
-
-                document.body.appendChild(clientBar);
-
-                // Auto-scale for mobile
-                setTimeout(() => {
-                    const wrapper = document.getElementById('scale-wrapper');
-                    if (window.innerWidth < 800) {
-                        wrapper.style.transform = `scale(${window.innerWidth / 840})`;
-                        wrapper.style.transformOrigin = 'top center';
-                    }
-                }, 50);
-
-                if (mMode === 'contract') renderContractPreview();
-                else renderPreview();
-                
-                return; 
+// --- CLIENT PAYMENT HIGHLIGHTER ---
+function triggerClientPay() {
+    window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+    setTimeout(() => {
+        const hasBank = state.bankName || state.bankAccountName || state.bankAccountNo || state.bankIfsc;
+        const hasPayment = state.qrImage || state.upiId || hasBank;
+        if (!hasPayment) {
+            alert("The freelancer has not added Bank or UPI details to this document.");
+        } else {
+            // Flash the document to indicate where to look
+            const el = document.getElementById('invoice-target');
+            if (el) {
+                el.style.boxShadow = "0 0 0 4px #3b82f6";
+                setTimeout(() => { el.style.boxShadow = "0 20px 40px rgba(0, 0, 0, 0.1)"; }, 1200);
             }
+        }
+    }, 500);
+}
+
+function initApp() {
+    const params = new URLSearchParams(window.location.search);
+    // --- SAFE CLIENT READ-ONLY DOCUMENT MODE ---
+    if (params.get('view') === 'doc') {
+        isMobileFlow = true;
+
+        // 1. Unpack Full Blueprint
+        const dParam = params.get('d');
+        if (dParam) {
+            try {
+                const decoded = JSON.parse(decodeURIComponent(atob(dParam)));
+                state = { ...defaultState, ...decoded, invDate: decoded.invDate || decoded.date };
+            } catch(e) { console.error("Invalid doc data", e); }
+        } else {
+            // Fallback for old links
+            const mMode = params.get('mode') || 'invoice';
+            const mCname = params.get('c') || 'Client';
+            const mTotal = parseFloat(params.get('t')) || 0;
+            const mInv = params.get('inv') || '';
+            if (mMode === 'contract') {
+                state = { ...defaultState, mode: 'contract', contractClient: mCname, contractAmount: mTotal, contractDesc: 'Freelance Services Agreement' };
+            } else {
+                state = { ...defaultState, mode: 'invoice', invNum: mInv, cName: mCname, items: [{ id: 1, desc: 'Freelance Services (Summary)', amount: mTotal }] };
+            }
+        }
+
+        // 2. Hide App UI
+        document.getElementById('auth-gate').classList.add('hidden');
+        document.querySelector('nav').classList.add('hidden');
+        const editorPane = document.querySelector('section.lg\\:w-\\[480px\\]');
+        if (editorPane) editorPane.classList.add('hidden');
+        const zoomControls = document.querySelector('.fixed.bottom-6.right-6');
+        if (zoomControls) zoomControls.classList.add('hidden');
+
+        const previewSection = document.getElementById('preview-section');
+        previewSection.className = 'w-full h-full bg-gray-200/80 overflow-y-auto flex justify-center py-10 pb-32 relative';
+
+        // 3. Render Exact Document
+        if (state.mode === 'contract') renderContractPreview();
+        else renderPreview();
+
+        // 4. Safely extract totals (prevents double GST math)
+        const mTotal = state.mode === 'contract' ? state.contractAmount : grandTotalToExport;
+        const mPaid = state.paidAmount || 0;
+        const balance = Math.max(mTotal - mPaid, 0);
+
+        // 5. Render "Pay Now" Closing Bar
+        const clientBar = document.createElement('div');
+        clientBar.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 w-max';
+
+        const statusText = balance > 0 ? `Total Due: ${formatINR(balance)}` : 'Fully Paid';
+        const statusColor = balance > 0 ? 'text-white' : 'text-green-400';
+        const payBtn = balance > 0 ? `
+            <button onclick="triggerClientPay()" class="bg-brand-500 text-white px-5 py-2.5 rounded-full font-black text-sm hover:bg-brand-400 transition-colors shadow-lg hover:-translate-y-0.5 flex items-center gap-2">
+                Pay Now
+            </button>
+        ` : '';
+
+        clientBar.innerHTML = `
+            <div class="bg-gray-900 p-2 pl-6 pr-2 rounded-full shadow-2xl flex items-center gap-5 border border-gray-700">
+                <div class="flex flex-col pr-1">
+                    <span class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Status</span>
+                    <span class="text-[13px] font-black ${statusColor}">${statusText}</span>
+                </div>
+                ${payBtn}
+                <button onclick="generatePDF()" class="bg-gray-800 text-gray-300 p-2.5 rounded-full hover:bg-gray-700 transition-colors" title="Download PDF">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </button>
+            </div>
+        `;
+        document.body.appendChild(clientBar);
+
+        setTimeout(() => {
+            const wrapper = document.getElementById('scale-wrapper');
+            if (window.innerWidth < 800) {
+                wrapper.style.transform = `scale(${window.innerWidth / 840})`;
+                wrapper.style.transformOrigin = 'top center';
+            }
+        }, 50);
+
+        return;
+    }
 
             // --- STANDARD FREELANCER APP FLOW ---
             if (state.userToken) {
