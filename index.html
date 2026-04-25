@@ -15,9 +15,40 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        <script>
         const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyueDHAoCdL42O9zOwfA7FAwY7NninmnPLDVdjGnPFjA1t2LiCC65jNkG8mQF1lanFr/exec";
 
-async function handleCredentialResponse(response) {
+        // --- GLOBAL STATE MANAGEMENT (MOVED TO TOP TO PREVENT REFERENCE ERRORS) ---
+        const defaultState = {
+            style: 'modern',
+            userType: 'registered',
+            isExport: false,
+            invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
+            invDate: new Date().toISOString().split('T')[0],
+            paymentTerms: 'receipt',
+            dueDate: new Date().toISOString().split('T')[0],
+            lateFee: 0,
+            fName: '', fEmail: '', fAddress: '', myState: '',
+            cName: '', cPhone: '', cAddress: '', clientState: '',
+            items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
+            upiId: '', qrImage: null,
+            bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
+            savedInvoices: [],
+            savedContracts: [],
+            paymentStatus: 'unpaid',
+            paidAmount: 0,
+            mode: 'invoice',
+            contractFreelancer: '',
+            contractClient: '',
+            contractDesc: '',
+            contractAmount: 0,
+            contractStart: '',
+            contractEnd: ''
+        };
+        let state = { ...defaultState };
+
+        async function handleCredentialResponse(response) {
+
     const errorEl = document.getElementById('auth-error');
     errorEl.innerText = "Verifying license...";
     errorEl.classList.remove('hidden', 'text-red-500');
@@ -613,52 +644,6 @@ Global Payment Setup
         // FIXED: Feature flag
         const FEATURES = { contract: true };
 
-        // --- 1. STATE MANAGEMENT (MOVED TO TOP) ---
-        const defaultState = {
-            style: 'basic',
-            userType: 'registered',
-            isExport: false,
-            invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
-            invDate: new Date().toISOString().split('T')[0],
-            paymentTerms: 'net7',
-            dueDate: '', // Calculated in init
-            lateFee: 0,
-            fName: '', fEmail: '', fAddress: '', myState: '',
-            cName: '', cPhone: '', cAddress: '', clientState: '',
-            items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
-            upiId: '', qrImage: null,
-            bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
-            savedInvoices: [],
-            savedContracts: [],
-            paymentStatus: 'unpaid',
-            paidAmount: 0,
-            mode: 'invoice',
-            contractFreelancer: '',
-            contractClient: '',
-            contractDesc: '',
-            contractAmount: 0,
-            contractStart: '',
-            contractEnd: ''
-        };
-        // Initializing dueDate for the default state
-        defaultState.dueDate = (function(dateStr, terms) {
-            if (!dateStr) return '';
-            const [year, month, day] = dateStr.split('-');
-            const date = new Date(year, month - 1, day);
-            let days = 7;
-            if (terms === 'receipt') days = 0;
-            else if (terms === 'net3') days = 3;
-            else if (terms === 'net7') days = 7;
-            else if (terms === 'net15') days = 15;
-            date.setDate(date.getDate() + days);
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        })(defaultState.invDate, 'net7');
-
-        let state = { ...defaultState };
-
         // --- 0. HELPER FUNCTIONS ---
         function calculateDueDate(dateStr, terms) {
             if (!dateStr) return '';
@@ -675,35 +660,6 @@ Global Payment Setup
             const d = String(date.getDate()).padStart(2, '0');
             return `${y}-${m}-${d}`;
         }
-
-        // --- 1. STATE MANAGEMENT ---
-        const defaultState = {
-            style: 'basic',
-            userType: 'registered',
-            isExport: false,
-            invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
-            invDate: new Date().toISOString().split('T')[0],
-            paymentTerms: 'net7',
-            dueDate: calculateDueDate(new Date().toISOString().split('T')[0], 'net7'),
-            lateFee: 0,
-            fName: '', fEmail: '', fAddress: '', myState: '',
-            cName: '', cPhone: '', cAddress: '', clientState: '',
-            items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
-            upiId: '', qrImage: null,
-            bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
-            savedInvoices: [],
-            savedContracts: [],
-            paymentStatus: 'unpaid',
-            paidAmount: 0,
-            mode: 'invoice',
-            contractFreelancer: '',
-            contractClient: '',
-            contractDesc: '',
-            contractAmount: 0,
-            contractStart: '',
-            contractEnd: ''
-        };
-
         let state = { ...defaultState };
         let grandTotalToExport = 0;
         let isMobileFlow = false;
