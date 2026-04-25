@@ -647,27 +647,11 @@ Global Payment Setup
         function getTrackerRecords() { return [...getInvoiceRecords(), ...getContractRecords()].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0)); }
 
         function syncPaymentStatus() {
-            const sub = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
-            const paid = Number(state.paidAmount || 0);
-            if (paid <= 0) { state.paymentStatus = 'unpaid'; return; }
-            state.paymentStatus = (paid >= sub) ? 'paid' : 'partial';
-        }
-            const itemsTotal = (state.items || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
-            const total = Number(grandTotalToExport || itemsTotal || 0);
-            const paid = Number(state.paidAmount || 0);
-
-            if (paid <= 0) {
-                if (state.paymentStatus !== 'paid') state.paymentStatus = 'unpaid';
-                return;
-            }
-
-            if (total > 0 && paid >= total) {
-                state.paymentStatus = 'paid';
-            } else {
-                state.paymentStatus = 'partial';
-            }
-        }
-
+    const sub = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
+    const paid = Number(state.paidAmount || 0);
+    if (paid <= 0) { state.paymentStatus = 'unpaid'; return; }
+    state.paymentStatus = (paid >= sub) ? 'paid' : 'partial';
+}
         // --- FIXED PROBLEM #2: Overdue Detection (CRITICAL) ---
         function isInvoiceOverdue(invoice) {
             if (!invoice.dueDate) return false;
