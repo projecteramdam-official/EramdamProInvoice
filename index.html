@@ -988,18 +988,18 @@ refreshInvoiceStatuses();
 
     const createInvoice = records.filter(r =>
         (r.recordType === 'contract') &&
-        !state.savedInvoices.some(inv => inv.contractClient === r.contractClient)
+        !state.savedInvoices.some(inv => inv.contractId === r.id)
     );
 
     const followUp = records.filter(r =>
-        (r.recordType === 'invoice') &&
-        r.paymentStatus !== 'paid' &&
-        isInvoiceOverdue(r)
-    );
+    (r.recordType === 'invoice') &&
+    r.paymentStatus !== 'paid'
+);
 
     const deliver = records.filter(r =>
-        (r.recordType === 'contract')
-    );
+    (r.recordType === 'invoice') &&
+    r.paymentStatus === 'paid'
+);
 
     let html = '';
 
@@ -1030,7 +1030,15 @@ refreshInvoiceStatuses();
         html += `<div class="mb-3"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Follow Up</p>`;
         followUp.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-800 truncate">${r.cName}</span>
+                ${(() => {
+    const intel = getAssistantIntelligence({ type: 'invoice' }, r);
+    return `
+        <div class="flex flex-col">
+            <span class="text-sm font-medium text-gray-800 truncate">${r.cName}</span>
+            <span class="text-[10px] text-gray-400">${intel.message}</span>
+        </div>
+    `;
+})()}
                 <button onclick="openSendSystem('invoice', ${r.id})" class="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg">Reminder</button>
             </div>`;
         });
@@ -1064,6 +1072,7 @@ refreshInvoiceStatuses();
 
         function generateInvoiceFromContract(id) {
     const contract = getContractRecords().find(r => r.id == id);
+            state.contractId = contract.id;
     if (!contract) return;
 
     // Switch to invoice mode
