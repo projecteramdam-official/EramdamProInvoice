@@ -832,7 +832,11 @@ function renderByMode() {
   'isExport'
 ];
             
-        function saveState() { 
+        function updateState(key, value) {
+    state[key] = value;
+    saveState();
+}
+    function saveState() { 
     try {
         // 🔥 REMOVE GLOBAL KEYS BEFORE SAVE
 const cleanState = { ...state };
