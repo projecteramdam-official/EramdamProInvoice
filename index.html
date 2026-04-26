@@ -719,7 +719,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (key === 'invDate' || key === 'paymentTerms') state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
             if (key === 'paymentStatus' || key === 'paidAmount') {
                 if (key === 'paymentStatus') {
-                    state.paidAmount = (value === 'paid') ? grandTotalToExport : 0;
+                    const total = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
+state.paidAmount = (value === 'paid') ? total : 0;
                     const el = document.getElementById('paidAmount');
                     if (el) el.value = state.paidAmount;
                 }
@@ -818,36 +819,41 @@ refreshInvoiceStatuses();
         }
 
         function refreshInvoiceStatuses() {
-            const now = new Date().setHours(0,0,0,0);
-            let overdueCount = 0;
+    const now = new Date().setHours(0,0,0,0);
+    let overdueCount = 0;
 
-            state.savedInvoices = state.savedInvoices.map(inv => {
-                if (inv.status === 'Paid') return inv;
-                
-                const due = new Date(inv.dueDate).setHours(0,0,0,0);
-                const diff = (due - now) / (1000 * 60 * 60 * 24);
-                
-                let newStatus = 'Unpaid';
-                if (diff < 0) { 
-                    newStatus = 'Overdue';
-                    overdueCount++;
-                } else if (diff <= 2) {
-                    newStatus = 'Due Soon';
-                }
-                
-                return { ...inv, status: newStatus };
-            });
+    state.savedInvoices = (state.savedInvoices || []).map(inv => {
+        const updated = { ...inv };
 
-            // Update Badge
-            const badge = document.getElementById('notif-badge');
-            if (overdueCount > 0) {
-                badge.innerText = overdueCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-            renderTrackerList();
-        }        
+        if (updated.status === 'Paid') return updated;
+        if (!updated.dueDate) return updated;
+
+        const due = new Date(updated.dueDate).setHours(0,0,0,0);
+        const diff = (due - now) / (1000 * 60 * 60 * 24);
+
+        if (diff < 0) {
+            updated.status = 'Overdue';
+            overdueCount++;
+        } else if (diff <= 2) {
+            updated.status = 'Due Soon';
+        } else {
+            updated.status = 'Unpaid';
+        }
+
+        return updated;
+    });
+
+    const badge = document.getElementById('notif-badge');
+    if (overdueCount > 0) {
+        badge.innerText = overdueCount;
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+
+    renderTrackerList();
+}
+        
         // --- 2. TRACKER UI & LOGIC ---
         let trackerFilter = 'all';
 
@@ -905,7 +911,7 @@ refreshInvoiceStatuses();
                 if (type === 'contract') {
                     const client = record.contractClient || 'Unnamed';
                     const freelancer = record.contractFreelancer || 'Freelancer';
-                    const amount = formatINR(record.amount || 0);
+                    const amount = formatINR(record.contractAmount || 0);
                     const start = record.contractStart ? formatDate(record.contractStart) : '';
                     const end = record.contractEnd ? formatDate(record.contractEnd) : '';
 
@@ -1030,7 +1036,8 @@ ${(() => {
 
             state.savedInvoices = (state.savedInvoices || []).filter(i => i.id !== id);
             saveState();
-            refreshInvoiceStatuses();
+           renderTrackerList();
+refreshInvoiceStatuses();
         }
         
         // --- PAYMENT CLOSURE & CLIENT MEMORY ---
@@ -1182,22 +1189,80 @@ ${(() => {
 
         // --- 4. THE CLEAN CONTEXT BUILDER ---
         function openSendSystem(type, id = null) {
-            // 1. Build Base Data
-            let ctx = { type, id, title: "Send to Client", client: "", amount: 0, contextText: "", message: "", docLink: "", intel: null, savedAlready: false };
+
+    // 🔥 STEP 1: FORCE COMMIT (SEND = ONLY COMMIT POINT)
+
+    const snapshot = {
+    id: state._id || (state._id = Date.now() + Math.floor(Math.random()*1000)),
+    recordType: (type === 'contract') ? 'contract' : 'invoice',
+    savedAt: Date.now(),
+
+    // CORE FIELDS ONLY
+    invNum: state.invNum,
+    cName: state.cName,
+    cPhone: state.cPhone,
+    items: state.items,
+    total: (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0),
+    paidAmount: state.paidAmount,
+    dueDate: state.dueDate,
+
+    contractClient: state.contractClient,
+    contractFreelancer: state.contractFreelancer,
+    contractDesc: state.contractDesc,
+    contractAmount: state.contractAmount,
+total: state.contractAmount,
+    contractStart: state.contractStart,
+    contractEnd: state.contractEnd
+};
+
+    // 🔥 TOTAL LOCK
+    const total = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
+    snapshot.total = total;
+
+    // 🔥 PAYMENT NORMALIZATION
+    const paid = Number(state.paidAmount || 0);
+    if (paid <= 0) snapshot.paymentStatus = 'unpaid';
+    else if (paid >= total) snapshot.paymentStatus = 'paid';
+    else snapshot.paymentStatus = 'partial';
+
+    // 🔥 STATUS
+    if (snapshot.paymentStatus === 'paid') snapshot.status = 'Paid';
+else if (snapshot.paymentStatus === 'partial') snapshot.status = 'Partial Paid';
+else snapshot.status = 'Sent';
+
+    // 🔥 UPSERT
+    const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
+
+const existingIndex = targetArray.findIndex(inv => inv.id === snapshot.id);
+
+if (existingIndex > -1) {
+    targetArray[existingIndex] = snapshot;
+} else {
+    targetArray.unshift(snapshot);
+}
+    saveState();
+    refreshInvoiceStatuses();
+
+    // 🔥 LOCK RECORD
+    
+    // 2. Build Base Data (NOW SAFE)
+    let ctx = { type, id, title: "Send to Client", client: "", amount: 0, contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
 
             if (type === 'invoice') {
                 ctx.client = state.cName || "Client";
-                ctx.amount = grandTotalToExport;
+                ctx.amount = record.total;
                 ctx.contextText = `Invoice ready for ${ctx.client}`;
                 ctx.docLink = buildDocumentLink(type, null, ctx.amount);
-                ctx.message = generateSmartMessage(type, ctx.client, ctx.amount, ctx.docLink);
+                ctx.intel = getAssistantIntelligence(record);
+ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
             } 
             else if (type === 'contract') {
                 ctx.client = state.contractClient || "Client";
-                ctx.amount = state.contractAmount;
+                ctx.amount = record.total;
                 ctx.contextText = `Contract ready for ${ctx.client}`;
                 ctx.docLink = buildDocumentLink(type, null, ctx.amount);
-                ctx.message = generateSmartMessage(type, ctx.client, ctx.amount, ctx.docLink);
+                ctx.intel = getAssistantIntelligence(record);
+ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
             } 
             else if (type === 'reminder') {
                 ctx.title = "Payment Reminder";
