@@ -387,15 +387,26 @@ function removeQR() {
                             </div>
 
                             <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200/50">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
-                                    <select id="paymentTerms" disabled class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900 cursor-pointer" onchange="updateState('paymentTerms', this.value)">
-                                        <option value="receipt">Due on Receipt</option>
-                                        <option value="net3">Net 3 Days</option>
-                                        <option value="net7">Net 7 Days</option>
-                                        <option value="net15">Net 15 Days</option>
-                                    </select>
-                                </div>
+                                    <div>
+    <label class="block text-xs font-bold text-gray-600 mb-1.5">
+        Payment Terms 
+        <span class="text-[10px] text-gray-400 font-normal ml-1">
+            (from contract)
+        </span>
+    </label>
+
+    <select id="paymentTerms" disabled
+        class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white text-gray-900 cursor-not-allowed">
+        <option value="receipt">Due on Receipt</option>
+        <option value="net3">Net 3 Days</option>
+        <option value="net7">Net 7 Days</option>
+        <option value="net15">Net 15 Days</option>
+    </select>
+
+    <p class="text-[10px] text-gray-400 mt-1">
+        Set this in Contract → auto-applied here
+    </p>
+</div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Late Fee (%) <span class="text-gray-400 font-normal ml-1">Opt.</span></label>
                                     <input type="number" id="lateFee" min="0" step="0.1" placeholder="e.g. 5" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 border p-2.5 bg-white text-gray-900" oninput="updateState('lateFee', parseFloat(this.value) || 0)">
@@ -757,7 +768,27 @@ state.paidAmount = (value === 'paid') ? total : 0;
             saveState();
             
             // Performance: Skip heavy render for background fields
-            const visualFields = ['style', 'invNum', 'invDate', 'dueDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'paymentStatus', 'paidAmount'];
+            const visualFields = [
+  'style','invNum','invDate','dueDate',
+  'fName','fEmail','fAddress','myState',
+  'cName','cPhone','cAddress','clientState',
+  'upiId','paymentStatus','paidAmount',
+
+  // CONTRACT
+  'contractFreelancer',
+  'contractClient',
+  'contractDesc',
+  'contractAmount',
+  'contractStart',
+  'contractEnd',
+
+  // SHARED CONTROL
+  'paymentTerms',
+
+  // GST
+  'userType',
+  'isExport'
+];
             if (visualFields.includes(key)) renderPreview();
         }
 
