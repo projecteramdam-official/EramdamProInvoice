@@ -753,26 +753,63 @@ function handleDownloadPDF() {
     }
 }        
 function updateState(key, value) {
-            state[key] = value;
-            if (key === 'invDate' || key === 'paymentTerms') state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
-            if (key === 'paymentStatus' || key === 'paidAmount') {
-                if (key === 'paymentStatus') {
-                    const total = grandTotalToExport;
-state.paidAmount = (value === 'paid') ? total : 0;
-                    const el = document.getElementById('paidAmount');
-                    if (el) el.value = state.paidAmount;
-                }
-                syncPaymentStatus();
-            }
-            if (GLOBAL_KEYS.includes(key)) persistGlobalSetup();
-            saveState();
+    state[key] = value;
+
+    // --- CORE CALCULATIONS ---
+    if (key === 'invDate' || key === 'paymentTerms') {
+        state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
+    }
+
+    if (key === 'paymentStatus' || key === 'paidAmount') {
+        if (key === 'paymentStatus') {
+            const total = grandTotalToExport;
+            state.paidAmount = (value === 'paid') ? total : 0;
+
+            const el = document.getElementById('paidAmount');
+            if (el) el.value = state.paidAmount;
+        }
+        syncPaymentStatus();
+    }
+
+    // --- GLOBAL SAVE ---
+    if (GLOBAL_KEYS.includes(key)) persistGlobalSetup();
+    saveState();
+    renderByMode();
+}
+
+function renderByMode() {
+    if (state.mode === 'contract') {
+        if (typeof renderContractPreview === 'function') {
+            renderContractPreview();
+        } else {
+            renderPreview();
+        }
+    } else {
+        renderPreview();
+    }
+}
             
             // Performance: Skip heavy render for background fields
             const visualFields = [
+  // CORE
   'style','invNum','invDate','dueDate',
+
+  // USER
   'fName','fEmail','fAddress','myState',
+
+  // CLIENT
   'cName','cPhone','cAddress','clientState',
+
+  // PAYMENT
   'upiId','paymentStatus','paidAmount',
+
+  // 🔥 BANK (MISSING FIX)
+  'bankName',
+  'bankAccountName',
+  'bankAccountNo',
+  'bankIfsc',
+  'bankBranch',
+  'qrImage',
 
   // CONTRACT
   'contractFreelancer',
@@ -782,16 +819,14 @@ state.paidAmount = (value === 'paid') ? total : 0;
   'contractStart',
   'contractEnd',
 
-  // SHARED CONTROL
+  // SHARED
   'paymentTerms',
 
   // GST
   'userType',
   'isExport'
 ];
-            if (visualFields.includes(key)) renderPreview();
-        }
-
+            
         function saveState() { 
     try {
         // 🔥 REMOVE GLOBAL KEYS BEFORE SAVE
