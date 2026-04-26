@@ -831,12 +831,18 @@ refreshInvoiceStatuses();
         const due = new Date(updated.dueDate).setHours(0,0,0,0);
         const diff = (due - now) / (1000 * 60 * 60 * 24);
 
-        if (diff < 0) {
-            updated.paymentStatus = 'overdue';
-            overdueCount++;
-        } else {
-            updated.paymentStatus = 'unpaid';
-        }
+        const paid = Number(updated.paidAmount || 0);
+const total = Number(updated.total || 0);
+
+if (paid >= total && total > 0) {
+    updated.paymentStatus = 'paid';
+}
+else if (diff < 0) {
+    updated.paymentStatus = (paid > 0) ? 'partial' : 'overdue';
+}
+else {
+    updated.paymentStatus = (paid > 0) ? 'partial' : 'unpaid';
+}
 
         return updated;
     });
@@ -964,7 +970,7 @@ else if (paymentStatus === 'overdue') {
 }
 
                 // FIXED PROBLEM #2: Only show reminder if OVERDUE
-                const showReminder = record.status === 'Overdue';
+                const showReminder = paymentStatus === 'overdue';
 
                 return `
                     <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
@@ -1176,7 +1182,7 @@ refreshInvoiceStatuses();
         return `Hi ${firstName},\n\nI've prepared our freelance agreement for ${total}.${linkAction}\n\nKindly review and confirm.`;
     }
 
-    if (paymentStatus === ‘paid’ || record.paymentStatus === 'paid') {
+    if (paymentStatus === 'paid' || record.paymentStatus === 'paid') {
         return `Hi ${firstName},\n\nPayment of ${total} received. Thank you!`;
     }
 
