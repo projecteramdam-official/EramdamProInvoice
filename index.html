@@ -1020,7 +1020,7 @@ refreshInvoiceStatuses();
         createInvoice.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
-                <button onclick="openSendSystem('invoice', ${r.id})" class="text-xs bg-brand-600 text-white px-3 py-1 rounded-lg">Generate</button>
+                <button onclick="generateInvoiceFromContract(${r.id})" class="text-xs bg-brand-600 text-white px-3 py-1 rounded-lg">Generate</button>
             </div>`;
         });
         html += `</div>`;
@@ -1062,7 +1062,35 @@ refreshInvoiceStatuses();
             }
         }
 
-        function renderTrackerList() {
+        function generateInvoiceFromContract(id) {
+    const contract = getContractRecords().find(r => r.id == id);
+    if (!contract) return;
+
+    // Switch to invoice mode
+    setMode('invoice');
+
+    // Prefill invoice from contract
+    state.cName = contract.contractClient || '';
+    state.fName = contract.contractFreelancer || '';
+    state.items = [{
+        id: Date.now(),
+        desc: contract.contractDesc || 'Project Work',
+        amount: contract.contractAmount || 0
+    }];
+
+    state.paymentTerms = state.paymentTerms || 'receipt';
+
+    // Reset payment state
+    state.paymentStatus = 'unpaid';
+    state.paidAmount = 0;
+
+    // Save + render
+    saveState();
+    populateForm();
+    renderItems();
+    renderPreview();
+}
+    function renderTrackerList() {
     renderActionsSection();
             const container = document.getElementById('tracker-list');
             const records = getTrackerRecords();
