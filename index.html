@@ -825,7 +825,7 @@ refreshInvoiceStatuses();
     state.savedInvoices = (state.savedInvoices || []).map(inv => {
         const updated = { ...inv };
 
-        if (updated.status === 'Paid') return updated;
+        if (updated.paymentStatus === 'paid') return updated;
         if (!updated.dueDate) return updated;
 
         const due = new Date(updated.dueDate).setHours(0,0,0,0);
@@ -970,7 +970,7 @@ else if (paymentStatus === 'overdue') {
 }
 
                 // FIXED PROBLEM #2: Only show reminder if OVERDUE
-                const showReminder = paymentStatus === 'overdue';
+                const showReminder = paymentStatus !== 'paid' && isInvoiceOverdue(record);
 
                 return `
                     <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
@@ -1047,7 +1047,7 @@ refreshInvoiceStatuses();
         function markAsPaid(id) {
             const inv = state.savedInvoices.find(i => i.id === id);
             if (inv) {
-                inv.status = 'Paid';
+                inv.status = 'paid';
                 inv.paymentStatus = 'paid';
                 inv.paidAmount = inv.total;
                 
@@ -2178,7 +2178,7 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
                     cName: state.cName,
                     total: state.grandTotal || 0,
                     dueDate: state.dueDate,
-                    status: state.paymentStatus === 'paid' ? 'Paid' : 'Unpaid',
+                    status: state.paymentStatus === 'paid' ? 'paid' : 'Unpaid',
                     paidAmount: state.paidAmount || 0,
                     paymentStatus: state.paymentStatus,
                     recordType: 'invoice',
