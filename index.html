@@ -1277,7 +1277,8 @@ ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
                 currentActiveTone = ctx.intel.suggestedTone; // Global for UI state
                 
                 ctx.docLink = buildDocumentLink(type, ctx.invoiceRecord, ctx.amount);
-                ctx.message = generateSmartMessage(type, ctx.client, ctx.amount, ctx.docLink, ctx.invoiceRecord, currentActiveTone);
+                ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, ctx.docLink);
             } 
             else if (type === 'thankyou') {
                 ctx.title = "Payment Received";
@@ -1287,7 +1288,8 @@ ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
                 ctx.client = ctx.invoiceRecord.cName || "Client";
                 ctx.amount = ctx.invoiceRecord.total;
                 ctx.contextText = "Transaction successfully closed.";
-                ctx.message = generateSmartMessage(type, ctx.client, ctx.amount, "", ctx.invoiceRecord);
+                ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, "");
             }
 
             // 2. Store Clean Context Globally
