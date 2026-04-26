@@ -793,6 +793,18 @@ function renderByMode() {
         renderPreview();
     }
 }
+function setMode(mode) {
+    state.mode = mode;
+    saveState();
+
+    document.getElementById('invoice-form-section').classList.toggle('hidden', mode !== 'invoice');
+    document.getElementById('contract-form-section').classList.toggle('hidden', mode !== 'contract');
+
+    document.getElementById('invoice-actions').classList.toggle('hidden', mode !== 'invoice');
+    document.getElementById('contract-actions').classList.toggle('hidden', mode !== 'contract');
+
+    renderByMode();
+}
             
             // Performance: Skip heavy render for background fields
             const visualFields = [
@@ -832,11 +844,7 @@ function renderByMode() {
   'isExport'
 ];
             
-        function updateState(key, value) {
-    state[key] = value;
-    saveState();
-}
-    function saveState() { 
+            function saveState() { 
     try {
         // 🔥 REMOVE GLOBAL KEYS BEFORE SAVE
 const cleanState = { ...state };
@@ -934,21 +942,25 @@ refreshInvoiceStatuses();
         const diff = (due - now) / (1000 * 60 * 60 * 24);
 
         const paid = Number(updated.paidAmount || 0);
-const total = Number(updated.total || 0);
+        const total = Number(updated.total || 0);
 
-if (paid >= total && total > 0) {
-    updated.paymentStatus = 'paid';
-}
-else if (diff < 0) {
-    updated.paymentStatus = (paid > 0) ? 'partial' : 'overdue';
-}
-else {
-    updated.paymentStatus = (paid > 0) ? 'partial' : 'unpaid';
-}
+        if (paid >= total && total > 0) {
+            updated.paymentStatus = 'paid';
+        }
+        else if (diff < 0) {
+            updated.paymentStatus = (paid > 0) ? 'partial' : 'overdue';
+
+            // 🔥 ADD THIS
+            if (updated.paymentStatus === 'overdue') {
+                overdueCount++;
+            }
+        }
+        else {
+            updated.paymentStatus = (paid > 0) ? 'partial' : 'unpaid';
+        }
 
         return updated;
     });
-
     const badge = document.getElementById('notif-badge');
     if (overdueCount > 0) {
         badge.innerText = overdueCount;
