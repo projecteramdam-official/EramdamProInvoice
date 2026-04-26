@@ -719,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (key === 'invDate' || key === 'paymentTerms') state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
             if (key === 'paymentStatus' || key === 'paidAmount') {
                 if (key === 'paymentStatus') {
-                    const total = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
+                    const total = grandTotalToExport;
 state.paidAmount = (value === 'paid') ? total : 0;
                     const el = document.getElementById('paidAmount');
                     if (el) el.value = state.paidAmount;
@@ -803,7 +803,7 @@ refreshInvoiceStatuses();
         function getTrackerRecords() { return [...getInvoiceRecords(), ...getContractRecords()].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0)); }
 
         function syncPaymentStatus() {
-    const sub = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
+    const sub = grandTotalToExport;
     const paid = Number(state.paidAmount || 0);
     if (paid <= 0) { state.paymentStatus = 'unpaid'; return; }
     state.paymentStatus = (paid >= sub) ? 'paid' : 'partial';
@@ -832,12 +832,10 @@ refreshInvoiceStatuses();
         const diff = (due - now) / (1000 * 60 * 60 * 24);
 
         if (diff < 0) {
-            updated.status = 'Overdue';
+            updated.paymentStatus = 'overdue';
             overdueCount++;
-        } else if (diff <= 2) {
-            updated.status = 'Due Soon';
         } else {
-            updated.status = 'Unpaid';
+            updated.paymentStatus = 'unpaid';
         }
 
         return updated;
@@ -950,21 +948,20 @@ refreshInvoiceStatuses();
                 const paymentStatus = record.paymentStatus || (paidAmount > 0 ? (balance > 0 ? 'partial' : 'paid') : 'unpaid');
 
                 let badgeClass = 'bg-gray-100 text-gray-600';
-                let badgeLabel = record.status || 'Unpaid';
+let badgeLabel = paymentStatus;
 
-                if (paymentStatus === 'paid' || record.status === 'Paid') {
-                    badgeClass = 'bg-green-100 text-green-700';
-                    badgeLabel = 'Paid';
-                } else if (paymentStatus === 'partial' || record.status === 'Partial Paid') {
-                    badgeClass = 'bg-orange-100 text-orange-700';
-                    badgeLabel = 'Partial Paid';
-                } else if (record.status === 'Due Soon') {
-                    badgeClass = 'bg-yellow-100 text-yellow-700';
-                    badgeLabel = 'Due Soon';
-                } else if (record.status === 'Overdue') {
-                    badgeClass = 'bg-red-100 text-red-700';
-                    badgeLabel = 'Overdue';
-                }
+if (paymentStatus === 'paid') {
+    badgeClass = 'bg-green-100 text-green-700';
+    badgeLabel = 'Paid';
+}
+else if (paymentStatus === 'partial') {
+    badgeClass = 'bg-orange-100 text-orange-700';
+    badgeLabel = 'Partial Paid';
+}
+else if (paymentStatus === 'overdue') {
+    badgeClass = 'bg-red-100 text-red-700';
+    badgeLabel = 'Overdue';
+}
 
                 // FIXED PROBLEM #2: Only show reminder if OVERDUE
                 const showReminder = record.status === 'Overdue';
@@ -1167,131 +1164,137 @@ refreshInvoiceStatuses();
 
 
         // --- 3. MESSAGE GENERATOR (ACTION-FOCUSED) ---
-        function generateSmartMessage(type, client, amount, docLink, invRecord = null, tone = "Polite") {
-            const firstName = client ? client.split(' ')[0] : "Client";
-            const formattedAmount = formatINR(amount);
-            const linkAction = `\n\n👉 View secure document below:\n${docLink}`;
+        function buildMessage(intel, record, docLink) {
+    const client = record.cName || record.contractClient || "Client";
+    const firstName = client ? client.split(' ')[0] : "Client";
+    const total = formatINR(Number(record.total || record.contractAmount || 0));
+    const paid = formatINR(Number(record.paidAmount || 0));
+    const balance = formatINR(Math.max(Number(record.total || 0) - Number(record.paidAmount || 0), 0));
+    const linkAction = docLink ? `\n\n👉 View secure document below:\n${docLink}` : "";
 
-            if (type === 'invoice') {
-                return `Hi ${firstName},\n\nYour invoice for ${formattedAmount} is ready.${linkAction}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
-            } else if (type === 'contract') {
-                return `Hi ${firstName},\n\nI've prepared our freelance agreement for ${formattedAmount}.${linkAction}\n\nKindly review and confirm.`;
-            } else if (type === 'reminder' && invRecord) {
-                const invNum = invRecord.invNum || "your invoice";
-                if (tone === "Polite") return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${formattedAmount}.${linkAction}\n\nNo rush, but let me know if you have any questions!`;
-                if (tone === "Firm") return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${formattedAmount}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
-                if (tone === "Final") return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${formattedAmount} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this today.`;
-            } else if (type === 'thankyou') {
-                return `Hi ${firstName},\n\nPayment of ${formattedAmount} received. Thank you!`;
-            }
-            return "";
+    if (record.recordType === 'contract') {
+        return `Hi ${firstName},\n\nI've prepared our freelance agreement for ${total}.${linkAction}\n\nKindly review and confirm.`;
+    }
+
+    if (paymentStatus === ‘paid’ || record.paymentStatus === 'paid') {
+        return `Hi ${firstName},\n\nPayment of ${total} received. Thank you!`;
+    }
+
+    if (intel && intel.daysOverdue > 0) {
+        const tone = currentActiveTone || intel.suggestedTone || "Polite";
+        const invNum = record.invNum || "your invoice";
+
+        if (tone === "Polite") {
+            return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${total}.${linkAction}\n\nNo rush, but let me know if you have any questions!`;
         }
+        if (tone === "Firm") {
+            return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${total}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
+        }
+        if (tone === "Final") {
+            return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${total} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this today.`;
+        }
+    }
 
+    return `Hi ${firstName},\n\nYour invoice for ${total} is ready.${linkAction}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
+}
         // --- 4. THE CLEAN CONTEXT BUILDER ---
         function openSendSystem(type, id = null) {
 
     // 🔥 STEP 1: FORCE COMMIT (SEND = ONLY COMMIT POINT)
-
     const snapshot = {
-    id: state._id || (state._id = Date.now() + Math.floor(Math.random()*1000)),
-    recordType: (type === 'contract') ? 'contract' : 'invoice',
-    savedAt: Date.now(),
+        id: state._id || (state._id = Date.now() + Math.floor(Math.random() * 1000)),
+        recordType: (type === 'contract') ? 'contract' : 'invoice',
+        savedAt: Date.now(),
+        invNum: state.invNum,
+        cName: state.cName,
+        cPhone: state.cPhone,
+        items: JSON.parse(JSON.stringify(state.items || [])),
+        paidAmount: Number(state.paidAmount || 0),
+        dueDate: state.dueDate,
 
-    // CORE FIELDS ONLY
-    invNum: state.invNum,
-    cName: state.cName,
-    cPhone: state.cPhone,
-    items: state.items,
-    total: (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0),
-    paidAmount: state.paidAmount,
-    dueDate: state.dueDate,
+        contractClient: state.contractClient,
+        contractFreelancer: state.contractFreelancer,
+        contractDesc: state.contractDesc,
+        contractAmount: Number(state.contractAmount || 0),
+        contractStart: state.contractStart,
+        contractEnd: state.contractEnd
+    };
 
-    contractClient: state.contractClient,
-    contractFreelancer: state.contractFreelancer,
-    contractDesc: state.contractDesc,
-    contractAmount: state.contractAmount,
-total: state.contractAmount,
-    contractStart: state.contractStart,
-    contractEnd: state.contractEnd
-};
+    if (type === 'contract') {
+        snapshot.total = Number(state.contractAmount || 0);
+        snapshot.paymentStatus = 'unpaid';
+        snapshot.paymentStatus = 'unpaid';
+    } else {
+        const total = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
+        snapshot.total = total;
 
-    // 🔥 TOTAL LOCK
-    const total = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
-    snapshot.total = total;
+        const paid = Number(state.paidAmount || 0);
+        if (paid <= 0) snapshot.paymentStatus = 'unpaid';
+        else if (paid >= total) snapshot.paymentStatus = 'paid';
+        else snapshot.paymentStatus = 'partial';
 
-    // 🔥 PAYMENT NORMALIZATION
-    const paid = Number(state.paidAmount || 0);
-    if (paid <= 0) snapshot.paymentStatus = 'unpaid';
-    else if (paid >= total) snapshot.paymentStatus = 'paid';
-    else snapshot.paymentStatus = 'partial';
+        if (snapshot.paymentStatus === 'paid') snapshot.paymentStatus = 'paid';
+        else if (snapshot.paymentStatus === 'partial') snapshot.paymentStatus = 'partial';
+        else snapshot.paymentStatus = 'unpaid';
+    }
 
-    // 🔥 STATUS
-    if (snapshot.paymentStatus === 'paid') snapshot.status = 'Paid';
-else if (snapshot.paymentStatus === 'partial') snapshot.status = 'Partial Paid';
-else snapshot.status = 'Sent';
-
-    // 🔥 UPSERT
     const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
+    const existingIndex = targetArray.findIndex(inv => inv.id === snapshot.id);
 
-const existingIndex = targetArray.findIndex(inv => inv.id === snapshot.id);
+    if (existingIndex > -1) {
+        targetArray[existingIndex] = snapshot;
+    } else {
+        targetArray.unshift(snapshot);
+    }
 
-if (existingIndex > -1) {
-    targetArray[existingIndex] = snapshot;
-} else {
-    targetArray.unshift(snapshot);
-}
     saveState();
     refreshInvoiceStatuses();
 
-    // 🔥 LOCK RECORD
-    
+    const record = snapshot;
+
     // 2. Build Base Data (NOW SAFE)
     let ctx = { type, id, title: "Send to Client", client: "", amount: 0, contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
 
-            if (type === 'invoice') {
-                ctx.client = state.cName || "Client";
-                ctx.amount = record.total;
-                ctx.contextText = `Invoice ready for ${ctx.client}`;
-                ctx.docLink = buildDocumentLink(type, null, ctx.amount);
-                ctx.intel = getAssistantIntelligence(record);
-ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
-            } 
-            else if (type === 'contract') {
-                ctx.client = state.contractClient || "Client";
-                ctx.amount = record.total;
-                ctx.contextText = `Contract ready for ${ctx.client}`;
-                ctx.docLink = buildDocumentLink(type, null, ctx.amount);
-                ctx.intel = getAssistantIntelligence(record);
-ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
-            } 
-            else if (type === 'reminder') {
-                ctx.title = "Payment Reminder";
-                ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
-                if(!ctx.invoiceRecord) return;
-                
-                ctx.client = ctx.invoiceRecord.cName || "Client";
-                ctx.amount = Math.max((Number(ctx.invoiceRecord.total) || 0) - (Number(ctx.invoiceRecord.paidAmount) || 0), 0);
-                
-                ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
-                ctx.contextText = ctx.intel.daysOverdue > 0 ? `Invoice overdue by ${ctx.intel.daysOverdue} days` : "Invoice due today";
-                currentActiveTone = ctx.intel.suggestedTone; // Global for UI state
-                
-                ctx.docLink = buildDocumentLink(type, ctx.invoiceRecord, ctx.amount);
-                ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
-ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, ctx.docLink);
-            } 
-            else if (type === 'thankyou') {
-                ctx.title = "Payment Received";
-                ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
-                if(!ctx.invoiceRecord) return;
-                
-                ctx.client = ctx.invoiceRecord.cName || "Client";
-                ctx.amount = ctx.invoiceRecord.total;
-                ctx.contextText = "Transaction successfully closed.";
-                ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
-ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, "");
-            }
+    if (type === 'invoice') {
+        ctx.client = state.cName || "Client";
+        ctx.amount = record.total;
+        ctx.contextText = `Invoice ready for ${ctx.client}`;
+        ctx.docLink = buildDocumentLink(type, record, ctx.amount);
+        ctx.intel = getAssistantIntelligence(record);
+        ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
+    }
+    else if (type === 'contract') {
+        ctx.client = state.contractClient || "Client";
+        ctx.amount = record.total;
+        ctx.contextText = `Contract ready for ${ctx.client}`;
+        ctx.docLink = buildDocumentLink(type, record, ctx.amount);
+        ctx.intel = getAssistantIntelligence(record);
+        ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
+    }
+    else if (type === 'reminder') {
+        ctx.title = "Payment Reminder";
+        ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
+        if (!ctx.invoiceRecord) return;
 
+        ctx.client = ctx.invoiceRecord.cName || "Client";
+        ctx.amount = Math.max((Number(ctx.invoiceRecord.total) || 0) - (Number(ctx.invoiceRecord.paidAmount) || 0), 0);
+        ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+        ctx.contextText = ctx.intel.daysOverdue > 0 ? `Invoice overdue by ${ctx.intel.daysOverdue} days` : "Invoice due today";
+        currentActiveTone = ctx.intel.suggestedTone;
+        ctx.docLink = buildDocumentLink(type, ctx.invoiceRecord, ctx.amount);
+        ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, ctx.docLink);
+    }
+    else if (type === 'thankyou') {
+        ctx.title = "Payment Received";
+        ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
+        if (!ctx.invoiceRecord) return;
+
+        ctx.client = ctx.invoiceRecord.cName || "Client";
+        ctx.amount = ctx.invoiceRecord.total;
+        ctx.contextText = "Transaction successfully closed.";
+        ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+        ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, "");
+    }
             // 2. Store Clean Context Globally
             currentSendContext = ctx;
 
@@ -1446,7 +1449,8 @@ ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, "");
             if (state.userTier !== 'Pro') return;
             currentActiveTone = tone;
             // Passing the exact context variables so the link never breaks
-            currentSendContext.message = generateSmartMessage('reminder', currentSendContext.client, currentSendContext.amount, currentSendContext.docLink, currentSendContext.invoiceRecord, tone);
+            currentSendContext.intel = getAssistantIntelligence(currentSendContext.invoiceRecord || currentSendContext);
+currentSendContext.message = buildMessage(currentSendContext.intel, currentSendContext.invoiceRecord || currentSendContext, currentSendContext.docLink);
             renderSendSystem();
         }
 
