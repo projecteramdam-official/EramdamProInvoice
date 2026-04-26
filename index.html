@@ -681,8 +681,13 @@ Global Payment Setup
                     </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-4 space-y-4 relative" id="tracker-list">
-                    </div>
+                <div class="flex-1 overflow-y-auto p-4 space-y-4 relative">
+
+    <div id="actions-section"></div>
+
+    <div id="tracker-list"></div>
+
+</div>
             </aside>
         </main>
         
@@ -959,7 +964,81 @@ else {
             renderTrackerList();
         }
         
-        function toggleTracker() {
+    function renderActionsSection() {
+    const container = document.getElementById('actions-section');
+    if (!container) return;
+
+    const records = getTrackerRecords();
+
+    const createInvoice = records.filter(r =>
+        (r.recordType === 'contract') &&
+        !state.savedInvoices.some(inv => inv.contractClient === r.contractClient)
+    );
+
+    const followUp = records.filter(r =>
+        (r.recordType === 'invoice') &&
+        r.paymentStatus !== 'paid' &&
+        isInvoiceOverdue(r)
+    );
+
+    const deliver = records.filter(r =>
+        (r.recordType === 'contract')
+    );
+
+    let html = '';
+
+    if (createInvoice.length || followUp.length || deliver.length) {
+        html += `
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-black uppercase tracking-widest text-gray-500">⚡ Needs Action</h3>
+                <span class="text-[10px] font-bold text-gray-400">
+                    ${createInvoice.length + followUp.length + deliver.length} Actions
+                </span>
+            </div>
+        `;
+    }
+
+    if (createInvoice.length) {
+        html += `<div class="mb-3"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Create Invoice</p>`;
+        createInvoice.slice(0, 2).forEach(r => {
+            html += `<div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
+                <button onclick="openSendSystem('invoice')" class="text-xs bg-brand-600 text-white px-3 py-1 rounded-lg">Generate</button>
+            </div>`;
+        });
+        html += `</div>`;
+    }
+
+    if (followUp.length) {
+        html += `<div class="mb-3"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Follow Up</p>`;
+        followUp.slice(0, 2).forEach(r => {
+            html += `<div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-800 truncate">${r.cName}</span>
+                <button onclick="openSendSystem('invoice', ${r.id})" class="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg">Reminder</button>
+            </div>`;
+        });
+        html += `</div>`;
+    }
+
+    if (deliver.length) {
+        html += `<div><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Deliver Work</p>`;
+        deliver.slice(0, 2).forEach(r => {
+            html += `<div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
+                <button class="text-xs bg-gray-800 text-white px-3 py-1 rounded-lg">Mark Done</button>
+            </div>`;
+        });
+        html += `</div>`;
+    }
+
+    if (createInvoice.length || followUp.length || deliver.length) {
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+}    
+    function toggleTracker() {
             const panel = document.getElementById('tracker-panel');
             panel.classList.toggle('translate-x-full');
             if (!panel.classList.contains('translate-x-full')) {
@@ -968,6 +1047,7 @@ else {
         }
 
         function renderTrackerList() {
+    renderActionsSection();
             const container = document.getElementById('tracker-list');
             const records = getTrackerRecords();
 
