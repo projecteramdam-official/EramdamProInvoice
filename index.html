@@ -1031,10 +1031,19 @@ refreshInvoiceStatuses();
         followUp.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
                 ${(() => {
-    const intel = getAssistantIntelligence({ type: 'invoice' }, r);
+    const ctx = {
+    type: 'invoice',
+    amount: r.total || r.contractAmount || 0,
+    paid: r.paidAmount || 0,
+    dueDate: r.dueDate || '',
+    termsDays: r.termsDays || 0,
+    client: r.cName || r.contractClient || ''
+};
+
+const intel = getAssistantIntelligence(ctx, r);
     return `
         <div class="flex flex-col">
-            <span class="text-sm font-medium text-gray-800 truncate">${r.cName}</span>
+            <span class="text-sm font-medium text-gray-800 truncate">${r.cName || r.contractClient || 'Client'}</span>
             <span class="text-[10px] text-gray-400">${intel.message}</span>
         </div>
     `;
@@ -1267,6 +1276,7 @@ ${(() => {
             saveState();
            renderTrackerList();
 refreshInvoiceStatuses();
+            renderActionsSection();
         }
         
         // --- PAYMENT CLOSURE & CLIENT MEMORY ---
