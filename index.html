@@ -24,7 +24,7 @@
         const defaultState = {
             style: 'modern', userType: 'registered', isExport: false,
             invNum: `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`,
-            invDate: new Date().toISOString().split('T')[0], paymentTerms: 'receipt',
+            invDate: new Date().toISOString().split('T')[0], paymentTerms: 'receipt', termsDays: 0,
             dueDate: new Date().toISOString().split('T')[0], lateFee: 0,
             fName: '', fEmail: '', fAddress: '', myState: '',
             cName: '', cPhone: '', cAddress: '', clientState: '',
@@ -702,11 +702,15 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!dateStr) return '';
             const [year, month, day] = dateStr.split('-');
             const date = new Date(year, month - 1, day);
-            let days = 7;
-            if (terms === 'receipt') days = 0;
-            else if (terms === 'net3') days = 3;
-            else if (terms === 'net7') days = 7;
-            else if (terms === 'net15') days = 15;
+            let days = 0;
+
+if (terms === 'receipt') days = 0;
+else if (terms === 'net3') days = 3;
+else if (terms === 'net7') days = 7;
+else if (terms === 'net15') days = 15;
+
+// 🔥 CRITICAL: STORE FOR CONTRACT + MESSAGE
+state.termsDays = days;
             date.setDate(date.getDate() + days);
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -2579,18 +2583,46 @@ function initApp() {
 
                         <section class="space-y-4 pt-4 border-t border-gray-100">
                             <div>
-                                <h4 class="font-bold text-sm uppercase">1. Revisions</h4>
-                                <p class="text-sm text-gray-600">The Freelancer provides reasonable revisions. However, further revisions, updates, or future work may be paused if payment is not received within ${termsDays} days after the due date.</p>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-sm uppercase">2. Ownership</h4>
-                                <p class="text-sm text-gray-600">Deliverables and intellectual property are considered final and transferred to the Client only upon receipt of full payment.</p>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-sm uppercase">3. Termination</h4>
-                                <p class="text-sm text-gray-600">Either party may terminate this agreement with written notice. In such case, the Client shall pay for work completed up to the date of termination.</p>
-                            </div>
-                        </section>
+                                <section class="space-y-3">
+
+<div>
+<h4 class="font-bold text-sm uppercase">1. Payment Terms</h4>
+<p class="text-sm text-gray-600">
+Payment is expected within ${state.termsDays === 0 ? 'immediately upon invoicing' : state.termsDays + ' days from invoice date'}.
+</p>
+</div>
+
+<div>
+<h4 class="font-bold text-sm uppercase">2. Late Payment</h4>
+<p class="text-sm text-gray-600">
+${state.lateFee > 0 
+? `A late fee of ${state.lateFee}% may apply if payment is not completed after the due date.` 
+: `Delays in payment may affect delivery timelines.`}
+</p>
+</div>
+
+<div>
+<h4 class="font-bold text-sm uppercase">3. Delivery Condition</h4>
+<p class="text-sm text-gray-600">
+Final files or deliverables will be shared only after full payment is received.
+</p>
+</div>
+
+<div>
+<h4 class="font-bold text-sm uppercase">4. Scope & Changes</h4>
+<p class="text-sm text-gray-600">
+Work includes only the agreed scope. Additional requests will be treated as new work and charged separately.
+</p>
+</div>
+
+<div>
+<h4 class="font-bold text-sm uppercase">5. Termination</h4>
+<p class="text-sm text-gray-600">
+If the project is terminated, payment for completed work up to that point is required.
+</p>
+</div>
+
+</section>
 
                         <div class="pt-16 grid grid-cols-2 gap-12">
                             <div class="border-t border-gray-300 pt-4">
