@@ -603,7 +603,7 @@ Global Payment Setup
                 <!-- Floating Action Bar -->
                 <div class="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm border-t border-gray-200 p-5 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.1)] z-20">
 <div id="invoice-actions" class="grid grid-cols-2 gap-3 mb-3">
-<button onclick="generatePDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+<button onclick="handleDownloadPDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
 </button>
 <button onclick="openSendSystem('invoice')" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
@@ -611,7 +611,7 @@ Global Payment Setup
 </button>
 </div>
 <div id="contract-actions" class="hidden grid grid-cols-2 gap-3 mb-3">
-<button onclick="generatePDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
+<button onclick="handleDownloadPDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
 </button>
 <button onclick="openSendSystem('contract')" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
@@ -714,7 +714,20 @@ document.addEventListener('DOMContentLoaded', function () {
             return `${y}-${m}-${d}`;
         }
 
-        function updateState(key, value) {
+// 🔥 DOWNLOAD = EXPORT ONLY (NO SAVE)
+function handleDownloadPDF() {
+    try {
+        const prev = state.isExport;
+        state.isExport = true;
+
+        generatePDF();
+
+        state.isExport = prev;
+    } catch (e) {
+        console.error("Download failed", e);
+    }
+}        
+function updateState(key, value) {
             state[key] = value;
             if (key === 'invDate' || key === 'paymentTerms') state.dueDate = calculateDueDate(state.invDate, state.paymentTerms);
             if (key === 'paymentStatus' || key === 'paidAmount') {
@@ -1176,6 +1189,9 @@ refreshInvoiceStatuses();
     const total = formatINR(Number(record.total || record.contractAmount || 0));
     const paid = formatINR(Number(record.paidAmount || 0));
     const balance = formatINR(Math.max(Number(record.total || 0) - Number(record.paidAmount || 0), 0));
+// 🔥 PAYMENT CONTEXT (CRITICAL FIX)
+const isPartial = Number(record.paidAmount || 0) > 0 && Number(record.paidAmount || 0) < Number(record.total || 0);
+const amountContext = isPartial ? `${balance} remaining` : total;
     const linkAction = docLink ? `\n\n👉 View secure document below:\n${docLink}` : "";
 
     if (record.recordType === 'contract') {
@@ -1191,13 +1207,13 @@ refreshInvoiceStatuses();
         const invNum = record.invNum || "your invoice";
 
         if (tone === "Polite") {
-            return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${total}.${linkAction}\n\nNo rush, but let me know if you have any questions!`;
+            return `Hi ${firstName},\n\nJust a quick friendly reminder regarding ${invNum} for ${amountContext}.${linkAction}\n\nNo rush, but let me know if you have any questions!`;
         }
         if (tone === "Firm") {
-            return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${total}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
+            return `Hi ${firstName},\n\nI’m following up on ${invNum} for ${amountContext}, which is now overdue.${linkAction}\n\nPlease process this payment so I can update my records.`;
         }
         if (tone === "Final") {
-            return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${total} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this today.`;
+            return `Hi ${firstName},\n\nThis is a final reminder regarding the overdue balance of ${amountContext} for ${invNum}.${linkAction}\n\nI kindly request you to prioritize this today.`;
         }
     }
 
