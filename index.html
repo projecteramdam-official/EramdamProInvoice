@@ -993,6 +993,12 @@ function renderActionsSection() {
 
     let records = getTrackerRecords();
 
+// 🔥 ACTION NEEDED TAB → NO LIST RENDER
+if (trackerFilter === 'all') {
+    container.innerHTML = '';
+    return;
+}
+
     // 🔥 PRIORITY SORTING (ONLY ONCE)
     const getPriority = (r) => {
         if (r.recordType === 'invoice') {
@@ -1162,13 +1168,16 @@ function renderActionsSection() {
 
     let records = getTrackerRecords();
 
-    // 🔥 STRICT TAB FILTER (MAIN FIX)
-    if (trackerFilter === 'invoices') {
-        records = records.filter(r => r.recordType === 'invoice');
-    }
-    else if (trackerFilter === 'contracts') {
-        records = records.filter(r => r.recordType === 'contract');
-    }
+// 🔥 ACTION NEEDED TAB → NO DUPLICATE LIST
+if (trackerFilter === 'all') {
+    records = [];
+}
+else if (trackerFilter === 'invoices') {
+    records = records.filter(r => r.recordType === 'invoice');
+}
+else if (trackerFilter === 'contracts') {
+    records = records.filter(r => r.recordType === 'contract');
+}
 
     const filterButtons = {
         all: document.getElementById('tracker-filter-all'),
