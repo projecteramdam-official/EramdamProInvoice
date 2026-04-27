@@ -986,22 +986,41 @@ refreshInvoiceStatuses();
 
     const records = getTrackerRecords();
 
-    const createInvoice = records.filter(r =>
+    const createInvoice = sortedRecords.filter(r =>
         (r.recordType === 'contract') &&
         !state.savedInvoices.some(inv => inv.contractId === r.id)
     );
 
-    const followUp = records.filter(r =>
+    const followUp = sortedRecords.filter(r =>
     (r.recordType === 'invoice') &&
     r.paymentStatus !== 'paid'
 );
 
-    const paidItems = records.filter(r =>
+    const paidItems = sortedRecords.filter(r =>
     (r.recordType === 'invoice') &&
     r.paymentStatus === 'paid'
 );
 
     let html = '';
+// 🔥 PRIORITY SORTING (NO NEW SYSTEM)
+const getPriority = (r) => {
+    if (r.recordType === 'invoice') {
+        if (r.paymentStatus === 'overdue') return 100;
+        if (r.paymentStatus === 'partial') return 80;
+        if (r.paymentStatus === 'unpaid') return 60;
+        if (r.paymentStatus === 'paid') return 10;
+    }
+
+    if (r.recordType === 'contract' &&
+        !state.savedInvoices.some(inv => inv.contractId === r.id)) {
+        return 50;
+    }
+
+    return 0;
+};
+
+// sort records ONCE
+const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a));
 
     if (createInvoice.length || followUp.length || paidItems.length) {
         html += `
@@ -1029,28 +1048,51 @@ refreshInvoiceStatuses();
     if (followUp.length) {
         html += `<div class="mb-3"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Follow Up</p>`;
         followUp.slice(0, 2).forEach(r => {
-            html += `<div class="flex justify-between items-center mb-2">
-                ${(() => {
-    const ctx = {
-    type: 'invoice',
-    amount: r.total || r.contractAmount || 0,
-    paid: r.paidAmount || 0,
-    dueDate: r.dueDate || '',
-    termsDays: r.termsDays || 0,
-    client: r.cName || r.contractClient || ''
-};
+    const total = r.total || 0;
+    const paid = r.paidAmount || 0;
+    const balance = total - paid;
 
-const intel = getAssistantIntelligence(ctx, r);
-    return `
-        <div class="flex flex-col">
-            <span class="text-sm font-medium text-gray-800 truncate">${r.cName || r.contractClient || 'Client'}</span>
-            <span class="text-[10px] text-gray-400">${intel.message}</span>
+    const isOverdue = r.paymentStatus === 'overdue';
+
+    html += `
+    <div class="mb-3 border rounded-xl overflow-hidden bg-white shadow-sm">
+
+        ${isOverdue ? `<div class="h-1 bg-red-500"></div>` : ''}
+
+        <div class="p-3">
+            <div class="text-sm font-semibold text-gray-900">
+                ${r.cName || 'Client'}
+            </div>
+
+            <div class="text-lg font-bold text-gray-800 mt-1">
+                ₹${total}
+            </div>
+
+            <div class="text-xs font-semibold mt-1 ${isOverdue ? 'text-red-500' : 'text-orange-500'}">
+                ${isOverdue ? 'OVERDUE' : 'PENDING'}
+                ${r.daysOverdue ? `• ${r.daysOverdue} days` : ''}
+            </div>
+
+            <div class="text-xs text-gray-500 mt-2">
+                Paid: ₹${paid} <br/>
+                Balance: ₹${balance}
+            </div>
+
+            <div class="flex gap-2 mt-3">
+                <button onclick="triggerReminderFromAction(${r.id})"
+                    class="flex-1 text-xs bg-orange-500 text-white py-1.5 rounded-lg">
+                    Send Reminder
+                </button>
+
+                <button onclick="markAsPaid(${r.id})"
+                    class="flex-1 text-xs bg-green-600 text-white py-1.5 rounded-lg">
+                    Mark Paid
+                </button>
+            </div>
         </div>
+    </div>
     `;
-})()}
-                <button onclick="triggerReminderFromAction(${r.id})" class="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg">Reminder</button>
-            </div>`;
-        });
+});
         html += `</div>`;
     }
 
