@@ -1142,7 +1142,7 @@ function renderActionsSection() {
     `;
 })()}
 
-                        <button onclick="markAsPaid(${r.id})"
+                        <button onclick="markAsPaid('${r.invNum}')"
                             class="flex-1 text-xs bg-green-600 text-white py-1.5 rounded-lg">
                             Mark Paid
                         </button>
@@ -1410,24 +1410,36 @@ refreshInvoiceStatuses();
         
         // --- PAYMENT CLOSURE & CLIENT MEMORY ---
         function markAsPaid(id) {
-            const inv = state.savedInvoices.find(i => i.id === id);
-            if (inv) {
-                inv.status = 'paid';
-                inv.paymentStatus = 'paid';
-                inv.paidAmount = inv.total;
-                
-                // Client Memory: Track Payment Velocity
-                if (inv.savedAt) {
-                    inv.daysToPay = Math.max(0, Math.ceil((Date.now() - inv.savedAt) / 86400000));
-                }
-                
-                saveState();
-                refreshInvoiceStatuses();
-                
-                // Trigger the Post-Payment Loop
-                setTimeout(() => openSendSystem('thankyou', id), 400);
-            }
-        }
+    // 🔥 FIX: match using invNum
+    const inv = state.savedInvoices.find(i => i.invNum === id);
+    if (!inv) return;
+
+    // 🔥 FIX: safe total fallback
+    const total = Number(inv.total || inv.grandTotal || grandTotalToExport || 0);
+
+    inv.paymentStatus = 'paid';
+    inv.paidAmount = total;
+
+    // Optional: keep if used elsewhere
+    inv.status = 'paid';
+
+    // 🔥 SYNC CURRENT FORM
+    if (state.invNum === inv.invNum) {
+        state.paymentStatus = 'paid';
+        state.paidAmount = total;
+    }
+
+    // ✅ PRESERVE: payment velocity
+    if (inv.savedAt) {
+        inv.daysToPay = Math.max(0, Math.ceil((Date.now() - inv.savedAt) / 86400000));
+    }
+
+    saveState();
+    refreshInvoiceStatuses();
+
+    // 🔥 FIX: pass correct identifier
+    setTimeout(() => openSendSystem('thankyou', inv.invNum), 400);
+}
 
         // --- 1. UNIFIED SEND SYSTEM LOGIC ---
         let currentSendContext = {};
