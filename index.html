@@ -1318,7 +1318,31 @@ ${(() => {
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                     </button>
                                     ${showReminder ? `
-                                        <button onclick="openSendSystem('reminder', ${record.id})" class="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors" title="Send Reminder">
+                                        ${(() => {
+    const cooldown = 6 * 60 * 60 * 1000;
+    const last = record.lastReminderSent || 0;
+    const diff = Date.now() - last;
+
+    const isCooling = diff < cooldown;
+
+    return `
+    <button
+        ${isCooling ? 'disabled' : `onclick="openSendSystem('reminder', ${record.id})"`}
+        class="p-2 rounded-lg ${
+            isCooling
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-brand-50 text-brand-600 hover:bg-brand-100'
+        }"
+        title="${isCooling ? 'Recently Sent' : 'Send Reminder'}">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+
+    </button>
+    `;
+})()}
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                         </button>
                                     ` : ''}
