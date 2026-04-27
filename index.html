@@ -1546,16 +1546,41 @@ const amountContext = isPartial ? `${balance} remaining` : total;
     }
 
     const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
-    const existingIndex = targetArray.findIndex(inv => inv.id === snapshot.id);
+const existingIndex = targetArray.findIndex(inv => inv.id === snapshot.id);
 
-    if (existingIndex > -1) {
-        targetArray[existingIndex] = snapshot;
-    } else {
-        targetArray.unshift(snapshot);
+if (existingIndex > -1) {
+    targetArray[existingIndex] = snapshot;
+} else {
+    targetArray.unshift(snapshot);
+}
+
+// 🔥 SAVE REMINDER STATE (SYNC BELL + ORANGE)
+if (type === 'reminder' && id) {
+    const index = state.savedInvoices.findIndex(inv => inv.id == id);
+
+    if (index !== -1) {
+        const now = Date.now();
+
+        const existing = state.savedInvoices[index];
+
+        const count = (existing.reminderCount || 0) + 1;
+
+        let tone = 'gentle';
+        if (count >= 3) tone = 'final';
+        else if (count === 2) tone = 'firm';
+
+        state.savedInvoices[index] = {
+            ...existing,
+            reminderCount: count,
+            lastReminderSent: now,
+            reminderTone: tone,
+            nextAction: 'call'
+        };
     }
+}
 
-    saveState();
-    refreshInvoiceStatuses();
+saveState();
+refreshInvoiceStatuses();
 
         // 2. Build Base Data (NOW SAFE)
     let ctx = { type, id, title: "Send to Client", client: "", amount: 0, contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
