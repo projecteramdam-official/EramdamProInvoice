@@ -980,10 +980,7 @@ refreshInvoiceStatuses();
             renderTrackerList();
         }
         
-    // 🔥 DEFINE BEFORE USE (THIS FIXES ERROR)
-const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a));
-
-// ✅ NOW SAFE TO USE
+   // ✅ NOW SAFE TO USE
 function renderActionsSection() {
     const container = document.getElementById('actions-section');
     if (!container) return;
