@@ -993,12 +993,6 @@ function renderActionsSection() {
 
     let records = getTrackerRecords();
 
-// 🔥 ACTION NEEDED TAB → NO LIST RENDER
-if (trackerFilter === 'all') {
-    container.innerHTML = '';
-    return;
-}
-
     // 🔥 PRIORITY SORTING (ONLY ONCE)
     const getPriority = (r) => {
         if (r.recordType === 'invoice') {
