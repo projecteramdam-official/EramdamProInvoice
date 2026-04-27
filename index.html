@@ -986,22 +986,41 @@ refreshInvoiceStatuses();
 
     const records = getTrackerRecords();
 
-    const createInvoice = records.filter(r =>
-    (r.recordType === 'contract') &&
-    !state.savedInvoices.some(inv => inv.contractId === r.id)
-);
+    const createInvoice = sortedRecords.filter(r =>
+        (r.recordType === 'contract') &&
+        !state.savedInvoices.some(inv => inv.contractId === r.id)
+    );
 
-const followUp = records.filter(r =>
+    const followUp = sortedRecords.filter(r =>
     (r.recordType === 'invoice') &&
     r.paymentStatus !== 'paid'
 );
 
-const paidItems = records.filter(r =>
+    const paidItems = sortedRecords.filter(r =>
     (r.recordType === 'invoice') &&
     r.paymentStatus === 'paid'
 );
 
     let html = '';
+// 🔥 PRIORITY SORTING (NO NEW SYSTEM)
+const getPriority = (r) => {
+    if (r.recordType === 'invoice') {
+        if (r.paymentStatus === 'overdue') return 100;
+        if (r.paymentStatus === 'partial') return 80;
+        if (r.paymentStatus === 'unpaid') return 60;
+        if (r.paymentStatus === 'paid') return 10;
+    }
+
+    if (r.recordType === 'contract' &&
+        !state.savedInvoices.some(inv => inv.contractId === r.id)) {
+        return 50;
+    }
+
+    return 0;
+};
+
+// sort records ONCE
+const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a));
 
     if (createInvoice.length || followUp.length || paidItems.length) {
         html += `
@@ -1019,7 +1038,7 @@ const paidItems = records.filter(r =>
         html += `<div class="mb-3"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Create Invoice</p>`;
         createInvoice.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-800 truncate">${r.cName || 'Client'}</span>
+                <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
                 <button onclick="generateInvoiceFromContract(${r.id})" class="text-xs bg-brand-600 text-white px-3 py-1 rounded-lg">Generate</button>
             </div>`;
         });
@@ -1029,15 +1048,11 @@ const paidItems = records.filter(r =>
     if (followUp.length) {
         html += `<div class="mb-3"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Follow Up</p>`;
         followUp.slice(0, 2).forEach(r => {
-
-    const invoice = getInvoiceRecords().find(inv => inv.id == r.id);
-    if (!invoice) return;
-
-    const total = invoice.total || 0;
-    const paid = invoice.paidAmount || 0;
+    const total = r.total || 0;
+    const paid = r.paidAmount || 0;
     const balance = total - paid;
 
-    const isOverdue = invoice.paymentStatus === 'overdue';
+    const isOverdue = r.paymentStatus === 'overdue';
 
     html += `
     <div class="mb-3 border rounded-xl overflow-hidden bg-white shadow-sm">
@@ -1046,7 +1061,7 @@ const paidItems = records.filter(r =>
 
         <div class="p-3">
             <div class="text-sm font-semibold text-gray-900">
-                ${invoice.cName || 'Client'}
+                ${r.cName || 'Client'}
             </div>
 
             <div class="text-lg font-bold text-gray-800 mt-1">
@@ -1055,6 +1070,7 @@ const paidItems = records.filter(r =>
 
             <div class="text-xs font-semibold mt-1 ${isOverdue ? 'text-red-500' : 'text-orange-500'}">
                 ${isOverdue ? 'OVERDUE' : 'PENDING'}
+                ${r.daysOverdue ? `• ${r.daysOverdue} days` : ''}
             </div>
 
             <div class="text-xs text-gray-500 mt-2">
@@ -1063,12 +1079,12 @@ const paidItems = records.filter(r =>
             </div>
 
             <div class="flex gap-2 mt-3">
-                <button onclick="sendReminder(${invoice.id})"
+                <button onclick="triggerReminderFromAction(${r.id})"
                     class="flex-1 text-xs bg-orange-500 text-white py-1.5 rounded-lg">
                     Send Reminder
                 </button>
 
-                <button onclick="markAsPaid(${invoice.id})"
+                <button onclick="markAsPaid(${r.id})"
                     class="flex-1 text-xs bg-green-600 text-white py-1.5 rounded-lg">
                     Mark Paid
                 </button>
@@ -1084,7 +1100,7 @@ const paidItems = records.filter(r =>
         html += `<div><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Completed</p>`;
         paidItems.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-800 truncate">${r.cName || 'Client'}</span>
+                <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
                 <button onclick="viewInvoice(${r.id})" class="text-xs bg-gray-800 text-white px-3 py-1 rounded-lg">View</button>
             </div>`;
         });
@@ -1304,40 +1320,43 @@ ${(() => {
 refreshInvoiceStatuses();
             renderActionsSection();
         }
-            
+    function triggerReminderFromAction(id) {
+    const record = getTrackerRecords().find(r => r.id == id);
+    if (!record) return;
+
+    const ctx = {
+        type: 'invoice',
+        amount: record.total || record.contractAmount || 0,
+        paid: record.paidAmount || 0,
+        dueDate: record.dueDate || '',
+        termsDays: record.termsDays || 0,
+        client: record.cName || record.contractClient || ''
+    };
+
+    // 🔥 FORCE INTELLIGENCE INTO SEND SYSTEM
+    openSendSystem('invoice', id, ctx);
+}
+        
         // --- PAYMENT CLOSURE & CLIENT MEMORY ---
         function markAsPaid(id) {
-    try {
-        const invoices = state.savedInvoices || [];
-
-        const index = invoices.findIndex(inv => inv.id == id);
-        if (index === -1) return;
-
-        const invoice = invoices[index];
-
-        const total = Number(invoice.total || 0);
-
-        // 🔥 CORE UPDATE
-        invoice.paymentStatus = 'paid';
-        invoice.paidAmount = total;
-
-        // 🔥 SAVE BACK
-        state.savedInvoices[index] = invoice;
-
-        // 🔥 SAVE + REFRESH EVERYTHING
-        saveState();
-        refreshInvoiceStatuses();
-
-        // 🔥 FORCE UI SYNC (IMPORTANT)
-        renderTrackerList();
-
-        // 🔥 ALSO REFRESH ACTION PANEL
-        renderActionsSection();
-
-    } catch (e) {
-        console.error("Mark paid failed", e);
-    }
-}
+            const inv = state.savedInvoices.find(i => i.id === id);
+            if (inv) {
+                inv.status = 'paid';
+                inv.paymentStatus = 'paid';
+                inv.paidAmount = inv.total;
+                
+                // Client Memory: Track Payment Velocity
+                if (inv.savedAt) {
+                    inv.daysToPay = Math.max(0, Math.ceil((Date.now() - inv.savedAt) / 86400000));
+                }
+                
+                saveState();
+                refreshInvoiceStatuses();
+                
+                // Trigger the Post-Payment Loop
+                setTimeout(() => openSendSystem('thankyou', id), 400);
+            }
+        }
 
         // --- 1. UNIFIED SEND SYSTEM LOGIC ---
         let currentSendContext = {};
