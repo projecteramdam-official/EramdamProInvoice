@@ -986,7 +986,41 @@ refreshInvoiceStatuses();
 
     const records = getTrackerRecords();
 
-    const createInvoice = sortedRecords.filter(r =>
+// 🔥 PRIORITY SORTING (MUST BE FIRST)
+const getPriority = (r) => {
+    if (r.recordType === 'invoice') {
+        if (r.paymentStatus === 'overdue') return 100;
+        if (r.paymentStatus === 'partial') return 80;
+        if (r.paymentStatus === 'unpaid') return 60;
+        if (r.paymentStatus === 'paid') return 10;
+    }
+
+    if (r.recordType === 'contract' &&
+        !state.savedInvoices.some(inv => inv.contractId === r.id)) {
+        return 50;
+    }
+
+    return 0;
+};
+
+// 🔥 DEFINE BEFORE USE (THIS FIXES ERROR)
+const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a));
+
+// ✅ NOW SAFE TO USE
+const createInvoice = sortedRecords.filter(r =>
+    (r.recordType === 'contract') &&
+    !state.savedInvoices.some(inv => inv.contractId === r.id)
+);
+
+const followUp = sortedRecords.filter(r =>
+    (r.recordType === 'invoice') &&
+    r.paymentStatus !== 'paid'
+);
+
+const paidItems = sortedRecords.filter(r =>
+    (r.recordType === 'invoice') &&
+    r.paymentStatus === 'paid'
+);
         (r.recordType === 'contract') &&
         !state.savedInvoices.some(inv => inv.contractId === r.id)
     );
@@ -1321,20 +1355,7 @@ refreshInvoiceStatuses();
             renderActionsSection();
         }
     function triggerReminderFromAction(id) {
-    const record = getTrackerRecords().find(r => r.id == id);
-    if (!record) return;
-
-    const ctx = {
-        type: 'invoice',
-        amount: record.total || record.contractAmount || 0,
-        paid: record.paidAmount || 0,
-        dueDate: record.dueDate || '',
-        termsDays: record.termsDays || 0,
-        client: record.cName || record.contractClient || ''
-    };
-
-    // 🔥 FORCE INTELLIGENCE INTO SEND SYSTEM
-    openSendSystem('invoice', id, ctx);
+    openSendSystem('invoice', id);
 }
         
         // --- PAYMENT CLOSURE & CLIENT MEMORY ---
