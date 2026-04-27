@@ -986,41 +986,22 @@ refreshInvoiceStatuses();
 
     const records = getTrackerRecords();
 
-    const createInvoice = sortedRecords.filter(r =>
-        (r.recordType === 'contract') &&
-        !state.savedInvoices.some(inv => inv.contractId === r.id)
-    );
+    const createInvoice = records.filter(r =>
+    (r.recordType === 'contract') &&
+    !state.savedInvoices.some(inv => inv.contractId === r.id)
+);
 
-    const followUp = sortedRecords.filter(r =>
+const followUp = records.filter(r =>
     (r.recordType === 'invoice') &&
     r.paymentStatus !== 'paid'
 );
 
-    const paidItems = sortedRecords.filter(r =>
+const paidItems = records.filter(r =>
     (r.recordType === 'invoice') &&
     r.paymentStatus === 'paid'
 );
 
     let html = '';
-// 🔥 PRIORITY SORTING (NO NEW SYSTEM)
-const getPriority = (r) => {
-    if (r.recordType === 'invoice') {
-        if (r.paymentStatus === 'overdue') return 100;
-        if (r.paymentStatus === 'partial') return 80;
-        if (r.paymentStatus === 'unpaid') return 60;
-        if (r.paymentStatus === 'paid') return 10;
-    }
-
-    if (r.recordType === 'contract' &&
-        !state.savedInvoices.some(inv => inv.contractId === r.id)) {
-        return 50;
-    }
-
-    return 0;
-};
-
-// sort records ONCE
-const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a));
 
     if (createInvoice.length || followUp.length || paidItems.length) {
         html += `
@@ -1038,7 +1019,7 @@ const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a
         html += `<div class="mb-3"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Create Invoice</p>`;
         createInvoice.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
+                <span class="text-sm font-medium text-gray-800 truncate">${r.cName || 'Client'}</span>
                 <button onclick="generateInvoiceFromContract(${r.id})" class="text-xs bg-brand-600 text-white px-3 py-1 rounded-lg">Generate</button>
             </div>`;
         });
@@ -1079,7 +1060,7 @@ const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a
             </div>
 
             <div class="flex gap-2 mt-3">
-                <button onclick="triggerReminderFromAction(${r.id})"
+                <button onclick="openSendSystem('invoice', ${r.id})"
                     class="flex-1 text-xs bg-orange-500 text-white py-1.5 rounded-lg">
                     Send Reminder
                 </button>
@@ -1100,7 +1081,7 @@ const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a
         html += `<div><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Completed</p>`;
         paidItems.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
+                <span class="text-sm font-medium text-gray-800 truncate">${r.cName || 'Client'}</span>
                 <button onclick="viewInvoice(${r.id})" class="text-xs bg-gray-800 text-white px-3 py-1 rounded-lg">View</button>
             </div>`;
         });
@@ -1320,23 +1301,7 @@ ${(() => {
 refreshInvoiceStatuses();
             renderActionsSection();
         }
-    function triggerReminderFromAction(id) {
-    const record = getTrackerRecords().find(r => r.id == id);
-    if (!record) return;
-
-    const ctx = {
-        type: 'invoice',
-        amount: record.total || record.contractAmount || 0,
-        paid: record.paidAmount || 0,
-        dueDate: record.dueDate || '',
-        termsDays: record.termsDays || 0,
-        client: record.cName || record.contractClient || ''
-    };
-
-    // 🔥 FORCE INTELLIGENCE INTO SEND SYSTEM
-    openSendSystem('invoice', id, ctx);
-}
-        
+            
         // --- PAYMENT CLOSURE & CLIENT MEMORY ---
         function markAsPaid(id) {
             const inv = state.savedInvoices.find(i => i.id === id);
