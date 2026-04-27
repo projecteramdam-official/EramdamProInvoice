@@ -996,7 +996,7 @@ refreshInvoiceStatuses();
     r.paymentStatus !== 'paid'
 );
 
-    const deliver = records.filter(r =>
+    const paidItems = records.filter(r =>
     (r.recordType === 'invoice') &&
     r.paymentStatus === 'paid'
 );
@@ -1048,18 +1048,18 @@ const intel = getAssistantIntelligence(ctx, r);
         </div>
     `;
 })()}
-                <button onclick="openSendSystem('invoice', ${r.id})" class="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg">Reminder</button>
+                <button onclick="triggerReminderFromAction(${r.id})" class="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg">Reminder</button>
             </div>`;
         });
         html += `</div>`;
     }
 
-    if (deliver.length) {
-        html += `<div><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Deliver Work</p>`;
+    if (paidItems.length) {
+        html += `<div><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Completed</p>`;
         deliver.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
-                <button class="text-xs bg-gray-800 text-white px-3 py-1 rounded-lg">Mark Done</button>
+                <button onclick="viewInvoice(${r.id})" class="text-xs bg-gray-800 text-white px-3 py-1 rounded-lg">View</button>
             </div>`;
         });
         html += `</div>`;
@@ -1278,6 +1278,22 @@ ${(() => {
 refreshInvoiceStatuses();
             renderActionsSection();
         }
+    function triggerReminderFromAction(id) {
+    const record = getTrackerRecords().find(r => r.id == id);
+    if (!record) return;
+
+    const ctx = {
+        type: 'invoice',
+        amount: record.total || record.contractAmount || 0,
+        paid: record.paidAmount || 0,
+        dueDate: record.dueDate || '',
+        termsDays: record.termsDays || 0,
+        client: record.cName || record.contractClient || ''
+    };
+
+    // 🔥 FORCE INTELLIGENCE INTO SEND SYSTEM
+    openSendSystem('invoice', id, ctx);
+}
         
         // --- PAYMENT CLOSURE & CLIENT MEMORY ---
         function markAsPaid(id) {
