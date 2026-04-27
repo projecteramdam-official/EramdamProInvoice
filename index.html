@@ -985,7 +985,15 @@ function renderActionsSection() {
     const container = document.getElementById('actions-section');
     if (!container) return;
 
-    const records = getTrackerRecords();
+    let records = getTrackerRecords();
+
+// 🔥 APPLY FILTER FIRST (CRITICAL FIX)
+if (trackerFilter === 'invoices') {
+    records = records.filter(r => r.recordType === 'invoice');
+}
+else if (trackerFilter === 'contracts') {
+    records = records.filter(r => r.recordType === 'contract');
+}
 
     // 🔥 PRIORITY SORTING (ONLY ONCE)
     const getPriority = (r) => {
