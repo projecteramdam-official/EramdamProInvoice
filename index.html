@@ -915,9 +915,33 @@ refreshInvoiceStatuses();
         function syncPaymentStatus() {
     const sub = grandTotalToExport;
     const paid = Number(state.paidAmount || 0);
-    if (paid <= 0) { state.paymentStatus = 'unpaid'; return; }
-    state.paymentStatus = (paid >= sub) ? 'paid' : 'partial';
+
+    // --- STATE UPDATE ---
+    if (paid <= 0) {
+        state.paymentStatus = 'unpaid';
+    } else {
+        state.paymentStatus = (paid >= sub) ? 'paid' : 'partial';
+    }
+
+    // --- 🔥 CRITICAL: SYNC WITH SAVED INVOICES ---
+    if (state.invNum && state.savedInvoices?.length) {
+        state.savedInvoices = state.savedInvoices.map(inv => {
+            if (inv.invNum === state.invNum) {
+                return {
+                    ...inv,
+                    paymentStatus: state.paymentStatus,
+                    paidAmount: state.paidAmount
+                };
+            }
+            return inv;
+        });
+    }
+
+    // --- 🔥 FORCE SYSTEM UPDATE ---
+    saveState();
+    refreshInvoiceStatuses();
 }
+    
         // --- FIXED PROBLEM #2: Overdue Detection (CRITICAL) ---
         function isInvoiceOverdue(invoice) {
             if (!invoice.dueDate) return false;
