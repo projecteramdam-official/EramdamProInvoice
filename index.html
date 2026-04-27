@@ -1063,7 +1063,7 @@ const paidItems = records.filter(r =>
             </div>
 
             <div class="flex gap-2 mt-3">
-                <button onclick="openSendSystem('invoice', ${invoice.id})"
+                <button onclick="sendReminder(${invoice.id})"
                     class="flex-1 text-xs bg-orange-500 text-white py-1.5 rounded-lg">
                     Send Reminder
                 </button>
