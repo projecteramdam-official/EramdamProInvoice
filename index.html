@@ -1003,13 +1003,13 @@ refreshInvoiceStatuses();
 
     let html = '';
 
-    if (createInvoice.length || followUp.length || deliver.length) {
+    if (createInvoice.length || followUp.length || paidItems.length) {
         html += `
         <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <div class="flex justify-between items-center mb-3">
                 <h3 class="text-xs font-black uppercase tracking-widest text-gray-500">⚡ Needs Action</h3>
                 <span class="text-[10px] font-bold text-gray-400">
-                    ${createInvoice.length + followUp.length + deliver.length} Actions
+                    ${createInvoice.length + followUp.length + paidItems.length} Actions
                 </span>
             </div>
         `;
@@ -1056,7 +1056,7 @@ const intel = getAssistantIntelligence(ctx, r);
 
     if (paidItems.length) {
         html += `<div><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Completed</p>`;
-        deliver.slice(0, 2).forEach(r => {
+        paidItems.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
                 <button onclick="viewInvoice(${r.id})" class="text-xs bg-gray-800 text-white px-3 py-1 rounded-lg">View</button>
@@ -1065,7 +1065,7 @@ const intel = getAssistantIntelligence(ctx, r);
         html += `</div>`;
     }
 
-    if (createInvoice.length || followUp.length || deliver.length) {
+    if (createInvoice.length || followUp.length || paidItems.length) {
         html += `</div>`;
     }
 
