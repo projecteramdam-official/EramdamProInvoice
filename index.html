@@ -675,7 +675,7 @@ Global Payment Setup
                 </div>
                 <div class="px-4 pt-4 pb-2 border-b border-gray-100 bg-white shrink-0">
                     <div class="grid grid-cols-3 gap-2">
-                        <button id="tracker-filter-all" onclick="setTrackerFilter('all')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-brand-600 text-white">All</button>
+                        <button id="tracker-filter-all" onclick="setTrackerFilter('all')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-brand-600 text-white">Action Needed</button>
                         <button id="tracker-filter-invoices" onclick="setTrackerFilter('invoices')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700">Invoices</button>
                         <button id="tracker-filter-contracts" onclick="setTrackerFilter('contracts')" class="px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700">Contracts</button>
                     </div>
@@ -985,15 +985,13 @@ function renderActionsSection() {
     const container = document.getElementById('actions-section');
     if (!container) return;
 
-    let records = getTrackerRecords();
+    // 🔥 ONLY SHOW IN ACTION NEEDED TAB
+    if (trackerFilter !== 'all') {
+        container.innerHTML = '';
+        return;
+    }
 
-// 🔥 APPLY FILTER FIRST (CRITICAL FIX)
-if (trackerFilter === 'invoices') {
-    records = records.filter(r => r.recordType === 'invoice');
-}
-else if (trackerFilter === 'contracts') {
-    records = records.filter(r => r.recordType === 'contract');
-}
+    let records = getTrackerRecords();
 
     // 🔥 PRIORITY SORTING (ONLY ONCE)
     const getPriority = (r) => {
@@ -1159,15 +1157,24 @@ else if (trackerFilter === 'contracts') {
 }
     function renderTrackerList() {
     renderActionsSection();
-            const container = document.getElementById('tracker-list');
-            const records = getTrackerRecords();
 
-            const filterButtons = {
-                all: document.getElementById('tracker-filter-all'),
-                invoices: document.getElementById('tracker-filter-invoices'),
-                contracts: document.getElementById('tracker-filter-contracts')
-            };		
+    const container = document.getElementById('tracker-list');
 
+    let records = getTrackerRecords();
+
+    // 🔥 STRICT TAB FILTER (MAIN FIX)
+    if (trackerFilter === 'invoices') {
+        records = records.filter(r => r.recordType === 'invoice');
+    }
+    else if (trackerFilter === 'contracts') {
+        records = records.filter(r => r.recordType === 'contract');
+    }
+
+    const filterButtons = {
+        all: document.getElementById('tracker-filter-all'),
+        invoices: document.getElementById('tracker-filter-invoices'),
+        contracts: document.getElementById('tracker-filter-contracts')
+    };
             Object.entries(filterButtons).forEach(([key, btn]) => {
                 if (!btn) return;
                 if (trackerFilter === key) {
