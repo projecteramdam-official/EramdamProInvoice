@@ -1548,8 +1548,14 @@ const amountContext = isPartial ? `${balance} remaining` : total;
     const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
 const existingIndex = targetArray.findIndex(inv => inv.id === snapshot.id);
 
+// 🔥 PRESERVE OLD DATA FIRST
+let existing = existingIndex > -1 ? targetArray[existingIndex] : null;
+
 if (existingIndex > -1) {
-    targetArray[existingIndex] = snapshot;
+    targetArray[existingIndex] = {
+        ...existing,   // KEEP OLD (reminder, etc)
+        ...snapshot    // APPLY NEW
+    };
 } else {
     targetArray.unshift(snapshot);
 }
