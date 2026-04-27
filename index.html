@@ -980,30 +980,7 @@ refreshInvoiceStatuses();
             renderTrackerList();
         }
         
-    function renderActionsSection() {
-    const container = document.getElementById('actions-section');
-    if (!container) return;
-
-    const records = getTrackerRecords();
-
-// 🔥 PRIORITY SORTING (MUST BE FIRST)
-const getPriority = (r) => {
-    if (r.recordType === 'invoice') {
-        if (r.paymentStatus === 'overdue') return 100;
-        if (r.paymentStatus === 'partial') return 80;
-        if (r.paymentStatus === 'unpaid') return 60;
-        if (r.paymentStatus === 'paid') return 10;
-    }
-
-    if (r.recordType === 'contract' &&
-        !state.savedInvoices.some(inv => inv.contractId === r.id)) {
-        return 50;
-    }
-
-    return 0;
-};
-
-// 🔥 DEFINE BEFORE USE (THIS FIXES ERROR)
+    // 🔥 DEFINE BEFORE USE (THIS FIXES ERROR)
 const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a));
 
 // ✅ NOW SAFE TO USE
