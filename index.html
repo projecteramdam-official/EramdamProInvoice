@@ -875,6 +875,15 @@ function setMode(mode) {
 const cleanState = { ...state };
 GLOBAL_KEYS.forEach(k => delete cleanState[k]);
 
+// 🔥 ENSURE STRUCTURE BEFORE SAVE
+cleanState.savedInvoices = Array.isArray(cleanState.savedInvoices)
+    ? cleanState.savedInvoices
+    : [];
+
+cleanState.savedContracts = Array.isArray(cleanState.savedContracts)
+    ? cleanState.savedContracts
+    : [];
+
 localStorage.setItem('eramdam_main_state', JSON.stringify(cleanState));
     } catch (e) {
         console.warn("State save blocked");
@@ -945,10 +954,14 @@ let parsed = {};
 if (localSaved) {
     try {
         parsed = JSON.parse(localSaved);
+
+        // 🔥 ADD THIS LINE HERE
+        console.log("RAW STORAGE:", parsed);
+
     } catch (e) {
         console.warn("Corrupted main state, resetting");
         localStorage.removeItem('eramdam_main_state');
-        parsed = {}; // 🔥 IMPORTANT: fallback
+        parsed = {};
     }
 }
             const meta = {
@@ -960,9 +973,15 @@ if (localSaved) {
 
 state = {
     ...defaultState,
-    ...(parsed || {}),
     ...meta
 };
+
+// 🔥 SAFE MERGE (CONTROLLED)
+if (parsed && typeof parsed === 'object') {
+    Object.keys(parsed).forEach(key => {
+        state[key] = parsed[key];
+    });
+}
 
 // 🔥 CORRECT RESTORE (FIXED)
 if (!Array.isArray(state.savedInvoices) || state.savedInvoices.length === 0) {
