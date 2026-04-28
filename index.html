@@ -1117,23 +1117,10 @@ function renderActionsSection() {
         r.paymentStatus !== 'paid'
     )
     .map(r => {
-        let reminderType = 'friendly';
+    return { ...r };
+});
 
-        if (r.dueDate) {
-            const now = new Date().setHours(0,0,0,0);
-            const due = new Date(r.dueDate).setHours(0,0,0,0);
-            const diff = (due - now) / (1000 * 60 * 60 * 24);
-
-            if (diff === 0) reminderType = 'today';
-            else if (diff < 0 && diff >= -3) reminderType = 'urgent';
-            else if (diff < -3) reminderType = 'final';
-            else reminderType = 'friendly';
-        }
-
-        return { ...r, reminderType };
-    });
-
-    const paidItems = sortedRecords.filter(r =>
+        const paidItems = sortedRecords.filter(r =>
         r.recordType === 'invoice' &&
         r.paymentStatus === 'paid'
     );
@@ -1180,55 +1167,20 @@ function renderActionsSection() {
             const paid = r.paidAmount || 0;
             const balance = total - paid;
             const isOverdue = r.paymentStatus === 'overdue';
+            const intel = getAssistantIntelligence(r);
 
-let reminderType = 'friendly';
 let label = 'Friendly Reminder';
-let btnColor = 'bg-blue-600';
 
-// 🔥 derive from existing dueDate (no new system)
-if (r.dueDate) {
-    const now = new Date().setHours(0,0,0,0);
-    const due = new Date(r.dueDate).setHours(0,0,0,0);
-    const diff = (due - now) / (1000 * 60 * 60 * 24);
-
-    if (diff === 0) {
-        reminderType = 'today';
-        label = 'Due Today';
-        btnColor = 'bg-yellow-500';
-    }
-    else if (diff < 0 && diff >= -3) {
-        reminderType = 'urgent';
-        label = 'Urgent';
-        btnColor = 'bg-orange-600';
-    }
-    else if (diff < -3) {
-        reminderType = 'final';
-        label = 'Final Notice';
-        btnColor = 'bg-red-600';
-    }
+if (intel.suggestedTone === 'firm') {
+    label = 'Urgent Reminder';
 }
 
-// 🔥 derive from existing data (no new system)
-if (r.dueDate) {
-    const now = new Date().setHours(0,0,0,0);
-    const due = new Date(r.dueDate).setHours(0,0,0,0);
-    const diff = (due - now) / (1000 * 60 * 60 * 24);
+if (intel.suggestedTone === 'final') {
+    label = 'Final Notice';
+}
 
-    if (diff === 0) {
-        reminderType = 'today';
-        label = 'Due Today';
-        btnColor = 'bg-yellow-500';
-    }
-    else if (diff < 0 && diff >= -3) {
-        reminderType = 'urgent';
-        label = 'Urgent';
-        btnColor = 'bg-orange-600';
-    }
-    else if (diff < -3) {
-        reminderType = 'final';
-        label = 'Final Notice';
-        btnColor = 'bg-red-600';
-    }
+if (intel.daysOverdue === 0) {
+    label = 'Due Today';
 }
 
             html += `
@@ -1268,7 +1220,7 @@ if (r.dueDate) {
         class="flex-1 text-xs py-1.5 rounded-lg ${
             isCooling 
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                : `${btnColor} text-white`
+                : 'bg-orange-500 text-white'
         }">
         ${
             isCooling 
