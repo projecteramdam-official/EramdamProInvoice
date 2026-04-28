@@ -153,6 +153,19 @@ function removeQR() {
                     applyTierLimits();
                     document.getElementById('auth-gate').classList.add('hidden');
                     await loadState();
+
+// 🔥 FORCE FULL UI SYNC AFTER LOGIN
+setTimeout(() => {
+    console.log("Post-load invoices:", state.savedInvoices?.length);
+
+    populateForm();
+    renderItems();
+    renderPreview();
+
+    refreshInvoiceStatuses();
+    renderTrackerList();
+    renderActionsSection();
+}, 300);
                 } else {
                     errorEl.innerText = result.message;
                     errorEl.classList.remove('text-brand-600');
@@ -945,25 +958,20 @@ if (localSaved) {
     userEmail: state.userEmail
 };
 
-// 🔥 PRESERVE PREVIOUS DATA (CRITICAL)
-const prevInvoices = state.savedInvoices || [];
-const prevContracts = state.savedContracts || [];
-
 state = {
     ...defaultState,
     ...(parsed || {}),
     ...meta
 };
 
-// 🔥 HARD PROTECTION (NO DATA LOSS)
+// 🔥 FINAL SAFE RESTORE (CORRECT)
 if (!Array.isArray(state.savedInvoices)) {
-    state.savedInvoices = prevInvoices;
+    state.savedInvoices = parsed?.savedInvoices || [];
 }
 
 if (!Array.isArray(state.savedContracts)) {
-    state.savedContracts = prevContracts;
+    state.savedContracts = parsed?.savedContracts || [];
 }
-
 // 🔍 DEBUG
 console.log("Loaded invoices:", state.savedInvoices?.length);
     } catch (e) {
