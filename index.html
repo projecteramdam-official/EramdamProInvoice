@@ -892,6 +892,8 @@ localStorage.setItem('eramdam_main_state', JSON.stringify(cleanState));
 }
     function startNewInvoice() {
     // 🔥 Preserve tracker data
+        // 🔥 ADD THIS (SAFE — NO SIDE EFFECT)
+    saveInvoiceToTracker();
     const preserved = {
         savedInvoices: state.savedInvoices,
         savedContracts: state.savedContracts,
@@ -1026,6 +1028,38 @@ renderActionsSection();
 }
 
         function normalizeTrackerRecord(record, type) { return { ...record, recordType: record.recordType || type, savedAt: record.savedAt || record.id || Date.now() }; }
+    function saveInvoiceToTracker() {
+    if (!state.invNum || grandTotalToExport <= 0) return;
+
+    const record = {
+        id: Date.now(),
+        invNum: state.invNum,
+        cName: state.cName || "Client",
+        total: grandTotalToExport,
+        paymentStatus: state.paymentStatus,
+        paidAmount: state.paidAmount || 0,
+        dueDate: state.dueDate,
+        savedAt: Date.now()
+    };
+
+    state.savedInvoices = Array.isArray(state.savedInvoices)
+        ? state.savedInvoices
+        : [];
+
+    const index = state.savedInvoices.findIndex(inv => inv.invNum === record.invNum);
+
+    if (index === -1) {
+        state.savedInvoices.push(record);
+    } else {
+        state.savedInvoices[index] = {
+            ...state.savedInvoices[index],
+            ...record
+        };
+    }
+
+    saveState();
+    console.log("TRACKER UPDATED:", state.savedInvoices.length);
+}
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
         function getContractRecords() { return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract')); }
         function getTrackerRecords() { return [...getInvoiceRecords(), ...getContractRecords()].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0)); }
@@ -1723,6 +1757,11 @@ const amountContext = isPartial ? `${balance} remaining` : total;
 }
         // --- 4. THE CLEAN CONTEXT BUILDER ---
         function openSendSystem(type, id = null) {
+
+    // 🔥 SAVE CURRENT INVOICE BEFORE OPENING SEND UI (SAFE)
+    if (type === 'invoice' && !id) {
+        saveInvoiceToTracker();
+    }
 
     // 🔥 STEP 1: FORCE COMMIT (SEND = ONLY COMMIT POINT)
     const snapshot = {
