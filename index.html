@@ -942,7 +942,17 @@ try {
                 userEmail: state.userEmail
             };
 
-            state = { ...defaultState, ...parsed, ...meta };
+            state = {
+    ...defaultState,
+    ...(parsed || {}),
+    ...meta
+};
+            // 🔍 DEBUG
+console.log("Loaded invoices:", state.savedInvoices?.length);
+
+// 🔥 HARD PROTECTION (CRITICAL)
+if (!Array.isArray(state.savedInvoices)) state.savedInvoices = [];
+if (!Array.isArray(state.savedContracts)) state.savedContracts = [];
         }
     } catch (e) {
         console.warn("Load failed");
@@ -956,6 +966,8 @@ try {
     renderItems();
     renderPreview();
 refreshInvoiceStatuses();
+renderTrackerList();
+renderActionsSection();
 
     // 🔥 QR RESTORE
     if (state.qrImage) {
@@ -1171,15 +1183,13 @@ function renderActionsSection() {
 
 let label = 'Friendly Reminder';
 
-if (intel.suggestedTone === 'firm') {
-    label = 'Urgent Reminder';
-}
-
 if (intel.suggestedTone === 'final') {
     label = 'Final Notice';
-}
-
-if (intel.daysOverdue === 0) {
+} 
+else if (intel.suggestedTone === 'firm') {
+    label = 'Urgent Reminder';
+} 
+else if (intel.daysOverdue === 0) {
     label = 'Due Today';
 }
 
