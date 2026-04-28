@@ -325,8 +325,7 @@ function removeQR() {
                 <span class="text-xs text-gray-500 mr-2 hidden sm:flex items-center gap-1.5 font-medium bg-gray-100 px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Auto-saved
                 </span>
-                <button onclick="startNewInvoice()" class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">+ New Invoice</button>
-<button onclick="clearData()" class="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors">Reset Data</button>
+               <button onclick="clearData()" class="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors">Reset Data</button>
 <button onclick="logoutUser()" class="text-sm font-medium text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-colors shadow-sm ml-2">Logout</button>
             </div>
         </nav>
@@ -376,6 +375,12 @@ function removeQR() {
                         <!-- Invoice Basics -->
                         <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
                             <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Invoice Basics</h2>
+                            <div class="flex justify-end mb-3">
+    <button onclick="startNewInvoice()" 
+        class="text-xs font-bold text-blue-600 hover:text-blue-800">
+        + New Invoice
+    </button>
+</div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Invoice No.</label>
@@ -580,6 +585,12 @@ Global Payment Setup
     </div> <div id="contract-form-section" class="hidden space-y-5">
         <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
             <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Contract Details</h2>
+            <div class="flex justify-end mb-3">
+    <button onclick="startNewContract()" 
+        class="text-xs font-bold text-blue-600 hover:text-blue-800">
+        + New Contract
+    </button>
+</div>
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Freelancer Name</label>
@@ -887,6 +898,29 @@ localStorage.setItem('eramdam_main_state', JSON.stringify(cleanState));
     // 🔥 Refresh UI
     populateForm();
     renderItems();
+    renderPreview();
+}
+    // ✅ ADD THIS BELOW
+function startNewContract() {
+    const preserved = {
+        savedInvoices: state.savedInvoices,
+        savedContracts: state.savedContracts,
+    };
+
+    const globals = {};
+    GLOBAL_KEYS.forEach(k => globals[k] = state[k]);
+
+    state = {
+        ...defaultState,
+        ...preserved,
+        ...globals
+    };
+
+    state.mode = 'contract';
+
+    saveState();
+
+    populateForm();
     renderPreview();
 }
 async function loadState() {
