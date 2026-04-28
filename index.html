@@ -1030,8 +1030,18 @@ renderActionsSection();
     function saveInvoiceToTracker() {
     if (!state.invNum || grandTotalToExport <= 0) return;
 
+    state.savedInvoices = Array.isArray(state.savedInvoices)
+        ? state.savedInvoices
+        : [];
+
+    const existingIndex = state.savedInvoices.findIndex(
+        inv => inv.invNum === state.invNum
+    );
+
     const record = {
-        id: Date.now(),
+        id: existingIndex !== -1 
+            ? state.savedInvoices[existingIndex].id   // 🔥 KEEP SAME ID
+            : Date.now(),
         invNum: state.invNum,
         cName: state.cName || "Client",
         total: grandTotalToExport,
@@ -1041,22 +1051,14 @@ renderActionsSection();
         savedAt: Date.now()
     };
 
-    state.savedInvoices = Array.isArray(state.savedInvoices)
-        ? state.savedInvoices
-        : [];
-
-    const index = state.savedInvoices.findIndex(inv => inv.invNum === record.invNum);
-
-    if (index === -1) {
+    if (existingIndex === -1) {
         state.savedInvoices.push(record);
     } else {
-        state.savedInvoices[index] = {
-            ...state.savedInvoices[index],
-            ...record
-        };
+        state.savedInvoices[existingIndex] = record;
     }
 
     saveState();
+
     console.log("TRACKER UPDATED:", state.savedInvoices.length);
 }
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
