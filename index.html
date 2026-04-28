@@ -956,11 +956,11 @@ state = {
 };
 
 // 🔥 HARD PROTECTION (NO DATA LOSS)
-if (!Array.isArray(state.savedInvoices) || state.savedInvoices.length === 0) {
+if (!Array.isArray(state.savedInvoices)) {
     state.savedInvoices = prevInvoices;
 }
 
-if (!Array.isArray(state.savedContracts) || state.savedContracts.length === 0) {
+if (!Array.isArray(state.savedContracts)) {
     state.savedContracts = prevContracts;
 }
 
