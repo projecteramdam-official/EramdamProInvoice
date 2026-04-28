@@ -2789,7 +2789,35 @@ state.paidAmount = 0;
                 return;
             }
             const phone = state.cPhone.replace(/\D/g, '');
-            const msg = `Invoice #${state.invNum} for ${formatINR(grandTotalToExport)} is ready.`;
+            let msg = '';
+
+const total = grandTotalToExport;
+const name = state.cName || 'there';
+
+let reminderType = 'friendly';
+
+if (state.dueDate) {
+    const now = new Date().setHours(0,0,0,0);
+    const due = new Date(state.dueDate).setHours(0,0,0,0);
+    const diff = (due - now) / (1000 * 60 * 60 * 24);
+
+    if (diff === 0) reminderType = 'today';
+    else if (diff < 0 && diff >= -3) reminderType = 'urgent';
+    else if (diff < -3) reminderType = 'final';
+}
+
+if (reminderType === 'friendly') {
+    msg = `Hi ${name}, just a quick reminder 😊\n\nInvoice #${state.invNum} of ₹${total} is pending. Please check when convenient.`;
+}
+else if (reminderType === 'today') {
+    msg = `Hi ${name}, this is a gentle reminder that Invoice #${state.invNum} of ₹${total} is due today.\n\nWould appreciate your support on this.`;
+}
+else if (reminderType === 'urgent') {
+    msg = `Hi ${name}, this invoice is now overdue.\n\nInvoice #${state.invNum} of ₹${total} is still pending. Please arrange payment at the earliest.`;
+}
+else if (reminderType === 'final') {
+    msg = `Hi ${name}, this is a final notice regarding the pending payment.\n\nInvoice #${state.invNum} of ₹${total} is long overdue. Please clear this immediately to avoid further action.`;
+}
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
         
