@@ -926,34 +926,46 @@ function startNewContract() {
 async function loadState() {
     try {
         const localSaved = localStorage.getItem('eramdam_main_state');
-        if (localSaved) {
-            let parsed = {};
-try {
-    parsed = JSON.parse(localSaved);
-} catch (e) {
-    console.warn("Corrupted main state, resetting");
-    localStorage.removeItem('eramdam_main_state');
+
+let parsed = {};
+
+if (localSaved) {
+    try {
+        parsed = JSON.parse(localSaved);
+    } catch (e) {
+        console.warn("Corrupted main state, resetting");
+        localStorage.removeItem('eramdam_main_state');
+        parsed = {}; // 🔥 IMPORTANT: fallback
+    }
 }
-
             const meta = {
-                userToken: state.userToken,
-                userTier: state.userTier,
-                userSheetId: state.userSheetId,
-                userEmail: state.userEmail
-            };
+    userToken: state.userToken,
+    userTier: state.userTier,
+    userSheetId: state.userSheetId,
+    userEmail: state.userEmail
+};
 
-            state = {
+// 🔥 PRESERVE PREVIOUS DATA (CRITICAL)
+const prevInvoices = state.savedInvoices || [];
+const prevContracts = state.savedContracts || [];
+
+state = {
     ...defaultState,
     ...(parsed || {}),
     ...meta
 };
-            // 🔍 DEBUG
-console.log("Loaded invoices:", state.savedInvoices?.length);
 
-// 🔥 HARD PROTECTION (CRITICAL)
-if (!Array.isArray(state.savedInvoices)) state.savedInvoices = [];
-if (!Array.isArray(state.savedContracts)) state.savedContracts = [];
-        }
+// 🔥 HARD PROTECTION (NO DATA LOSS)
+if (!Array.isArray(state.savedInvoices) || state.savedInvoices.length === 0) {
+    state.savedInvoices = prevInvoices;
+}
+
+if (!Array.isArray(state.savedContracts) || state.savedContracts.length === 0) {
+    state.savedContracts = prevContracts;
+}
+
+// 🔍 DEBUG
+console.log("Loaded invoices:", state.savedInvoices?.length);
     } catch (e) {
         console.warn("Load failed");
     }
@@ -2720,6 +2732,7 @@ if (pt) pt.value = state.paymentTerms;
 
                 if (!exists) {
                     state.savedInvoices.push(invoiceRecord);
+                    saveState();
                     // 🔥 RESET FOR NEXT INVOICE (CRITICAL FIX)
 state.invNum = `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
 state.paymentStatus = 'unpaid';
