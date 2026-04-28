@@ -984,19 +984,14 @@ if (parsed && typeof parsed === 'object') {
     });
 }
 
-// 🔥 CORRECT RESTORE (FIXED)
-if (!Array.isArray(state.savedInvoices) || state.savedInvoices.length === 0) {
-    state.savedInvoices = parsed?.savedInvoices || [];
-}
+// 🔥 SAFE RESTORE (NO OVERWRITE)
+state.savedInvoices = Array.isArray(parsed?.savedInvoices)
+    ? parsed.savedInvoices
+    : [];
 
-if (!Array.isArray(state.savedContracts) || state.savedContracts.length === 0) {
-    state.savedContracts = parsed?.savedContracts || [];
-}
-// 🔍 DEBUG
-console.log("Loaded invoices:", state.savedInvoices?.length);
-    } catch (e) {
-        console.warn("Load failed");
-    }
+state.savedContracts = Array.isArray(parsed?.savedContracts)
+    ? parsed.savedContracts
+    : [];
 
     // 🔥 IMPORTANT
     injectGlobalSetup();
