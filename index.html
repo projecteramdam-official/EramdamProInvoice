@@ -1006,19 +1006,24 @@ renderActionsSection();
 
     // 🔥 QR RESTORE
     if (state.qrImage) {
-        const img = document.getElementById('qr-preview-img');
-        const container = document.getElementById('qr-preview-container');
-        const placeholder = document.getElementById('qr-placeholder');
-        const removeBtn = document.getElementById('remove-qr-btn');
+    const img = document.getElementById('qr-preview-img');
+    const container = document.getElementById('qr-preview-container');
+    const placeholder = document.getElementById('qr-placeholder');
+    const removeBtn = document.getElementById('remove-qr-btn');
 
-        if (img && container && placeholder) {
-            img.src = state.qrImage;
-            container.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-        }
-
-        if (removeBtn) removeBtn.classList.remove('hidden');
+    if (img && container && placeholder) {
+        img.src = state.qrImage;
+        container.classList.remove('hidden');
+        placeholder.classList.add('hidden');
     }
+
+    if (removeBtn) removeBtn.classList.remove('hidden');
+}
+
+// ✅ CLOSE TRY + FUNCTION PROPERLY
+} catch (e) {
+    console.warn("Load failed", e);
+}
 }
 
         function normalizeTrackerRecord(record, type) { return { ...record, recordType: record.recordType || type, savedAt: record.savedAt || record.id || Date.now() }; }
