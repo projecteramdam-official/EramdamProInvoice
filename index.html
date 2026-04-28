@@ -964,12 +964,12 @@ state = {
     ...meta
 };
 
-// 🔥 FINAL SAFE RESTORE (CORRECT)
-if (!Array.isArray(state.savedInvoices)) {
+// 🔥 CORRECT RESTORE (FIXED)
+if (!Array.isArray(state.savedInvoices) || state.savedInvoices.length === 0) {
     state.savedInvoices = parsed?.savedInvoices || [];
 }
 
-if (!Array.isArray(state.savedContracts)) {
+if (!Array.isArray(state.savedContracts) || state.savedContracts.length === 0) {
     state.savedContracts = parsed?.savedContracts || [];
 }
 // 🔍 DEBUG
