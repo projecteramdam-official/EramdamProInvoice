@@ -893,8 +893,7 @@ localStorage.setItem('eramdam_main_state', JSON.stringify(cleanState));
     function startNewInvoice() {
     // 🔥 Preserve tracker data
         // 🔥 ADD THIS (SAFE — NO SIDE EFFECT)
-    saveInvoiceToTracker();
-    const preserved = {
+      const preserved = {
         savedInvoices: state.savedInvoices,
         savedContracts: state.savedContracts,
     };
