@@ -1395,9 +1395,8 @@ else if (intel.daysOverdue === 0) {
                     </div>
 
                     <div class="text-lg font-bold text-gray-800 mt-1">
-                        ₹${total}
-                    </div>
-
+    ₹${Number(r.total || 0).toLocaleString()}
+</div>
                     <div class="text-xs font-semibold mt-1 ${isOverdue ? 'text-red-500' : 'text-orange-500'}">
                         ${isOverdue ? 'OVERDUE' : 'PENDING'}
                     </div>
@@ -2958,16 +2957,16 @@ if (state.dueDate) {
 }
 
 if (reminderType === 'friendly') {
-    msg = `Hi ${name}, just a quick reminder 😊\n\nInvoice #${state.invNum} of ₹${total} is pending. Please check when convenient.`;
+    msg = `Hi ${name}, just a quick reminder 😊\n\nInvoice #${state.invNum} of ₹${Number(r.total || 0).toLocaleString()} is pending. Please check when convenient.`;
 }
 else if (reminderType === 'today') {
-    msg = `Hi ${name}, this is a gentle reminder that Invoice #${state.invNum} of ₹${total} is due today.\n\nWould appreciate your support on this.`;
+    msg = `Hi ${name}, this is a gentle reminder that Invoice #${state.invNum} of ₹${Number(r.total || 0).toLocaleString()} is due today.\n\nWould appreciate your support on this.`;
 }
 else if (reminderType === 'urgent') {
-    msg = `Hi ${name}, this invoice is now overdue.\n\nInvoice #${state.invNum} of ₹${total} is still pending. Please arrange payment at the earliest.`;
+    msg = `Hi ${name}, this invoice is now overdue.\n\nInvoice #${state.invNum} of ₹${Number(r.total || 0).toLocaleString()} is still pending. Please arrange payment at the earliest.`;
 }
 else if (reminderType === 'final') {
-    msg = `Hi ${name}, this is a final notice regarding the pending payment.\n\nInvoice #${state.invNum} of ₹${total} is long overdue. Please clear this immediately to avoid further action.`;
+    msg = `Hi ${name}, this is a final notice regarding the pending payment.\n\nInvoice #${state.invNum} of ₹${Number(r.total || 0).toLocaleString()} is long overdue. Please clear this immediately to avoid further action.`;
 }
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
@@ -3479,4 +3478,3 @@ Get paid faster. Track everything in one place.
     
            </body>
 </html>
-
