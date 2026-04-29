@@ -1032,7 +1032,23 @@ renderActionsSection();
         function normalizeTrackerRecord(record, type) { return { ...record, recordType: record.recordType || type, savedAt: record.savedAt || record.id || Date.now() }; }
    
 
-function saveInvoiceToTracker() {
+function getFinalInvoiceTotal() {
+
+    let subtotal = 0;
+
+    (state.items || []).forEach(item => {
+        subtotal += Number(item.amount || 0);
+    });
+
+    // GST LOGIC
+    if (state.userType === 'registered') {
+        const gst = subtotal * 0.18; // adjust if needed
+        subtotal += gst;
+    }
+
+    return Number(subtotal.toFixed(2));
+}
+    function saveInvoiceToTracker() {
 
     console.trace("🚨 SAVE CALLED");
 
@@ -1066,7 +1082,7 @@ function saveInvoiceToTracker() {
                 : Date.now(),
             invNum: state.invNum,
             cName: state.cName || "Client",
-            total: Number(grandTotalToExport.toFixed(2)),
+            total: getFinalInvoiceTotal(),
             paymentStatus: state.paymentStatus,
             paidAmount: state.paidAmount || 0,
             dueDate: state.dueDate,
@@ -1139,7 +1155,7 @@ if (existing) {
 }
 
         function syncPaymentStatus() {
-    const sub = grandTotalToExport;
+    const sub = getFinalInvoiceTotal();
     const paid = Number(state.paidAmount || 0);
 
     // --- STATE UPDATE ---
