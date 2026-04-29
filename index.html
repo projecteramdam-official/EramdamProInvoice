@@ -1066,23 +1066,36 @@ function saveInvoiceToTracker() {
                 : Date.now(),
             invNum: state.invNum,
             cName: state.cName || "Client",
-            total: grandTotalToExport,
+            total: Number(grandTotalToExport.toFixed(2)),
             paymentStatus: state.paymentStatus,
             paidAmount: state.paidAmount || 0,
             dueDate: state.dueDate,
             savedAt: Date.now()
         };
 
-        const index = state.savedInvoices.findIndex(
+        const existing = state.savedInvoices.find(
     inv => inv.invNum === record.invNum
 );
 
-if (index !== -1) {
-    console.warn("⛔ REPLACING EXISTING RECORD");
-    state.savedInvoices[index] = record;   // 🔥 replace
+if (existing) {
+    // 🔥 ONLY UPDATE if TOTAL actually changed (GST fix)
+    if (existing.total !== record.total) {
+        console.warn("♻️ UPDATING WITH FINAL TOTAL");
+
+        existing.total = record.total;
+        existing.paymentStatus = record.paymentStatus;
+        existing.paidAmount = record.paidAmount;
+        existing.dueDate = record.dueDate;
+        existing.savedAt = Date.now();
+
+    } else {
+        console.warn("⛔ DUPLICATE BLOCKED (same total)");
+        return;
+    }
+
 } else {
     console.log("🆕 ADDING NEW RECORD");
-    state.savedInvoices.push(record);      // 🔥 insert
+    state.savedInvoices.push(record);
 }
 
         saveState();
