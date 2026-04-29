@@ -1397,7 +1397,7 @@ else if (intel.daysOverdue === 0) {
 
 // 🔥 ACTION NEEDED TAB → NO DUPLICATE LIST
 if (trackerFilter === 'all') {
-    records = [];
+    records = getTrackerRecords();
 }
 else if (trackerFilter === 'invoices') {
     records = records.filter(r => r.recordType === 'invoice');
@@ -1421,11 +1421,6 @@ else if (trackerFilter === 'contracts') {
             });
 
             let visibleRecords = records;
-            if (trackerFilter === 'invoices') {
-                visibleRecords = records.filter(r => (r.recordType || 'invoice') === 'invoice');
-            } else if (trackerFilter === 'contracts') {
-                visibleRecords = records.filter(r => (r.recordType || 'invoice') === 'contract');
-            }
 
             if (visibleRecords.length === 0) {
                 container.innerHTML = `
