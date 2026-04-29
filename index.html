@@ -1073,11 +1073,7 @@ function getFinalInvoiceTotal() {
 
     try {
 
-        if (window.__lastSavedInv === state.invNum) {
-            console.warn("⛔ BLOCKED DUPLICATE", state.invNum);
-            return;
-        }
-
+       
         if (!state.invNum || grandTotalToExport <= 0) return;
 
         state.savedInvoices = Array.isArray(state.savedInvoices)
@@ -1133,9 +1129,7 @@ if (existing) {
 
         console.log("✅ FINAL LENGTH:", state.savedInvoices.length);
 
-        window.__lastSavedInv = record.invNum;
-
-    } finally {
+        } finally {
         setTimeout(() => {
             window.__savingNow = false;
         }, 300);
