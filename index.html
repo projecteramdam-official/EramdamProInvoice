@@ -1027,8 +1027,53 @@ renderActionsSection();
 }
 
         function normalizeTrackerRecord(record, type) { return { ...record, recordType: record.recordType || type, savedAt: record.savedAt || record.id || Date.now() }; }
-    function saveInvoiceToTracker() {
-    if (!state.invNum || grandTotalToExport <= 0) return;
+    let __saveLock = false;
+
+function saveInvoiceToTracker() {
+    if (__saveLock) return; // 🔥 BLOCK DUPLICATE CALLS
+    __saveLock = true;
+
+    try {
+        if (!state.invNum || grandTotalToExport <= 0) return;
+
+        state.savedInvoices = Array.isArray(state.savedInvoices)
+            ? state.savedInvoices
+            : [];
+
+        const existingIndex = state.savedInvoices.findIndex(
+            inv => inv.invNum === state.invNum
+        );
+
+        const record = {
+            id: existingIndex !== -1 
+                ? state.savedInvoices[existingIndex].id
+                : Date.now(),
+            invNum: state.invNum,
+            cName: state.cName || "Client",
+            total: grandTotalToExport,
+            paymentStatus: state.paymentStatus,
+            paidAmount: state.paidAmount || 0,
+            dueDate: state.dueDate,
+            savedAt: Date.now()
+        };
+
+        if (existingIndex === -1) {
+            state.savedInvoices.push(record);
+        } else {
+            state.savedInvoices[existingIndex] = record;
+        }
+
+        saveState();
+
+        console.log("TRACKER UPDATED:", state.savedInvoices.length);
+
+    } finally {
+        // 🔥 RELEASE LOCK AFTER SYSTEM STABILIZES
+        setTimeout(() => {
+            __saveLock = false;
+        }, 200);
+    }
+}
 
     state.savedInvoices = Array.isArray(state.savedInvoices)
         ? state.savedInvoices
