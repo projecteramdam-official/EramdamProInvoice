@@ -1230,16 +1230,22 @@ function renderActionsSection() {
     let html = '';
 
     if (createInvoice.length || followUp.length || paidItems.length) {
-        html += `
-        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-xs font-black uppercase tracking-widest text-gray-500">⚡ Needs Action</h3>
-                <span class="text-[10px] font-bold text-gray-400">
-                    ${createInvoice.length + followUp.length + paidItems.length} Actions
-                </span>
-            </div>
-        `;
-    }
+    html += `
+    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-xs font-black uppercase tracking-widest text-gray-500">⚡ Needs Action</h3>
+            <span class="text-[10px] font-bold text-gray-400">
+                ${createInvoice.length + followUp.length + paidItems.length} Actions
+            </span>
+        </div>
+    `;
+
+    // (keep your item rendering logic here — createInvoice / followUp / paidItems)
+
+    html += `
+    </div>
+    `;
+}
 
     // CREATE INVOICE
     if (createInvoice.length) {
