@@ -1967,19 +1967,25 @@ if (!record) {
 
     if (type === 'invoice') {
         ctx.client = state.cName || "Client";
-        ctx.amount = record.total;
+        ctx.amount = getFinalInvoiceTotal();
         ctx.contextText = `Invoice ready for ${ctx.client}`;
         ctx.docLink = buildDocumentLink(type, record, ctx.amount);
         ctx.intel = getAssistantIntelligence(record);
-        ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
+        ctx.message = buildMessage(ctx.intel, {
+    ...record,
+    total: getFinalInvoiceTotal()
+}, ctx.docLink);
     }
     else if (type === 'contract') {
         ctx.client = state.contractClient || "Client";
-        ctx.amount = record.total;
+        ctx.amount = getFinalInvoiceTotal();
         ctx.contextText = `Contract ready for ${ctx.client}`;
         ctx.docLink = buildDocumentLink(type, record, ctx.amount);
         ctx.intel = getAssistantIntelligence(record);
-        ctx.message = buildMessage(ctx.intel, record, ctx.docLink);
+        ctx.message = buildMessage(ctx.intel, {
+    ...record,
+    total: getFinalInvoiceTotal()
+}, ctx.docLink);
     }
     else if (type === 'reminder') {
         ctx.title = "Payment Reminder";
