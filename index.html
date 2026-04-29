@@ -2248,13 +2248,11 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
             const result = await apiRequest('SAVE_INVOICE', record);
 
             if (result.success) {
-                if (state.mode === 'contract') {
-                    state.savedContracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
-                    state.savedContracts.unshift(record);
-                } else {
-                    state.savedInvoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
-                    state.savedInvoices.unshift(record);
-                }
+    // 🔥 DO NOT WRITE HERE (avoid duplicate source of truth)
+    // Just trigger render if needed
+
+    renderTrackerList();
+}
                 saveState();
                 renderTrackerList();
                 if (state.mode !== 'contract') refreshInvoiceStatuses();
