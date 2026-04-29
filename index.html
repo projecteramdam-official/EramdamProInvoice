@@ -1297,11 +1297,6 @@ const getPriority = (r) => {
 
     const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a));
 
-    const createInvoice = sortedRecords.filter(r =>
-        r.recordType === 'contract' &&
-        !state.savedInvoices.some(inv => inv.contractId === r.id)
-    );
-
     function renderActionsSection() {
     const container = document.getElementById('actions-section');
     if (!container) return;
