@@ -787,6 +787,9 @@ function handleDownloadPDF() {
 }        
 function updateState(key, value) {
     state[key] = value;
+    if (['items', 'userType', 'isExport'].includes(key)) {
+    grandTotalToExport = getFinalInvoiceTotal();
+}
 
     // --- CORE CALCULATIONS ---
     if (key === 'invDate' || key === 'paymentTerms') {
@@ -1040,9 +1043,8 @@ function getFinalInvoiceTotal() {
         subtotal += Number(item.amount || 0);
     });
 
-    // GST LOGIC
     if (state.userType === 'registered') {
-        const gst = subtotal * 0.18; // adjust if needed
+        const gst = subtotal * 0.18;
         subtotal += gst;
     }
 
@@ -1942,14 +1944,14 @@ saveState();
 refreshInvoiceStatuses();
 
         // 2. Build Base Data (NOW SAFE)
-    let ctx = { type, id, title: "Send to Client", client: "", amount: 0, contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
+    let ctx = { type, id, title: "Send to Client", client: "", amount: getFinalInvoiceTotal(), contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
             // 🔥 SAFE RECORD RESOLUTION
 let record = getTrackerRecords().find(r => r.invNum === state.invNum);
 
 if (!record) {
     record = {
         ...state,
-        total: Number(grandTotalToExport.toFixed(2))
+        total: getFinalInvoiceTotal()
     };
 }
 
@@ -2493,7 +2495,7 @@ if (pt) pt.value = state.paymentTerms;
             }
 
             const grandTotal = subtotal + taxAmount;
-            grandTotalToExport = grandTotal;
+            grandTotalToExport = getFinalInvoiceTotal();
 
             const paid = Number(state.paidAmount || 0);
             const total = Number(grandTotalToExport || 0);
