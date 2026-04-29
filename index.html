@@ -1073,17 +1073,23 @@ function saveInvoiceToTracker() {
             savedAt: Date.now()
         };
 
-        state.savedInvoices = state.savedInvoices.filter(
-            inv => inv.invNum !== state.invNum
-        );
+        const index = state.savedInvoices.findIndex(
+    inv => inv.invNum === record.invNum
+);
 
-        state.savedInvoices.push(record);
+if (index !== -1) {
+    console.warn("⛔ REPLACING EXISTING RECORD");
+    state.savedInvoices[index] = record;   // 🔥 replace
+} else {
+    console.log("🆕 ADDING NEW RECORD");
+    state.savedInvoices.push(record);      // 🔥 insert
+}
 
         saveState();
 
         console.log("✅ FINAL LENGTH:", state.savedInvoices.length);
 
-        window.__lastSavedInv = state.invNum;
+        window.__lastSavedInv = record.invNum;
 
     } finally {
         setTimeout(() => {
@@ -3402,3 +3408,4 @@ Get paid faster. Track everything in one place.
     
            </body>
 </html>
+
