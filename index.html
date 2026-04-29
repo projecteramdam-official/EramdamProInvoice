@@ -2310,7 +2310,7 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
             invNum: state.invNum,
             cName: state.cName,
             cPhone: state.cPhone,
-            total: grandTotalToExport,
+            total: getFinalInvoiceTotal(),
             date: state.invDate,
             dueDate: state.dueDate,
             status: state.paymentStatus === 'paid' ? 'Paid' : (state.paymentStatus === 'partial' ? 'Partial Paid' : 'Unpaid'),
