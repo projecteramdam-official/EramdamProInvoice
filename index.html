@@ -652,7 +652,7 @@ Global Payment Setup
 <button onclick="handleDownloadPDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
 </button>
-<button onclick="openSendSystem('invoice')" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+<button onclick="openSendSystem('invoice', state._id)" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg> Send to Client
 </button>
 </div>
@@ -1095,7 +1095,10 @@ if (existing) {
 
 } else {
     console.log("🆕 ADDING NEW RECORD");
-    state.savedInvoices.push(record);
+    state.savedInvoices = [
+    record,
+    ...state.savedInvoices.filter(inv => inv.invNum !== record.invNum)
+];
 }
 
         saveState();
@@ -1929,18 +1932,14 @@ refreshInvoiceStatuses();
         // 2. Build Base Data (NOW SAFE)
     let ctx = { type, id, title: "Send to Client", client: "", amount: 0, contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
             // 🔥 SAFE RECORD RESOLUTION
-let record = null;
+let record = getTrackerRecords().find(r => r.invNum === state.invNum);
 
-// If ID exists → fetch from tracker
-if (id) {
-    record = getTrackerRecords().find(r => r.id == id);
-}
-
-// Fallback → live state (for manual send)
 if (!record) {
     record = {
         ...state,
-        total: (type === 'invoice') ? grandTotalToExport : state.contractAmount
+        total: (type === 'invoice')
+            ? Number(grandTotalToExport.toFixed(2))
+            : Number(state.contractAmount || 0)
     };
 }
 
