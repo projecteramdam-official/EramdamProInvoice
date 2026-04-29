@@ -1034,8 +1034,12 @@ renderActionsSection();
 
 function saveInvoiceToTracker() {
 
-    // 🔥 HARD BLOCK (MISSING ROOT FIX)
-    if (window.__lastSavedInv === state.invNum) return;
+    console.trace("🚨 SAVE CALLED");
+
+    if (window.__lastSavedInv === state.invNum) {
+        console.warn("⛔ BLOCKED DUPLICATE", state.invNum);
+        return;
+    }
 
     if (!state.invNum || grandTotalToExport <= 0) return;
 
@@ -1061,16 +1065,17 @@ function saveInvoiceToTracker() {
     };
 
     if (existingIndex !== -1) {
+        console.log("♻️ UPDATE EXISTING");
         state.savedInvoices[existingIndex] = record;
     } else {
+        console.log("🆕 PUSH NEW");
         state.savedInvoices.push(record);
     }
 
     saveState();
 
-    console.log("TRACKER UPDATED:", state.savedInvoices.length);
+    console.log("✅ FINAL LENGTH:", state.savedInvoices.length);
 
-    // 🔥 LOCK AFTER SAVE
     window.__lastSavedInv = state.invNum;
 }    
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
