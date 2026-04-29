@@ -1266,7 +1266,7 @@ function renderActionsSection() {
         return;
     }
 
-    let records = getTrackerRecords();
+    let records = getTrackerRecords().filter(r => r.recordType !== 'invoice');
 
 // 🔥 HARD DEDUPE (REMOVE SAME INVNUM DUPLICATES)
 records = Object.values(
