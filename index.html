@@ -1843,11 +1843,7 @@ const amountContext = isPartial ? `${balance} remaining` : total;
         // --- 4. THE CLEAN CONTEXT BUILDER ---
         function openSendSystem(type, id = null) {
 
-    // 🔥 SAVE CURRENT INVOICE BEFORE OPENING SEND UI (SAFE)
-    if (type === 'invoice' && !id) {
-        saveInvoiceToTracker();
-    }
-
+  
     // 🔥 STEP 1: FORCE COMMIT (SEND = ONLY COMMIT POINT)
     const snapshot = {
         id: state._id || (state._id = Date.now() + Math.floor(Math.random() * 1000)),
@@ -1937,9 +1933,7 @@ let record = getTrackerRecords().find(r => r.invNum === state.invNum);
 if (!record) {
     record = {
         ...state,
-        total: (type === 'invoice')
-            ? Number(grandTotalToExport.toFixed(2))
-            : Number(state.contractAmount || 0)
+        total: Number(grandTotalToExport.toFixed(2))
     };
 }
 
