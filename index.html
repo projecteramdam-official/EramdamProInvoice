@@ -1302,39 +1302,72 @@ const getPriority = (r) => {
         !state.savedInvoices.some(inv => inv.contractId === r.id)
     );
 
-    const followUp = sortedRecords
-    .filter(r =>
-        r.recordType === 'invoice' &&
-        r.paymentStatus !== 'paid'
-    )
-    .map(r => {
-    return { ...r };
-});
+    function renderActionsSection() {
+    const container = document.getElementById('actions-section');
+    if (!container) return;
 
-        const paidItems = sortedRecords.filter(r =>
-        r.recordType === 'invoice' &&
-        r.paymentStatus === 'paid'
+    // 🔥 ONLY SHOW IN ACTION NEEDED TAB
+    if (trackerFilter !== 'all') {
+        container.innerHTML = '';
+        return;
+    }
+
+    let records = getTrackerRecords();
+
+// 🔥 HARD DEDUPE (REMOVE SAME INVNUM DUPLICATES)
+records = Object.values(
+    records.reduce((acc, r) => {
+        if (r.invNum) {
+            acc[r.invNum] = r;
+        }
+        return acc;
+    }, {})
+);
+
+// 🔥 PRIORITY SORTING (ONLY ONCE)
+const getPriority = (r) => {
+    if (r.recordType === 'invoice') {
+        if (r.paymentStatus === 'overdue') return 100;
+        if (r.paymentStatus === 'partial') return 80;
+        if (r.paymentStatus === 'unpaid') return 60;
+        if (r.paymentStatus === 'paid') return 10;
+    }
+
+    if (r.recordType === 'contract' &&
+        !state.savedInvoices.some(inv => inv.contractId === r.id)) {
+        return 50;
+    }
+
+    return 0;
+};
+
+    const sortedRecords = [...records].sort((a, b) => getPriority(b) - getPriority(a));
+
+    const createInvoice = sortedRecords.filter(r =>
+        r.recordType === 'contract' &&
+        !state.savedInvoices.some(inv => inv.contractId === r.id)
     );
+
+    const followUp = [];
+    const paidItems = [];
 
     let html = '';
 
     if (createInvoice.length || followUp.length || paidItems.length) {
-    html += `
-    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-        <div class="flex justify-between items-center mb-3">
-            <h3 class="text-xs font-black uppercase tracking-widest text-gray-500">⚡ Needs Action</h3>
-            <span class="text-[10px] font-bold text-gray-400">
-                ${createInvoice.length + followUp.length + paidItems.length} Actions
-            </span>
+        html += `
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-black uppercase tracking-widest text-gray-500">⚡ Needs Action</h3>
+                <span class="text-[10px] font-bold text-gray-400">
+                    ${createInvoice.length + followUp.length + paidItems.length} Actions
+                </span>
+            </div>
+        `;
+
+        html += `
         </div>
-    `;
-
-    // (keep your item rendering logic here — createInvoice / followUp / paidItems)
-
-    html += `
-    </div>
-    `;
-}
+        `;
+    }
 
     // CREATE INVOICE
     if (createInvoice.length) {
@@ -1353,6 +1386,9 @@ const getPriority = (r) => {
 
         html += `</div>`;
     }
+
+    container.innerHTML = html;
+}
 
     // FOLLOW UP
     if (followUp.length) {
