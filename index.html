@@ -1890,8 +1890,8 @@ const amountContext = isPartial ? `${balance} remaining` : total;
         snapshot.paymentStatus = 'unpaid';
         snapshot.paymentStatus = 'unpaid';
     } else {
-        const total = (state.items || []).reduce((s, i) => s + Number(i.amount || 0), 0);
-        snapshot.total = total;
+    const total = getFinalInvoiceTotal();
+    snapshot.total = total;
 
         const paid = Number(state.paidAmount || 0);
         if (paid <= 0) snapshot.paymentStatus = 'unpaid';
@@ -1904,8 +1904,9 @@ const amountContext = isPartial ? `${balance} remaining` : total;
     }
 
     const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
-const existingIndex = targetArray.findIndex(inv => inv.id === snapshot.id);
-
+const existingIndex = (type === 'invoice')
+    ? targetArray.findIndex(inv => inv.invNum === snapshot.invNum)
+    : targetArray.findIndex(inv => inv.id === snapshot.id);
 // 🔥 PRESERVE OLD DATA FIRST
 let existing = existingIndex > -1 ? targetArray[existingIndex] : null;
 
@@ -2169,7 +2170,7 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
             
             if (currentSendContext.type === 'invoice') {
                 // Must have a client name and a real amount to avoid ghost saves
-                if (state.cName && state.cName.trim() !== '' && grandTotalToExport > 0) {
+                if (state.cName && state.cName.trim() !== '' && getFinalInvoiceTotal() > 0) {
                     if (typeof saveToHistory === 'function') saveToHistory();
                     currentSendContext.savedAlready = true;
                 }
