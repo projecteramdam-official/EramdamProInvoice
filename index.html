@@ -1059,11 +1059,12 @@ function saveInvoiceToTracker() {
         savedAt: Date.now()
     };
 
-    if (existingIndex === -1) {
-        state.savedInvoices.push(record);
-    } else {
-        state.savedInvoices[existingIndex] = record;
-    }
+    // 🔥 HARD DEDUPE — SINGLE SOURCE OF TRUTH
+state.savedInvoices = state.savedInvoices.filter(
+    inv => inv.invNum !== state.invNum
+);
+
+state.savedInvoices.push(record);
 
     saveState();
 
