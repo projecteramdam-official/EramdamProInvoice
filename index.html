@@ -1064,13 +1064,12 @@ function saveInvoiceToTracker() {
         savedAt: Date.now()
     };
 
-    if (existingIndex !== -1) {
-        console.log("♻️ UPDATE EXISTING");
-        state.savedInvoices[existingIndex] = record;
-    } else {
-        console.log("🆕 PUSH NEW");
-        state.savedInvoices.push(record);
-    }
+    // 🔥 ALWAYS REMOVE OLD FIRST (NO DUPLICATE POSSIBLE)
+state.savedInvoices = state.savedInvoices.filter(
+    inv => inv.invNum !== state.invNum
+);
+
+state.savedInvoices.push(record);
 
     saveState();
 
