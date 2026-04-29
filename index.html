@@ -1099,7 +1099,28 @@ if (index !== -1) {
 }    
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
         function getContractRecords() { return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract')); }
-        function getTrackerRecords() { return [...getInvoiceRecords(), ...getContractRecords()].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0)); }
+        function getTrackerRecords() {
+
+    const invoices = Array.isArray(state.savedInvoices)
+        ? state.savedInvoices
+        : [];
+
+    const contracts = Array.isArray(state.savedContracts)
+        ? state.savedContracts
+        : [];
+
+    // 🔥 ONLY return REAL SAVED DATA
+    return [
+        ...invoices.map(inv => ({
+            ...inv,
+            recordType: 'invoice'
+        })),
+        ...contracts.map(c => ({
+            ...c,
+            recordType: 'contract'
+        }))
+    ];
+}
 
         function syncPaymentStatus() {
     const sub = grandTotalToExport;
@@ -1209,8 +1230,18 @@ function renderActionsSection() {
 
     let records = getTrackerRecords();
 
-    // 🔥 PRIORITY SORTING (ONLY ONCE)
-    const getPriority = (r) => {
+// 🔥 HARD DEDUPE (REMOVE SAME INVNUM DUPLICATES)
+records = Object.values(
+    records.reduce((acc, r) => {
+        if (r.invNum) {
+            acc[r.invNum] = r;
+        }
+        return acc;
+    }, {})
+);
+
+// 🔥 PRIORITY SORTING (ONLY ONCE)
+const getPriority = (r) => {
     if (r.recordType === 'invoice') {
         if (r.paymentStatus === 'overdue') return 100;
         if (r.paymentStatus === 'partial') return 80;
