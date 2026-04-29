@@ -1033,9 +1033,6 @@ renderActionsSection();
    
 
 function saveInvoiceToTracker() {
-    // 🔥 HARD BLOCK: SAME INVOICE MULTIPLE CALLS
-    if (window.__lastSavedInv === state.invNum) return;
-
     if (!state.invNum || grandTotalToExport <= 0) return;
 
     state.savedInvoices = Array.isArray(state.savedInvoices)
@@ -1059,19 +1056,16 @@ function saveInvoiceToTracker() {
         savedAt: Date.now()
     };
 
-    // 🔥 HARD DEDUPE — SINGLE SOURCE OF TRUTH
-state.savedInvoices = state.savedInvoices.filter(
-    inv => inv.invNum !== state.invNum
-);
-
-state.savedInvoices.push(record);
+    // ✅ SAFE UPDATE (NO DUPLICATE POSSIBLE)
+    if (existingIndex !== -1) {
+        state.savedInvoices[existingIndex] = record;
+    } else {
+        state.savedInvoices.push(record);
+    }
 
     saveState();
 
     console.log("TRACKER UPDATED:", state.savedInvoices.length);
-
-    // 🔥 LOCK THIS INVOICE (NOT TIME BASED)
-    window.__lastSavedInv = state.invNum;
 }    
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
         function getContractRecords() { return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract')); }
