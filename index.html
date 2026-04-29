@@ -1036,46 +1036,60 @@ function saveInvoiceToTracker() {
 
     console.trace("🚨 SAVE CALLED");
 
-    if (window.__lastSavedInv === state.invNum) {
-        console.warn("⛔ BLOCKED DUPLICATE", state.invNum);
+    if (window.__savingNow) {
+        console.warn("⛔ BLOCKED: already saving");
         return;
     }
 
-    if (!state.invNum || grandTotalToExport <= 0) return;
+    window.__savingNow = true;
 
-    state.savedInvoices = Array.isArray(state.savedInvoices)
-        ? state.savedInvoices
-        : [];
+    try {
 
-    const existingIndex = state.savedInvoices.findIndex(
-        inv => inv.invNum === state.invNum
-    );
+        if (window.__lastSavedInv === state.invNum) {
+            console.warn("⛔ BLOCKED DUPLICATE", state.invNum);
+            return;
+        }
 
-    const record = {
-        id: existingIndex !== -1 
-            ? state.savedInvoices[existingIndex].id
-            : Date.now(),
-        invNum: state.invNum,
-        cName: state.cName || "Client",
-        total: grandTotalToExport,
-        paymentStatus: state.paymentStatus,
-        paidAmount: state.paidAmount || 0,
-        dueDate: state.dueDate,
-        savedAt: Date.now()
-    };
+        if (!state.invNum || grandTotalToExport <= 0) return;
 
-    // 🔥 ALWAYS REMOVE OLD FIRST (NO DUPLICATE POSSIBLE)
-state.savedInvoices = state.savedInvoices.filter(
-    inv => inv.invNum !== state.invNum
-);
+        state.savedInvoices = Array.isArray(state.savedInvoices)
+            ? state.savedInvoices
+            : [];
 
-state.savedInvoices.push(record);
+        const existingIndex = state.savedInvoices.findIndex(
+            inv => inv.invNum === state.invNum
+        );
 
-    saveState();
+        const record = {
+            id: existingIndex !== -1 
+                ? state.savedInvoices[existingIndex].id
+                : Date.now(),
+            invNum: state.invNum,
+            cName: state.cName || "Client",
+            total: grandTotalToExport,
+            paymentStatus: state.paymentStatus,
+            paidAmount: state.paidAmount || 0,
+            dueDate: state.dueDate,
+            savedAt: Date.now()
+        };
 
-    console.log("✅ FINAL LENGTH:", state.savedInvoices.length);
+        state.savedInvoices = state.savedInvoices.filter(
+            inv => inv.invNum !== state.invNum
+        );
 
-    window.__lastSavedInv = state.invNum;
+        state.savedInvoices.push(record);
+
+        saveState();
+
+        console.log("✅ FINAL LENGTH:", state.savedInvoices.length);
+
+        window.__lastSavedInv = state.invNum;
+
+    } finally {
+        setTimeout(() => {
+            window.__savingNow = false;
+        }, 300);
+    }
 }    
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
         function getContractRecords() { return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract')); }
