@@ -1027,11 +1027,11 @@ renderActionsSection();
 }
 
         function normalizeTrackerRecord(record, type) { return { ...record, recordType: record.recordType || type, savedAt: record.savedAt || record.id || Date.now() }; }
-    let __lastSavedInv = null;
+   
 
 function saveInvoiceToTracker() {
     // 🔥 HARD BLOCK: SAME INVOICE MULTIPLE CALLS
-    if (__lastSavedInv === state.invNum) return;
+    if (state.__lastSavedInv === state.invNum) return;
 
     if (!state.invNum || grandTotalToExport <= 0) return;
 
@@ -1067,7 +1067,7 @@ function saveInvoiceToTracker() {
     console.log("TRACKER UPDATED:", state.savedInvoices.length);
 
     // 🔥 LOCK THIS INVOICE (NOT TIME BASED)
-    __lastSavedInv = state.invNum;
+    state.__lastSavedInv = state.invNum;
 }    
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
         function getContractRecords() { return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract')); }
