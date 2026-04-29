@@ -2248,26 +2248,28 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
             const result = await apiRequest('SAVE_INVOICE', record);
 
             if (result.success) {
-    // 🔥 DO NOT WRITE HERE (avoid duplicate source of truth)
-    // Just trigger render if needed
 
-    renderTrackerList();
+    // 🔥 SINGLE SOURCE OF TRUTH
+    saveState();
+
+    if (state.mode !== 'contract') {
+        refreshInvoiceStatuses();
+    } else {
+        renderTrackerList();
+    }
+
+    const toast = document.getElementById('save-toast');
+    toast.classList.remove('-translate-y-24', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-24', 'opacity-0');
+    }, 3000);
+
+} else {
+    alert("Pro Feature Blocked: Activate Your Workspace to save unlimited records!");
 }
-                saveState();
-                renderTrackerList();
-                if (state.mode !== 'contract') refreshInvoiceStatuses();
-
-                const toast = document.getElementById('save-toast');
-                toast.classList.remove('-translate-y-24', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-                setTimeout(() => {
-                    toast.classList.remove('translate-y-0', 'opacity-100');
-                    toast.classList.add('-translate-y-24', 'opacity-0');
-                }, 3000);
-            } else {
-                alert("Pro Feature Blocked: Activate Your Workspace to save unlimited records!");
-            }
-        }
  // --- 3. DOM & PREVIEW ---
         function populateForm() {
             const pt = document.getElementById('paymentTerms');
