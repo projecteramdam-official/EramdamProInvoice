@@ -1567,13 +1567,9 @@ console.log("🟡 [GEN] has contract fields?",
 
 // 🔥 ACTION NEEDED TAB → NO DUPLICATE LIST
 // ACTION TAB: tracker-list must NOT render (actions-section owns it)
-if (trackerFilter === 'all') {
-    container.innerHTML = '';
-    return;
-}
-else if (trackerFilter === 'invoices') records = records.filter(r => r.recordType === 'invoice');
-else if (trackerFilter === 'contracts') records = records.filter(r => r.recordType === 'contract');
-}
+  if (trackerFilter === 'invoices') records = records.filter(r => r.recordType === 'invoice');
+  else if (trackerFilter === 'contracts') records = records.filter(r => r.recordType === 'contract');
+  else { container.innerHTML = ''; return; }
 
     const filterButtons = {
         all: document.getElementById('tracker-filter-all'),
