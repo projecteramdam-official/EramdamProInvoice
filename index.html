@@ -68,7 +68,13 @@ function persistGlobalSetup() {
         const saved = localStorage.getItem('eramdam_global_setup');
         if (saved) {
             const globals = JSON.parse(saved);
-            Object.assign(state, globals);
+
+            // 🔥 APPLY ONLY IF FIELD IS EMPTY (DO NOT OVERRIDE USER DATA)
+            GLOBAL_KEYS.forEach(key => {
+                if (!state[key] || state[key] === '') {
+                    state[key] = globals[key];
+                }
+            });
         }
     } catch (e) {
         console.warn("Global setup load failed");
@@ -153,6 +159,9 @@ function removeQR() {
                     applyTierLimits();
                     document.getElementById('auth-gate').classList.add('hidden');
                     await loadState();
+
+// 🔥 ENSURE GLOBAL PROFILE IS INJECTED BEFORE UI
+injectGlobalSetup();
 
 // 🔥 FORCE FULL UI SYNC AFTER LOGIN
 setTimeout(() => {
@@ -1941,8 +1950,8 @@ const amountContext = isPartial ? `${balance} remaining` : total;
 }
         // --- 4. THE CLEAN CONTEXT BUILDER ---
         function openSendSystem(type, id = null) {
-
-  
+             // 🔥 ENSURE GLOBAL DATA ALWAYS PRESENT BEFORE SEND
+    injectGlobalSetup();  
     // 🔥 STEP 1: FORCE COMMIT (SEND = ONLY COMMIT POINT)
     const snapshot = {
         id: state._id || (state._id = Date.now() + Math.floor(Math.random() * 1000)),
