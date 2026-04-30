@@ -670,7 +670,7 @@ Global Payment Setup
 <button onclick="handleDownloadPDF()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
 </button>
-<button onclick="openSendSystem('contract')" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+<button onclick="openSendSystem('contract', state.id)" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg> Send to Client
 </button>
 </div>
@@ -2066,7 +2066,10 @@ if (!record && type === 'invoice') {
 if (!record) {
     record = {
         ...state,
-        total: getFinalInvoiceTotal()
+        recordType: type,   // 🔥 CRITICAL FIX
+        total: type === 'contract'
+            ? (state.contractAmount || 0)
+            : getFinalInvoiceTotal()
     };
 }
 
@@ -2082,15 +2085,32 @@ if (type === 'invoice') {
     }, ctx.docLink);
 }
 else if (type === 'contract') {
-    ctx.client = state.contractClient || "Client";
-    ctx.amount = getFinalInvoiceTotal();
+    ctx.client = state.contractClient || 'Client';
+    ctx.amount = state.contractAmount || 0;
     ctx.contextText = `Contract ready for ${ctx.client}`;
     ctx.docLink = buildDocumentLink(type, record, ctx.amount);
     ctx.intel = getAssistantIntelligence(record);
-    ctx.message = buildMessage(ctx.intel, {
-        ...record,
-        total: getFinalInvoiceTotal()
-    }, ctx.docLink);
+    const finalTotal = type === 'contract'
+    ? (state.contractAmount || 0)
+    : getFinalInvoiceTotal();
+
+const finalTotal = type === 'contract'
+    ? (state.contractAmount || 0)
+    : getFinalInvoiceTotal();
+
+// 🔥 ADD THIS DEBUG BLOCK RIGHT HERE
+console.log("SEND DEBUG →", {
+    type,
+    stateMode: state.mode,
+    contractAmount: state.contractAmount,
+    invoiceTotal: getFinalInvoiceTotal(),
+    finalTotal,
+    recordType: record?.recordType,
+    record
+});
+
+// EXISTING LINE (DO NOT REMOVE)
+ctx.message = buildMessage(ctx.intel, { ...record, total: finalTotal }, ctx.docLink);
 }
 else if (type === 'reminder') {
     ctx.title = "Payment Reminder";
