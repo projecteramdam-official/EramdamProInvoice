@@ -2094,10 +2094,6 @@ else if (type === 'contract') {
     ? (state.contractAmount || 0)
     : getFinalInvoiceTotal();
 
-const finalTotal = type === 'contract'
-    ? (state.contractAmount || 0)
-    : getFinalInvoiceTotal();
-
 // 🔥 ADD THIS DEBUG BLOCK RIGHT HERE
 console.log("SEND DEBUG →", {
     type,
