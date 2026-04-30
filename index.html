@@ -1990,11 +1990,36 @@ const amountContext = isPartial ? `${balance} remaining` : total;
     }
 
     const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
-const existingIndex = (type === 'invoice')
-    ? targetArray.findIndex(inv => inv.invNum === snapshot.invNum)
-    : targetArray.findIndex(inv => inv.id === snapshot.id);
+
+// 🔐 ID-FIRST RESOLUTION (TRACKER → SEND)
+let existingIndex = -1;
+
+// 1) If an explicit id is passed (tracker / follow-up flows), use it
+if (id != null) {
+    existingIndex = targetArray.findIndex(rec => rec.id === id);
+}
+
+// 2) Fallback: use existing behavior
+//    - invoices: match by invNum (form-driven send)
+//    - contracts/others: match by snapshot.id
+if (existingIndex === -1) {
+    if (type === 'invoice') {
+        existingIndex = targetArray.findIndex(rec => rec.invNum === snapshot.invNum);
+    } else {
+        existingIndex = targetArray.findIndex(rec => rec.id === snapshot.id);
+    }
+}
+
 // 🔥 PRESERVE OLD DATA FIRST
 let existing = existingIndex > -1 ? targetArray[existingIndex] : null;
+
+// Align snapshot identity with resolved record so we update, not duplicate
+if (existing) {
+    snapshot.id = existing.id;
+    if (type === 'invoice' && existing.invNum) {
+        snapshot.invNum = existing.invNum;
+    }
+}
 
 if (existingIndex > -1) {
     targetArray[existingIndex] = {
@@ -2033,11 +2058,23 @@ if (type === 'reminder' && id) {
 saveState();
 refreshInvoiceStatuses();
 
-        // 2. Build Base Data (NOW SAFE)
-    let ctx = { type, id, title: "Send to Client", client: "", amount: getFinalInvoiceTotal(), contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
-            // 🔥 SAFE RECORD RESOLUTION
-let record = getTrackerRecords().find(r => r.invNum === state.invNum);
+// 2. Build Base Data (NOW SAFE)
+let ctx = { type, id, title: "Send to Client", client: "", amount: getFinalInvoiceTotal(), contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
 
+// 🔥 SAFE RECORD RESOLUTION (PREFER ID → THEN INVNUM → THEN STATE)
+let record = null;
+
+// Prefer id when available (tracker / follow-up sends)
+if (id != null) {
+    record = getTrackerRecords().find(r => r.id === id);
+}
+
+// Fallback for invoice send from editor (no id passed)
+if (!record && type === 'invoice') {
+    record = getTrackerRecords().find(r => r.invNum === state.invNum);
+}
+
+// Final fallback: use current state snapshot
 if (!record) {
     record = {
         ...state,
@@ -2045,65 +2082,65 @@ if (!record) {
     };
 }
 
-    if (type === 'invoice') {
-        ctx.client = state.cName || "Client";
-        ctx.amount = getFinalInvoiceTotal();
-        ctx.contextText = `Invoice ready for ${ctx.client}`;
-        ctx.docLink = buildDocumentLink(type, record, ctx.amount);
-        ctx.intel = getAssistantIntelligence(record);
-        ctx.message = buildMessage(ctx.intel, {
-    ...record,
-    total: getFinalInvoiceTotal()
-}, ctx.docLink);
-    }
-    else if (type === 'contract') {
-        ctx.client = state.contractClient || "Client";
-        ctx.amount = getFinalInvoiceTotal();
-        ctx.contextText = `Contract ready for ${ctx.client}`;
-        ctx.docLink = buildDocumentLink(type, record, ctx.amount);
-        ctx.intel = getAssistantIntelligence(record);
-        ctx.message = buildMessage(ctx.intel, {
-    ...record,
-    total: getFinalInvoiceTotal()
-}, ctx.docLink);
-    }
-    else if (type === 'reminder') {
-        ctx.title = "Payment Reminder";
-        ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
-        if (!ctx.invoiceRecord) return;
+if (type === 'invoice') {
+    ctx.client = state.cName || "Client";
+    ctx.amount = getFinalInvoiceTotal();
+    ctx.contextText = `Invoice ready for ${ctx.client}`;
+    ctx.docLink = buildDocumentLink(type, record, ctx.amount);
+    ctx.intel = getAssistantIntelligence(record);
+    ctx.message = buildMessage(ctx.intel, {
+        ...record,
+        total: getFinalInvoiceTotal()
+    }, ctx.docLink);
+}
+else if (type === 'contract') {
+    ctx.client = state.contractClient || "Client";
+    ctx.amount = getFinalInvoiceTotal();
+    ctx.contextText = `Contract ready for ${ctx.client}`;
+    ctx.docLink = buildDocumentLink(type, record, ctx.amount);
+    ctx.intel = getAssistantIntelligence(record);
+    ctx.message = buildMessage(ctx.intel, {
+        ...record,
+        total: getFinalInvoiceTotal()
+    }, ctx.docLink);
+}
+else if (type === 'reminder') {
+    ctx.title = "Payment Reminder";
+    ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
+    if (!ctx.invoiceRecord) return;
 
-        ctx.client = ctx.invoiceRecord.cName || "Client";
-        ctx.amount = Math.max((Number(ctx.invoiceRecord.total) || 0) - (Number(ctx.invoiceRecord.paidAmount) || 0), 0);
-        ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
-        ctx.contextText = ctx.intel.daysOverdue > 0 ? `Invoice overdue by ${ctx.intel.daysOverdue} days` : "Invoice due today";
-        currentActiveTone = ctx.intel.suggestedTone;
-        ctx.docLink = buildDocumentLink(type, ctx.invoiceRecord, ctx.amount);
-        ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, ctx.docLink);
-    }
-    else if (type === 'thankyou') {
-        ctx.title = "Payment Received";
-        ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
-        if (!ctx.invoiceRecord) return;
+    ctx.client = ctx.invoiceRecord.cName || "Client";
+    ctx.amount = Math.max((Number(ctx.invoiceRecord.total) || 0) - (Number(ctx.invoiceRecord.paidAmount) || 0), 0);
+    ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+    ctx.contextText = ctx.intel.daysOverdue > 0 ? `Invoice overdue by ${ctx.intel.daysOverdue} days` : "Invoice due today";
+    currentActiveTone = ctx.intel.suggestedTone;
+    ctx.docLink = buildDocumentLink(type, ctx.invoiceRecord, ctx.amount);
+    ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, ctx.docLink);
+}
+else if (type === 'thankyou') {
+    ctx.title = "Payment Received";
+    ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
+    if (!ctx.invoiceRecord) return;
 
-        ctx.client = ctx.invoiceRecord.cName || "Client";
-        ctx.amount = ctx.invoiceRecord.total;
-        ctx.contextText = "Transaction successfully closed.";
-        ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
-        ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, "");
-    }
-            // 2. Store Clean Context Globally
-            currentSendContext = ctx;
+    ctx.client = ctx.invoiceRecord.cName || "Client";
+    ctx.amount = ctx.invoiceRecord.total;
+    ctx.contextText = "Transaction successfully closed.";
+    ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+    ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, "");
+}
+// 2. Store Clean Context Globally
+currentSendContext = ctx;
 
-            // 3. Render UI
-            document.getElementById('send-modal-title').innerHTML = `
-                <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
-                ${ctx.title}
-            `;
-            renderSendSystem();
-            
-            const modal = document.getElementById('send-modal');
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => modal.classList.remove('opacity-0'));
+// 3. Render UI
+document.getElementById('send-modal-title').innerHTML = `
+    <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
+    ${ctx.title}
+`;
+renderSendSystem();
+
+const modal = document.getElementById('send-modal');
+modal.classList.remove('hidden');
+requestAnimationFrame(() => modal.classList.remove('opacity-0'));
         }
 
 
