@@ -1971,8 +1971,9 @@ const amountContext = isPartial ? `${balance} remaining` : total;
     contractStart: state.contractStart,
     contractEnd: state.contractEnd,
 } : {}),
+};
 
-    if (type === 'contract') {
+if (type === 'contract') {
         snapshot.total = Number(state.contractAmount || 0);
         snapshot.paymentStatus = 'unpaid';
         snapshot.paymentStatus = 'unpaid';
