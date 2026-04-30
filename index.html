@@ -1524,7 +1524,15 @@ if (!contract) return;
 // Switch to invoice mode FIRST
 setMode('invoice');
 
-// 🔥 CLEAN ONLY INVOICE FIELDS
+// 🔥 CRITICAL: REMOVE CONTRACT FIELDS FROM STATE
+delete state.contractFreelancer;
+delete state.contractClient;
+delete state.contractDesc;
+delete state.contractAmount;
+delete state.contractStart;
+delete state.contractEnd;
+
+// 🔥 CLEAN INVOICE FIELDS
 state.cName = '';
 state.fName = '';
 state.items = [];
