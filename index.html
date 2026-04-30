@@ -1042,7 +1042,37 @@ renderActionsSection();
 }
 }
 
-        function normalizeTrackerRecord(record, type) { return { ...record, recordType: record.recordType || type, savedAt: record.savedAt || record.id || Date.now() }; }
+        function normalizeTrackerRecord(record, type) {
+
+    if ((record.recordType || type) === 'invoice') {
+        return {
+            id: record.id,
+            recordType: 'invoice',
+            invNum: record.invNum,
+            cName: record.cName,
+            total: record.total,
+            paymentStatus: record.paymentStatus,
+            paidAmount: record.paidAmount,
+            dueDate: record.dueDate,
+            contractId: record.contractId || null,
+            savedAt: record.savedAt
+        };
+    }
+
+    if ((record.recordType || type) === 'contract') {
+        return {
+            id: record.id,
+            recordType: 'contract',
+            contractClient: record.contractClient,
+            contractAmount: record.contractAmount,
+            contractStart: record.contractStart,
+            contractEnd: record.contractEnd,
+            savedAt: record.savedAt
+        };
+    }
+
+    return record;
+}
    
 
 function getFinalInvoiceTotal() {
@@ -1158,10 +1188,9 @@ const contractMap = {};
 
 contracts.forEach(c => {
     contractMap[c.id] = {
-        ...c,
-        recordType: 'contract',
-        linkedInvoice: null
-    };
+    ...normalizeTrackerRecord(c, 'contract'),
+    linkedInvoice: null
+};
 });
 
 // 🔥 ATTACH INVOICES TO CONTRACTS
@@ -1169,10 +1198,8 @@ const orphanInvoices = [];
 
 invoices.forEach(inv => {
     if (inv.contractId && contractMap[inv.contractId]) {
-        contractMap[inv.contractId].linkedInvoice = {
-            ...inv,
-            recordType: 'invoice'
-        };
+        contractMap[inv.contractId].linkedInvoice =
+    normalizeTrackerRecord(inv, 'invoice');
     } else {
         orphanInvoices.push({
             ...inv,
