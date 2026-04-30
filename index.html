@@ -1093,12 +1093,12 @@ function getFinalInvoiceTotal() {
     return Number(subtotal.toFixed(2));
 }
     function saveInvoiceToTracker() {
-        console.log("🔴 [SAVE_INVOICE] state keys:", Object.keys(state));
-console.log("🔴 [SAVE_INVOICE] has contract fields?",
-    'contractAmount' in state,
-    'contractClient' in state,
-    'contractDesc' in state
-);
+    console.log("🔴 [SAVE_INVOICE] state keys:", Object.keys(state));
+    console.log("🔴 [SAVE_INVOICE] has contract fields?",
+        'contractAmount' in state,
+        'contractClient' in state,
+        'contractDesc' in state
+    );
 
     console.trace("🚨 SAVE CALLED");
 
@@ -1110,8 +1110,6 @@ console.log("🔴 [SAVE_INVOICE] has contract fields?",
     window.__savingNow = true;
 
     try {
-
-       
         if (!state.invNum || grandTotalToExport <= 0) return;
 
         state.savedInvoices = Array.isArray(state.savedInvoices)
@@ -1119,63 +1117,53 @@ console.log("🔴 [SAVE_INVOICE] has contract fields?",
             : [];
 
         const existingIndex = state.savedInvoices.findIndex(
-    inv => inv.invNum === state.invNum
-);
+            inv => inv.invNum === state.invNum
+        );
 
-// 🔥 BUILD CLEAN RECORD (SOURCE OF TRUTH)
-const rawRecord = {
-    id: existingIndex !== -1 
-        ? state.savedInvoices[existingIndex].id
-        : Date.now(),
+        const rawRecord = {
+            id: existingIndex !== -1
+                ? state.savedInvoices[existingIndex].id
+                : Date.now(),
 
-    invNum: state.invNum,
-    cName: state.cName || "Client",
+            invNum: state.invNum,
+            cName: state.cName || "Client",
+            total: getFinalInvoiceTotal(),
+            paymentStatus: state.paymentStatus,
+            paidAmount: state.paidAmount || 0,
+            dueDate: state.dueDate,
+            contractId: state.contractId || null,
+            savedAt: Date.now()
+        };
 
-    total: getFinalInvoiceTotal(),
+        const cleanRecord = {
+            id: rawRecord.id,
+            recordType: 'invoice',
+            invNum: rawRecord.invNum,
+            cName: rawRecord.cName,
+            total: rawRecord.total,
+            paymentStatus: rawRecord.paymentStatus,
+            paidAmount: rawRecord.paidAmount,
+            dueDate: rawRecord.dueDate,
+            contractId: rawRecord.contractId,
+            savedAt: rawRecord.savedAt
+        };
 
-    paymentStatus: state.paymentStatus,
-    paidAmount: state.paidAmount || 0,
-    dueDate: state.dueDate,
+        if (existingIndex !== -1) {
+            console.warn("♻️ FULL REPLACE (CLEAN OBJECT)");
+            state.savedInvoices[existingIndex] = cleanRecord;
+        } else {
+            console.log("🆕 ADDING CLEAN RECORD");
+            state.savedInvoices = [
+                cleanRecord,
+                ...state.savedInvoices.filter(inv => inv.invNum !== cleanRecord.invNum)
+            ];
+        }
 
-    contractId: state.contractId || null,
-
-    savedAt: Date.now()
-};
-
-// 🔥 FORCE CLEAN (REMOVE ANY LEAKED FIELDS)
-const cleanRecord = {
-    id: rawRecord.id,
-    recordType: 'invoice',
-    invNum: rawRecord.invNum,
-    cName: rawRecord.cName,
-    total: rawRecord.total,
-    paymentStatus: rawRecord.paymentStatus,
-    paidAmount: rawRecord.paidAmount,
-    dueDate: rawRecord.dueDate,
-    contractId: rawRecord.contractId,
-    savedAt: rawRecord.savedAt
-};
-
-if (existingIndex !== -1) {
-    console.warn("♻️ FULL REPLACE (CLEAN OBJECT)");
-
-    // 🔥 ALWAYS REPLACE THE FULL OBJECT
-    state.savedInvoices[existingIndex] = cleanRecord;
-
-} else {
-    console.log("🆕 ADDING CLEAN RECORD");
-    state.savedInvoices = [
-        // 🔍 DEBUG LOG (ADDED)
-console.log("🔴 [SAVE_INVOICE] savedInvoices[0]:", state.savedInvoices[0]);
-        cleanRecord,
-        ...state.savedInvoices.filter(inv => inv.invNum !== cleanRecord.invNum)
-    ];
-}
+        console.log("🔴 [SAVE_INVOICE] savedInvoices[0]:", state.savedInvoices[0]);
         saveState();
-
         console.log("✅ FINAL LENGTH:", state.savedInvoices.length);
 
-        } finally {
+    } finally {
         setTimeout(() => {
             window.__savingNow = false;
         }, 300);
