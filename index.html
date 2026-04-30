@@ -1149,24 +1149,13 @@ const cleanRecord = {
 };
 
 if (existingIndex !== -1) {
+    console.warn("♻️ FULL REPLACE (CLEAN OBJECT)");
 
-    const existing = state.savedInvoices[existingIndex];
-
-    if (existing.total !== cleanRecord.total) {
-        console.warn("♻️ FULL REPLACE (CLEAN OBJECT)");
-
-        // 🔥 CRITICAL FIX — FULL REPLACEMENT
-        state.savedInvoices[existingIndex] = cleanRecord;
-
-    } else {
-        console.warn("⛔ DUPLICATE BLOCKED (same total)");
-        return;
-    }
+    // 🔥 ALWAYS REPLACE THE FULL OBJECT
+    state.savedInvoices[existingIndex] = cleanRecord;
 
 } else {
-
     console.log("🆕 ADDING CLEAN RECORD");
-
     state.savedInvoices = [
         cleanRecord,
         ...state.savedInvoices.filter(inv => inv.invNum !== cleanRecord.invNum)
