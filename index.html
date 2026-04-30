@@ -930,11 +930,20 @@ localStorage.setItem('eramdam_main_state', JSON.stringify(cleanState));
     // 🔥 Generate new invoice number
     state.invNum = `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
 
-    // 🔥 Reset payment
-    state.paymentStatus = 'unpaid';
-    state.paidAmount = 0;
+   // 🔥 Reset payment
+state.paymentStatus = 'unpaid';
+state.paidAmount = 0;
 
-    saveState();
+// 🔥 CRITICAL: CLEAN CONTRACT FIELDS FROM STATE
+delete state.contractFreelancer;
+delete state.contractClient;
+delete state.contractDesc;
+delete state.contractAmount;
+delete state.contractStart;
+delete state.contractEnd;
+
+// 🔥 SAVE AFTER CLEAN
+saveState();
 
     // 🔥 Refresh UI
     populateForm();
