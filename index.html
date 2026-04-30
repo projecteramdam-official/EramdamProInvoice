@@ -1111,10 +1111,11 @@ function getFinalInvoiceTotal() {
             : [];
 
         const existingIndex = state.savedInvoices.findIndex(
-            inv => inv.invNum === state.invNum
-        );
+    inv => inv.invNum === state.invNum
+);
 
-        const record = {
+// 🔥 BUILD CLEAN RECORD (SOURCE OF TRUTH)
+const rawRecord = {
     id: existingIndex !== -1 
         ? state.savedInvoices[existingIndex].id
         : Date.now(),
@@ -1128,24 +1129,34 @@ function getFinalInvoiceTotal() {
     paidAmount: state.paidAmount || 0,
     dueDate: state.dueDate,
 
-    contractId: state.contractId || null,   // 🔥 ADD THIS
+    contractId: state.contractId || null,
 
     savedAt: Date.now()
 };
 
-        const existing = state.savedInvoices.find(
-    inv => inv.invNum === record.invNum
-);
+// 🔥 FORCE CLEAN (REMOVE ANY LEAKED FIELDS)
+const cleanRecord = {
+    id: rawRecord.id,
+    recordType: 'invoice',
+    invNum: rawRecord.invNum,
+    cName: rawRecord.cName,
+    total: rawRecord.total,
+    paymentStatus: rawRecord.paymentStatus,
+    paidAmount: rawRecord.paidAmount,
+    dueDate: rawRecord.dueDate,
+    contractId: rawRecord.contractId,
+    savedAt: rawRecord.savedAt
+};
 
 if (existingIndex !== -1) {
 
     const existing = state.savedInvoices[existingIndex];
 
-    if (existing.total !== record.total) {
+    if (existing.total !== cleanRecord.total) {
         console.warn("♻️ FULL REPLACE (CLEAN OBJECT)");
 
         // 🔥 CRITICAL FIX — FULL REPLACEMENT
-        state.savedInvoices[existingIndex] = record;
+        state.savedInvoices[existingIndex] = cleanRecord;
 
     } else {
         console.warn("⛔ DUPLICATE BLOCKED (same total)");
@@ -1153,14 +1164,14 @@ if (existingIndex !== -1) {
     }
 
 } else {
-    console.log("🆕 ADDING NEW RECORD");
+
+    console.log("🆕 ADDING CLEAN RECORD");
 
     state.savedInvoices = [
-        record,
-        ...state.savedInvoices.filter(inv => inv.invNum !== record.invNum)
+        cleanRecord,
+        ...state.savedInvoices.filter(inv => inv.invNum !== cleanRecord.invNum)
     ];
 }
-
         saveState();
 
         console.log("✅ FINAL LENGTH:", state.savedInvoices.length);
