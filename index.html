@@ -796,6 +796,7 @@ function handleDownloadPDF() {
     }
 }        
 function updateState(key, value) {
+    console.log("🔵 [UPDATE] state keys:", Object.keys(state));
     state[key] = value;
     if (['items', 'userType', 'isExport'].includes(key)) {
     grandTotalToExport = getFinalInvoiceTotal();
@@ -885,7 +886,8 @@ function setMode(mode) {
   'isExport'
 ];
             
-            function saveState() { 
+            function saveState() {// 🔍 DEBUG LOG (ADDED)
+    console.log("🟣 [SAVE_STATE] snapshot keys:", Object.keys(state)); 
     try {
         // 🔥 REMOVE GLOBAL KEYS BEFORE SAVE
 const cleanState = { ...state };
@@ -1091,6 +1093,12 @@ function getFinalInvoiceTotal() {
     return Number(subtotal.toFixed(2));
 }
     function saveInvoiceToTracker() {
+        console.log("🔴 [SAVE_INVOICE] state keys:", Object.keys(state));
+console.log("🔴 [SAVE_INVOICE] has contract fields?",
+    'contractAmount' in state,
+    'contractClient' in state,
+    'contractDesc' in state
+);
 
     console.trace("🚨 SAVE CALLED");
 
@@ -1157,6 +1165,8 @@ if (existingIndex !== -1) {
 } else {
     console.log("🆕 ADDING CLEAN RECORD");
     state.savedInvoices = [
+        // 🔍 DEBUG LOG (ADDED)
+console.log("🔴 [SAVE_INVOICE] savedInvoices[0]:", state.savedInvoices[0]);
         cleanRecord,
         ...state.savedInvoices.filter(inv => inv.invNum !== cleanRecord.invNum)
     ];
@@ -1174,6 +1184,8 @@ if (existingIndex !== -1) {
         function getInvoiceRecords() { return (state.savedInvoices || []).map(inv => normalizeTrackerRecord(inv, 'invoice')); }
         function getContractRecords() { return (state.savedContracts || []).map(ct => normalizeTrackerRecord(ct, 'contract')); }
         function getTrackerRecords() {
+            // 🔍 DEBUG LOG (ADDED)
+    console.log("🟢 [TRACKER] raw invoices:", state.savedInvoices);
 
     const invoices = Array.isArray(state.savedInvoices)
     ? state.savedInvoices
@@ -1538,7 +1550,12 @@ state.contractId = contract.id;
     // Reset payment state
     state.paymentStatus = 'unpaid';
     state.paidAmount = 0;
-
+            console.log("🟡 [GEN] state keys:", Object.keys(state));
+console.log("🟡 [GEN] has contract fields?",
+  'contractAmount' in state,
+  'contractClient' in state,
+  'contractDesc' in state
+);
     // Save + render
     saveState();
     populateForm();
