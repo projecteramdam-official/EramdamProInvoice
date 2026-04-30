@@ -1963,13 +1963,14 @@ const amountContext = isPartial ? `${balance} remaining` : total;
         paidAmount: Number(state.paidAmount || 0),
         dueDate: state.dueDate,
 
-        contractClient: state.contractClient,
-        contractFreelancer: state.contractFreelancer,
-        contractDesc: state.contractDesc,
-        contractAmount: Number(state.contractAmount || 0),
-        contractStart: state.contractStart,
-        contractEnd: state.contractEnd
-    };
+        ...(type === 'contract' ? {
+    contractClient: state.contractClient,
+    contractFreelancer: state.contractFreelancer,
+    contractDesc: state.contractDesc,
+    contractAmount: Number(state.contractAmount || 0),
+    contractStart: state.contractStart,
+    contractEnd: state.contractEnd,
+} : {}),
 
     if (type === 'contract') {
         snapshot.total = Number(state.contractAmount || 0);
