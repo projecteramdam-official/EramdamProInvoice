@@ -1802,7 +1802,7 @@ refreshInvoiceStatuses();
     refreshInvoiceStatuses();
 
     // 🔥 FIX: pass correct identifier
-    setTimeout(() => openSendSystem('thankyou', inv.invNum), 400);
+    setTimeout(() => openSendSystem('thankyou', inv.id), 400);
 }
 
         // --- 1. UNIFIED SEND SYSTEM LOGIC ---
@@ -2418,7 +2418,7 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
                     contractDesc: state.contractDesc || '',
                     contractStart: state.contractStart || '',
                     contractEnd: state.contractEnd || '',
-                    amount: Number(state.contractAmount || 0),
+                    contractAmount: Number(state.contractAmount || 0),
                     savedAt: now
                 };
             } else {
@@ -2432,7 +2432,6 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
             total: getFinalInvoiceTotal(),
             date: state.invDate,
             dueDate: state.dueDate,
-            status: state.paymentStatus === 'paid' ? 'Paid' : (state.paymentStatus === 'partial' ? 'Partial Paid' : 'Unpaid'),
             paymentStatus: state.paymentStatus || 'unpaid',
             paidAmount: Number(state.paidAmount || 0),
             lastReminderSent: null,
