@@ -1485,11 +1485,18 @@ else if (intel.daysOverdue === 0) {
     const contract = getContractRecords().find(r => r.id == id);
 if (!contract) return;
 
-state.contractId = contract.id;   // 🔥 MOVE THIS DOWN
+// Switch to invoice mode FIRST
+setMode('invoice');
 
-    // Switch to invoice mode
-    setMode('invoice');
+// 🔥 CLEAN ONLY INVOICE FIELDS
+state.cName = '';
+state.fName = '';
+state.items = [];
+state.paymentStatus = 'unpaid';
+state.paidAmount = 0;
 
+// 🔥 NOW LINK CONTRACT
+state.contractId = contract.id;
     // Prefill invoice from contract
     state.cName = contract.contractClient || '';
     state.fName = contract.contractFreelancer || '';
