@@ -1376,21 +1376,13 @@ const getPriority = (r) => {
     return { ...r };
 });
 
-        const paidItems = sortedRecords.filter(r =>
-        r.recordType === 'invoice' &&
-        r.paymentStatus === 'paid'
-    );
-
-    let html = '';
-
-    if (createInvoice.length || followUp.length || paidItems.length) {
-    html += `
-    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+        // paidItems removed — paid invoices should NOT be in action
+let html = '';
+if (createInvoice.length || followUp.length) {
+    html = `<div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
         <div class="flex justify-between items-center mb-3">
-            <h3 class="text-xs font-black uppercase tracking-widest text-gray-500">⚡ Needs Action</h3>
-            <span class="text-[10px] font-bold text-gray-400">
-                ${createInvoice.length + followUp.length + paidItems.length} Actions
-            </span>
+            <h3 class="text-xs font-black uppercase tracking-widest text-gray-500"> Needs Action</h3>
+            <span class="text-10px font-bold text-gray-400">${createInvoice.length + followUp.length} Actions</span>
         </div>
     `;
 
@@ -1503,11 +1495,10 @@ else if (intel.daysOverdue === 0) {
         html += `</div>`;
     }
 
-    if (createInvoice.length || followUp.length || paidItems.length) {
-        html += `</div>`;
-    }
-
-    container.innerHTML = html;
+    if (createInvoice.length || followUp.length) {
+    html += `</div>`;
+}
+container.innerHTML = html;
 }    
     function toggleTracker() {
             const panel = document.getElementById('tracker-panel');
@@ -1575,14 +1566,13 @@ console.log("🟡 [GEN] has contract fields?",
     let records = getTrackerRecords();
 
 // 🔥 ACTION NEEDED TAB → NO DUPLICATE LIST
+// ACTION TAB: tracker-list must NOT render (actions-section owns it)
 if (trackerFilter === 'all') {
-    records = getTrackerRecords();
+    container.innerHTML = '';
+    return;
 }
-else if (trackerFilter === 'invoices') {
-    records = records.filter(r => r.recordType === 'invoice');
-}
-else if (trackerFilter === 'contracts') {
-    records = records.filter(r => r.recordType === 'contract');
+else if (trackerFilter === 'invoices') records = records.filter(r => r.recordType === 'invoice');
+else if (trackerFilter === 'contracts') records = records.filter(r => r.recordType === 'contract');
 }
 
     const filterButtons = {
