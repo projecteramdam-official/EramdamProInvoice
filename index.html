@@ -1565,25 +1565,31 @@ console.log("🟡 [GEN] has contract fields?",
 
     let records = getTrackerRecords();
 
-// 🔥 ACTION NEEDED TAB → NO DUPLICATE LIST
-// ACTION TAB: tracker-list must NOT render (actions-section owns it)
-  if (trackerFilter === 'invoices') records = records.filter(r => r.recordType === 'invoice');
-  else if (trackerFilter === 'contracts') records = records.filter(r => r.recordType === 'contract');
-  else { container.innerHTML = ''; return; }
+// 🔥 ALWAYS UPDATE BUTTON STATE FIRST
+const filterButtons = {
+    all: document.getElementById('tracker-filter-all'),
+    invoices: document.getElementById('tracker-filter-invoices'),
+    contracts: document.getElementById('tracker-filter-contracts')
+};
 
-    const filterButtons = {
-        all: document.getElementById('tracker-filter-all'),
-        invoices: document.getElementById('tracker-filter-invoices'),
-        contracts: document.getElementById('tracker-filter-contracts')
-    };
-            Object.entries(filterButtons).forEach(([key, btn]) => {
-                if (!btn) return;
-                if (trackerFilter === key) {
-                    btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-brand-600 bg-brand-600 text-white';
-                } else {
-                    btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700';
-                }
-            });
+Object.entries(filterButtons).forEach(([key, btn]) => {
+    if (!btn) return;
+    if (trackerFilter === key) {
+        btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-brand-600 bg-brand-600 text-white';
+    } else {
+        btn.className = 'px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 bg-white text-gray-700';
+    }
+});
+
+// ACTION NEEDED TAB NO DUPLICATE LIST ACTION TAB tracker-list must NOT render actions-section owns it
+if (trackerFilter === 'invoices') {
+    records = records.filter(r => r.recordType === 'invoice');
+} else if (trackerFilter === 'contracts') {
+    records = records.filter(r => r.recordType === 'contract');
+} else {
+    container.innerHTML = '';
+    return;
+}
 
             let visibleRecords = records;
 
@@ -2079,10 +2085,7 @@ if (type === 'invoice') {
     ctx.contextText = `Invoice ready for ${ctx.client}`;
     ctx.docLink = buildDocumentLink(type, record, ctx.amount);
     ctx.intel = getAssistantIntelligence(record);
-    ctx.message = buildMessage(ctx.intel, {
-        ...record,
-        total: getFinalInvoiceTotal()
-    }, ctx.docLink);
+    ctx.message = buildMessage(ctx.intel, {...record, recordType: 'invoice', total: getFinalInvoiceTotal()}, ctx.docLink);
 }
 else if (type === 'contract') {
     ctx.client = state.contractClient || 'Client';
@@ -3602,4 +3605,4 @@ Get paid faster. Track everything in one place.
 </div>
     
            </body>
-</html>
+</html>	
