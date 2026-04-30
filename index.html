@@ -1137,16 +1137,15 @@ function getFinalInvoiceTotal() {
     inv => inv.invNum === record.invNum
 );
 
-if (existing) {
-    // 🔥 ONLY UPDATE if TOTAL actually changed (GST fix)
-    if (existing.total !== record.total) {
-        console.warn("♻️ UPDATING WITH FINAL TOTAL");
+if (existingIndex !== -1) {
 
-        existing.total = record.total;
-        existing.paymentStatus = record.paymentStatus;
-        existing.paidAmount = record.paidAmount;
-        existing.dueDate = record.dueDate;
-        existing.savedAt = Date.now();
+    const existing = state.savedInvoices[existingIndex];
+
+    if (existing.total !== record.total) {
+        console.warn("♻️ FULL REPLACE (CLEAN OBJECT)");
+
+        // 🔥 CRITICAL FIX — FULL REPLACEMENT
+        state.savedInvoices[existingIndex] = record;
 
     } else {
         console.warn("⛔ DUPLICATE BLOCKED (same total)");
@@ -1155,10 +1154,11 @@ if (existing) {
 
 } else {
     console.log("🆕 ADDING NEW RECORD");
+
     state.savedInvoices = [
-    record,
-    ...state.savedInvoices.filter(inv => inv.invNum !== record.invNum)
-];
+        record,
+        ...state.savedInvoices.filter(inv => inv.invNum !== record.invNum)
+    ];
 }
 
         saveState();
