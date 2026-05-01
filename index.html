@@ -627,11 +627,7 @@ Save Payment Setup
     </button>
 </div>
             <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Freelancer Name</label>
-                    <input type="text" id="contractFreelancer" placeholder="Your Name / Brand" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractFreelancer', this.value)">
-                </div>
-                <div>
+                                <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
                     <input type="text" id="contractClient" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractClient', this.value)">
                 </div>
@@ -846,48 +842,7 @@ function renderByMode() {
     } else {
         renderPreview();
     }
-}
-function setMode(mode) {
-    state.mode = mode;
-
-    const inv = document.getElementById('invoice-form-section');
-    const con = document.getElementById('contract-form-section');
-    const acc = document.getElementById('account-form-section');
-
-    const invAct = document.getElementById('invoice-actions');
-    const conAct = document.getElementById('contract-actions');
-
-    const invTab = document.getElementById('btn-tab-invoice');
-    const conTab = document.getElementById('btn-tab-contract');
-    const accTab = document.getElementById('btn-tab-account');
-
-    const active = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
-    const inactive = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
-
-    // TAB STYLE
-    if (invTab) invTab.className = mode === 'invoice' ? active : inactive;
-    if (conTab) conTab.className = mode === 'contract' ? active : inactive;
-    if (accTab) accTab.className = mode === 'account' ? active : inactive;
-
-    // FORM VISIBILITY
-    if (inv) inv.classList.toggle('hidden', mode !== 'invoice');
-    if (con) con.classList.toggle('hidden', mode !== 'contract');
-    if (acc) acc.classList.toggle('hidden', mode !== 'account');
-
-    // ACTION BUTTONS
-    if (invAct) invAct.classList.toggle('hidden', mode !== 'invoice');
-    if (conAct) conAct.classList.toggle('hidden', mode !== 'contract');
-
-    // RENDER
-    if (mode === 'contract') {
-        renderContractPreview();
-    } else if (mode === 'invoice') {
-        renderPreview();
-    }
-
-    saveState();
-}
-            
+}         
             // Performance: Skip heavy render for background fields
             const visualFields = [
   // CORE
@@ -1997,7 +1952,7 @@ const amountContext = isPartial ? `${balance} remaining` : total;
 
         ...(type === 'contract' ? {
     contractClient: state.contractClient,
-    contractFreelancer: state.contractFreelancer,
+    contractFreelancer: state.fName,
     contractDesc: state.contractDesc,
     contractAmount: Number(state.contractAmount || 0),
     contractStart: state.contractStart,
@@ -2458,7 +2413,7 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
                 record = {
                     id: now,
                     recordType: 'contract',
-                    contractFreelancer: state.contractFreelancer || state.fName || 'Freelancer',
+                    contractFreelancer: state.fName,
                     contractClient: state.contractClient || state.cName || 'Client',
                     contractDesc: state.contractDesc || '',
                     contractStart: state.contractStart || '',
@@ -2994,6 +2949,12 @@ if (pt) pt.value = state.paymentTerms;
                                         ${state.bankIfsc ? `<p>IFSC: ${state.bankIfsc}</p>` : ''}
                                     </div>
                                 ` : ''}
+${state.otherPaymentType && state.otherPaymentValue ? `
+    <div class="text-xs text-gray-500 space-y-1 w-full mt-2">
+        <p class="font-bold text-gray-800">${state.otherPaymentType}</p>
+        <p>${state.otherPaymentValue}</p>
+    </div>
+` : ''}
                                 <div class="${hasPayment ? 'mt-8 pt-6 border-t border-gray-200 w-full' : 'w-full'} text-[10px] text-gray-500 space-y-1">
                                     <p class="font-black uppercase tracking-widest text-brand-500 mb-3">Terms & Conditions</p>
                                     <p>• Payment is due within ${termsDays} days from invoice date.</p>
@@ -3451,7 +3412,7 @@ function initApp() {
             else if (state.paymentTerms === 'net7') termsDays = 7;
             else if (state.paymentTerms === 'net15') termsDays = 15;
 
-            const freelancer = state.contractFreelancer || state.fName || '[Freelancer Name]';
+            const freelancer = state.fName || '[Freelancer Name]';
             const client = state.contractClient || state.cName || '[Client Name]';
             const desc = state.contractDesc || '[Project description goes here...]';
             const amount = state.contractAmount || 0;
