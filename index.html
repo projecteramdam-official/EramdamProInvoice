@@ -629,19 +629,35 @@ Save Payment Setup
             <div class="space-y-4">
                                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-                    <input type="text" id="cName" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('cName', this.value)">
+                    <div class="space-y-3">
+    <input type="text" id="cName" placeholder="Client Name / Company"
+        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+        oninput="updateState('cName', this.value)">
+
+    <input type="tel" id="cPhone" placeholder="Client Phone"
+        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+        oninput="updateState('cPhone', this.value)">
+
+    <textarea id="cAddress" placeholder="Client Address" rows="2"
+        class="w-full text-sm border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+        oninput="updateState('cAddress', this.value)">
+    </textarea>
+
+    <input type="text" id="clientState" placeholder="Client State"
+        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+        oninput="updateState('clientState', this.value)">
+</div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
                     <!-- Contract now uses Line Items (same as invoice) -->
-<div class="pt-2">
-    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Work Items</h2>
-    <div id="items-container" class="space-y-3 mb-3"></div>
-    <button onclick="addItem()" class="w-full py-3 border-2 border-dashed border-gray-300 text-brand-600 bg-brand-50/50 rounded-lg text-sm font-bold">
-        Add Line Item
-    </button>
-</div>
-                </div>
+<div>
+    <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
+    <textarea id="contractDesc" placeholder="Scope of Work / Deliverables" rows="4"
+        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white resize-none"
+        oninput="updateState('contractDesc', this.value)">
+    </textarea>
+</div>                </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Total Project Value (₹)</label>
                     <div>
