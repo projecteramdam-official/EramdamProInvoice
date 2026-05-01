@@ -1645,40 +1645,47 @@ if (trackerFilter === 'invoices') {
                 const type = record.recordType || 'invoice';
 
                 if (type === 'contract') {
-                    const client = record.contractClient || 'Unnamed';
-                    const freelancer = record.contractFreelancer || 'Freelancer';
-                    const amount = formatINR(record.contractAmount || 0);
-                    const start = record.contractStart ? formatDate(record.contractStart) : '';
-                    const end = record.contractEnd ? formatDate(record.contractEnd) : '';
+    const client = record.cName || 'Unnamed';
+    const freelancer = record.fName || 'Freelancer';
+    const amount = formatINR(
+        Number(
+            record.total ||
+            ((Array.isArray(record.items) ? record.items : []).reduce((sum, item) => {
+                return sum + Number(item.amount || 0);
+            }, 0))
+        )
+    );
+    const start = record.contractStart ? formatDate(record.contractStart) : '';
+    const end = record.contractEnd ? formatDate(record.contractEnd) : '';
 
-                    return `
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Contract</p>
-                                    <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${client}</h4>
-                                    <p class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[180px]">${freelancer}</p>
-                                </div>
-                                <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest bg-slate-100 text-slate-700">
-                                    Contract
-                                </span>
-                            </div>
+    return `
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Contract</p>
+                    <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${client}</h4>
+                    <p class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[180px]">${freelancer}</p>
+                </div>
+                <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest bg-slate-100 text-slate-700">
+                    Contract
+                </span>
+            </div>
 
-                            <div class="mt-3 text-sm font-black text-gray-900">${amount}</div>
-                            <div class="mt-2 text-[10px] text-gray-400 font-bold uppercase leading-relaxed">
-                                ${start ? `Start: ${start}` : ''}
-                                ${start && end ? '<br>' : ''}
-                                ${end ? `Delivery: ${end}` : ''}
-                            </div>
+            <div class="mt-3 text-sm font-black text-gray-900">${amount}</div>
+            <div class="mt-2 text-[10px] text-gray-400 font-bold uppercase leading-relaxed">
+                ${start ? `Start: ${start}` : ''}
+                ${start && end ? '<br>' : ''}
+                ${end ? `Delivery: ${end}` : ''}
+            </div>
 
-                            <div class="flex justify-end mt-4">
-                                <button onclick="deleteTrackerRecord(${record.id}, 'contract')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Contract">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
+            <div class="flex justify-end mt-4">
+                <button onclick="deleteTrackerRecord(${record.id}, 'contract')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Contract">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </div>
+        </div>
+    `;
+}
 
                 const paidAmount = Number(record.paidAmount || 0);
                 const totalAmount = Number(record.total || 0);
@@ -1983,158 +1990,11 @@ refreshInvoiceStatuses();
 
         // --- 4. THE CLEAN CONTEXT BUILDER ---
         function openSendSystem(type, id = null) {
-             // 🔥 ENSURE GLOBAL DATA ALWAYS PRESENT BEFORE SEND
-    injectGlobalSetup();  
-    // 🔥 STEP 1: FORCE COMMIT (SEND = ONLY COMMIT POINT)
-    const snapshot = {
-        id: state._id || (state._id = Date.now() + Math.floor(Math.random() * 1000)),
-        recordType: (type === 'contract') ? 'contract' : 'invoice',
-        savedAt: Date.now(),
-        invNum: state.invNum,
-        cName: state.cName,
-        cPhone: state.cPhone,
-        items: JSON.parse(JSON.stringify(state.items || [])),
-        paidAmount: Number(state.paidAmount || 0),
-        dueDate: state.dueDate,
-
-        ...(type === 'contract' ? {
-    contractClient: state.contractClient,
-    contractFreelancer: state.fName,
-    contractDesc: state.contractDesc,
-    contractAmount: Number(state.contractAmount || 0),
-    contractStart: state.contractStart,
-    contractEnd: state.contractEnd,
-} : {}),
-};
-
-if (type === 'contract') {
-        snapshot.total = Number(state.contractAmount || 0);
-        snapshot.paymentStatus = 'unpaid';
-        snapshot.paymentStatus = 'unpaid';
-    } else {
-    const total = getFinalInvoiceTotal();
-    snapshot.total = total;
-
-        const paid = Number(state.paidAmount || 0);
-        if (paid <= 0) snapshot.paymentStatus = 'unpaid';
-        else if (paid >= total) snapshot.paymentStatus = 'paid';
-        else snapshot.paymentStatus = 'partial';
-
-        if (snapshot.paymentStatus === 'paid') snapshot.paymentStatus = 'paid';
-        else if (snapshot.paymentStatus === 'partial') snapshot.paymentStatus = 'partial';
-        else snapshot.paymentStatus = 'unpaid';
-    }
-
-    const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
-
-// 🔐 ID-FIRST RESOLUTION (TRACKER → SEND)
-let existingIndex = -1;
-
-// 1) If an explicit id is passed (tracker / follow-up flows), use it
-if (id != null) {
-    existingIndex = targetArray.findIndex(rec => rec.id === id);
-}
-
-// 2) Fallback: use existing behavior
-//    - invoices: match by invNum (form-driven send)
-//    - contracts/others: match by snapshot.id
-if (existingIndex === -1) {
-    if (type === 'invoice') {
-        existingIndex = targetArray.findIndex(rec => rec.invNum === snapshot.invNum);
-    } else {
-        existingIndex = targetArray.findIndex(rec => rec.id === snapshot.id);
-    }
-}
-
-// 🔥 PRESERVE OLD DATA FIRST
-let existing = existingIndex > -1 ? targetArray[existingIndex] : null;
-
-// Align snapshot identity with resolved record so we update, not duplicate
-if (existing) {
-    snapshot.id = existing.id;
-    if (type === 'invoice' && existing.invNum) {
-        snapshot.invNum = existing.invNum;
-    }
-}
-
-if (existingIndex > -1) {
-    targetArray[existingIndex] = {
-        ...existing,   // KEEP OLD (reminder, etc)
-        ...snapshot    // APPLY NEW
-    };
-} else {
-    targetArray.unshift(snapshot);
-}
-
-// 🔥 SAVE REMINDER STATE (SYNC BELL + ORANGE)
-if (type === 'reminder' && id) {
-    const index = state.savedInvoices.findIndex(inv => inv.id == id);
-
-    if (index !== -1) {
-        const now = Date.now();
-
-        const existing = state.savedInvoices[index];
-
-        const count = (existing.reminderCount || 0) + 1;
-
-        let tone = 'gentle';
-        if (count >= 3) tone = 'final';
-        else if (count === 2) tone = 'firm';
-
-        state.savedInvoices[index] = {
-            ...existing,
-            reminderCount: count,
-            lastReminderSent: now,
-            reminderTone: tone,
-            nextAction: 'call'
-        };
-    }
-}
-
-saveState();
-refreshInvoiceStatuses();
-
-// 2. Build Base Data (NOW SAFE)
-let ctx = { type, id, title: "Send to Client", client: "", amount: getFinalInvoiceTotal(), contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
-
-// 🔥 SAFE RECORD RESOLUTION (PREFER ID → THEN INVNUM → THEN STATE)
-let record = null;
-
-// Prefer id when available (tracker / follow-up sends)
-if (id != null) {
-    record = getTrackerRecords().find(r => r.id === id);
-}
-
-// Fallback for invoice send from editor (no id passed)
-if (!record && type === 'invoice') {
-    record = getTrackerRecords().find(r => r.invNum === state.invNum);
-}
-
-// Final fallback: use current state snapshot
-if (!record) {
-    record = {
-        ...state,
-        recordType: type,   // 🔥 CRITICAL FIX
-        total: type === 'contract'
-            ? (state.contractAmount || 0)
-            : getFinalInvoiceTotal()
-    };
-}
-
-if (type === 'invoice') {
-    ctx.client = state.cName || "Client";
-    ctx.amount = getFinalInvoiceTotal();
-    ctx.contextText = `Invoice ready for ${ctx.client}`;
-    ctx.docLink = buildDocumentLink(type, record, ctx.amount);
-    ctx.intel = getAssistantIntelligence(record);
-    ctx.message = buildMessage(ctx.intel, {...record, recordType: 'invoice', total: getFinalInvoiceTotal()}, ctx.docLink);
-}
-function openSendSystem(type, id = null) {
     injectGlobalSetup();
 
     const snapshot = {
         id: state.id || (state.id = Date.now() + Math.floor(Math.random() * 1000)),
-        recordType: (type === 'contract') ? 'contract' : 'invoice',
+        recordType: type === 'contract' ? 'contract' : 'invoice',
         savedAt: Date.now(),
         invNum: state.invNum,
         cName: state.cName,
@@ -2164,10 +2024,9 @@ function openSendSystem(type, id = null) {
         else snapshot.paymentStatus = 'partial';
     }
 
-    const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
+    const targetArray = type === 'contract' ? state.savedContracts : state.savedInvoices;
 
     let existingIndex = -1;
-
     if (id != null) {
         existingIndex = targetArray.findIndex(rec => rec.id === id);
     }
@@ -2226,12 +2085,12 @@ function openSendSystem(type, id = null) {
     let ctx = {
         type,
         id,
-        title: "Send to Client",
-        client: "",
+        title: 'Send to Client',
+        client: '',
         amount: getFinalInvoiceTotal(),
-        contextText: "",
-        message: "",
-        docLink: "",
+        contextText: '',
+        message: '',
+        docLink: '',
         intel: null,
         savedAlready: true
     };
@@ -2257,7 +2116,7 @@ function openSendSystem(type, id = null) {
     }
 
     if (type === 'invoice') {
-        ctx.client = record.cName || state.cName || "Client";
+        ctx.client = record.cName || state.cName || 'Client';
         ctx.amount = Number(record.total || getFinalInvoiceTotal());
         ctx.contextText = `Invoice ready for ${ctx.client}`;
         ctx.docLink = buildDocumentLink(type, record, ctx.amount);
@@ -2272,15 +2131,7 @@ function openSendSystem(type, id = null) {
         ctx.contextText = `Contract ready for ${ctx.client}`;
         ctx.docLink = buildDocumentLink(type, record, ctx.amount);
         ctx.intel = getAssistantIntelligence(record);
-        ctx.message = buildMessage(
-            ctx.intel,
-            {
-                ...record,
-                recordType: 'contract',
-                total: ctx.amount
-            },
-            ctx.docLink
-        );
+        ctx.message = buildMessage(ctx.intel, { ...record, recordType: 'contract', total: ctx.amount }, ctx.docLink);
     } else if (type === 'reminder') {
         ctx.title = 'Payment Reminder';
         ctx.invoiceRecord = state.savedInvoices.find(i => i.id == id);
@@ -2326,7 +2177,6 @@ function openSendSystem(type, id = null) {
         modal.classList.remove('opacity-0');
     });
 }
-
 
         function renderSendSystem() {
             const area = document.getElementById('send-dynamic-area');
@@ -2482,12 +2332,15 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
                     currentSendContext.savedAlready = true;
                 }
             } else if (currentSendContext.type === 'contract') {
-                if (state.contractClient && state.contractClient.trim() !== '' && state.contractAmount > 0) {
-                    if (typeof saveToHistory === 'function') saveToHistory();
-                    currentSendContext.savedAlready = true;
-                }
-            }
-        }
+    const contractTotal = (Array.isArray(state.items) ? state.items : []).reduce((sum, item) => {
+        return sum + Number(item.amount || 0);
+    }, 0);
+
+    if (state.cName && state.cName.trim() !== '' && contractTotal > 0) {
+        if (typeof saveToHistory === 'function') saveToHistory();
+        currentSendContext.savedAlready = true;
+    }
+}
 
         function markReminderSent(id) {
             const inv = (state.savedInvoices || []).find(i => i.id === id);
@@ -2582,8 +2435,7 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
             });
         }
 
-
-              async function saveToHistory() {
+async function saveToHistory() {
     if (state.userTier !== 'Pro') {
         openUpgradeModal('save invoices to tracker');
         return;
@@ -2614,16 +2466,7 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
         };
 
         state.savedContracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
-        const existingIndex = state.savedContracts.findIndex(ct => ct.id === record.id);
-
-        if (existingIndex !== -1) {
-            state.savedContracts[existingIndex] = {
-                ...state.savedContracts[existingIndex],
-                ...record
-            };
-        } else {
-            state.savedContracts.unshift(record);
-        }
+        state.savedContracts.unshift(record);
     } else {
         record = {
             id: now,
@@ -2656,20 +2499,19 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
     saveState();
     renderTrackerList();
     refreshInvoiceStatuses();
-}
+
     const toast = document.getElementById('save-toast');
-    toast.classList.remove('-translate-y-24', 'opacity-0');
-    toast.classList.add('translate-y-0', 'opacity-100');
+    if (toast) {
+        toast.classList.remove('-translate-y-24', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
 
-    setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('-translate-y-24', 'opacity-0');
-    }, 3000);
-
-} else {
-    alert("Pro Feature Blocked: Activate Your Workspace to save unlimited records!");
+        setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('-translate-y-24', 'opacity-0');
+        }, 3000);
+    }
 }
-                  }
+              
  // --- 3. DOM & PREVIEW ---
         function populateForm() {
             const navEmail = document.getElementById('nav-user-email');
@@ -2687,10 +2529,10 @@ if (pt) pt.value = state.paymentTerms;
             if(exportCheck) exportCheck.checked = state.isExport;
             if(state.userType !== 'registered') document.getElementById('gst-extra-settings').classList.add('hidden');
 
-            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue', 'lateFee', 'paymentStatus', 'paidAmount', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
-                const el = document.getElementById(key);
-                if(el) el.value = state[key] || '';
-            });
+            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue', 'lateFee', 'paymentStatus', 'paidAmount', 'contractDesc', 'contractStart', 'contractEnd'].forEach(key => {
+    const el = document.getElementById(key);
+    if (el) el.value = state[key] || '';
+});
             const termsSelect = document.getElementById('paymentTerms');
             if(termsSelect) termsSelect.value = state.paymentTerms || 'net7';
             if (state.qrImage) {
@@ -3389,15 +3231,17 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
             container.innerHTML = '';
 
             const baseUrl = window.location.href.split('?')[0];
-            const msg = `Hi ${state.contractClient || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
-            
-            const url = new URL(baseUrl);
-            url.searchParams.set('mobile', '1');
-            url.searchParams.set('mode', 'contract');
-            url.searchParams.set('client', state.contractClient);
-            url.searchParams.set('amount', state.contractAmount);
-            url.searchParams.set('msg', msg);
-            
+            const contractTotal = (Array.isArray(state.items) ? state.items : []).reduce((sum, item) => {
+    return sum + Number(item.amount || 0);
+}, 0);
+
+const msg = `Hi ${state.cName || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
+const url = new URL(baseUrl);
+url.searchParams.set('mobile', '1');
+url.searchParams.set('mode', 'contract');
+url.searchParams.set('client', state.cName || '');
+url.searchParams.set('amount', String(contractTotal));
+url.searchParams.set('msg', msg);            
             contractQRInstance = new QRCode(container, {
                 text: url.toString(),
                 width: 140,
@@ -3502,8 +3346,14 @@ function initApp() {
             const mTotal = parseFloat(params.get('t')) || 0;
             const mInv = params.get('inv') || '';
             if (mMode === 'contract') {
-                state = { ...defaultState, mode: 'contract', contractClient: mCname, contractAmount: mTotal, contractDesc: 'Freelance Services Agreement' };
-            } else {
+    state = {
+        ...defaultState,
+        mode: 'contract',
+        cName: mCname,
+        items: [{ id: 1, desc: 'Freelance Services Agreement', amount: Number(mTotal || 0) }]
+    };
+} else {
+
                 state = { ...defaultState, mode: 'invoice', invNum: mInv, cName: mCname, items: [{ id: 1, desc: 'Freelance Services (Summary)', amount: mTotal }] };
             }
         }
@@ -3629,12 +3479,15 @@ function initApp() {
             else if (state.paymentTerms === 'net7') termsDays = 7;
             else if (state.paymentTerms === 'net15') termsDays = 15;
 
-            const freelancer = state.fName || '[Freelancer Name]';
-            const client = state.contractClient || state.cName || '[Client Name]';
-            const desc = state.contractDesc || '[Project description goes here...]';
-            const amount = state.contractAmount || 0;
-            const start = formatDate(state.contractStart) || '[Start Date]';
-            const end = formatDate(state.contractEnd) || '[Delivery Date]';
+            const freelancer = state.fName || 'Freelancer Name';
+const client = state.cName || 'Client Name';
+const items = Array.isArray(state.items) && state.items.length
+    ? state.items
+    : [{ id: 1, desc: state.contractDesc || 'Project Work', amount: 0 }];
+const desc = items.map(item => item.desc || 'Project Work').join(', ');
+const amount = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+const start = formatDate(state.contractStart) || 'Start Date';
+const end = formatDate(state.contractEnd) || 'Delivery Date';
 
             const html = `
                 <div class="p-16 font-serif flex flex-col min-h-full w-full text-gray-900 leading-relaxed">
