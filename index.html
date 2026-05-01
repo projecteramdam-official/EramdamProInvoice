@@ -680,7 +680,7 @@ oninput="updateState('clientState', this.value)">
 <button onclick="handleDownloadPDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
 </button>
-<button onclick="openSendSystem('invoice', state._id)" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+<button onclick="openSendSystem('invoice', state.id)" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg> Send to Client
 </button>
 </div>
@@ -3475,7 +3475,7 @@ if (mode === 'contract') {
                         <section>
                             <p class="font-bold uppercase text-xs text-gray-400 tracking-widest mb-2">Scope of Work</p>
                             <div class="bg-gray-50 p-6 rounded-xl border border-gray-100 italic">
-                                ${desc.replace(/\n/g, '<br>')}
+                                ${(state.items?.[0]?.desc || '').replace(/\n/g, '<br>')}
                             </div>
                         </section>
 
