@@ -33,7 +33,7 @@
 bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
 otherPaymentType: '', otherPaymentValue: '',
             savedInvoices: [], savedContracts: [], paymentStatus: 'unpaid', paidAmount: 0, mode: 'invoice',
-          
+            contractFreelancer: '', contractClient: '', contractDesc: '', contractAmount: 0, contractStart: '', contractEnd: ''
         };
         let state = { ...defaultState };
 
@@ -524,10 +524,12 @@ Logged in as: —
                                 <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </summary>
                             <div class="p-5 space-y-3 border-t border-gray-100">
-                                <input type="text" id="contract-cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value)">
-<input type="tel" id="contract-cPhone" placeholder="Client Phone (for WhatsApp)" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cPhone', this.value)">
-<textarea id="contract-cAddress" placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cAddress', this.value)"></textarea>
-<input type="text" id="contract-clientState" placeholder="e.g., Delhi" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 bg-gray-50 text-gray-900" oninput="updateState('clientState', this.value)">
+                                <input type="text" id="cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value)">
+                                <input type="tel" id="cPhone" placeholder="Client Phone (for WhatsApp)" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cPhone', this.value)">
+                                <textarea id="cAddress" placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cAddress', this.value)"></textarea>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Client State (For GST)</label>
+                                    <input type="text" id="clientState" placeholder="e.g., Delhi" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 bg-gray-50 text-gray-900" oninput="updateState('clientState', this.value)">
                                 </div>
                             </div>
                         </details>
@@ -616,18 +618,6 @@ Save Payment Setup
 </div>
 
 <div id="contract-form-section" class="hidden space-y-5">
-<div class="pt-2">
-    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">
-        Project Line Items
-    </h2>
-
-    <div id="contract-items-container"></div>
-
-    <button onclick="addItem()"
-    class="w-full py-3 border-2 border-dashed border-gray-300 text-brand-600 bg-brand-50/50 rounded-lg text-sm font-bold">
-        Add Line Item
-    </button>
-</div>
         <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
             <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Contract Details</h2>
             <div class="flex justify-end mb-3">
@@ -637,27 +627,27 @@ Save Payment Setup
     </button>
 </div>
             <div class="space-y-4">
-    <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-        <input type="text" id="contract-cName" placeholder="Client Name"
-class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-oninput="updateState('cName', this.value)">
-
-<input type="text" id="contract-cPhone" placeholder="Phone"
-class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-oninput="updateState('cPhone', this.value)">
-
-<textarea id="contract-cAddress"
-class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-oninput="updateState('cAddress', this.value)"></textarea>
-
-<input type="text" id="contract-clientState"
-class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-oninput="updateState('clientState', this.value)">
-    </div>
+                                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
+                    <input type="text" id="contractClient" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractClient', this.value)">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
+                    <textarea id="contractDesc" placeholder="Scope of Work / Deliverables" rows="4" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white resize-none" oninput="updateState('contractDesc', this.value)"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Total Project Value (₹)</label>
+                    <div>
+<label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
+<select class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+    onchange="updateState('paymentTerms', this.value)">
+    <option value="receipt">Due on Receipt</option>
+    <option value="net3">Net 3 Days</option>
+    <option value="net7">Net 7 Days</option>
+    <option value="net15">Net 15 Days</option>
+</select>
 </div>
-                    
-
+                    <input type="number" id="contractAmount" placeholder="e.g. 50000" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractAmount', parseFloat(this.value) || 0)">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -680,7 +670,7 @@ oninput="updateState('clientState', this.value)">
 <button onclick="handleDownloadPDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
 </button>
-<button onclick="openSendSystem('invoice', state.id)" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+<button onclick="openSendSystem('invoice', state._id)" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg> Send to Client
 </button>
 </div>
@@ -876,8 +866,11 @@ function renderByMode() {
   'qrImage',
 
   // CONTRACT
-  
-    'contractStart',
+  'contractFreelancer',
+  'contractClient',
+  'contractDesc',
+  'contractAmount',
+  'contractStart',
   'contractEnd',
 
   // SHARED
@@ -938,7 +931,9 @@ state.paidAmount = 0;
 
 // 🔥 CRITICAL: CLEAN CONTRACT FIELDS FROM STATE
 delete state.contractFreelancer;
+delete state.contractClient;
 delete state.contractDesc;
+delete state.contractAmount;
 delete state.contractStart;
 delete state.contractEnd;
 
@@ -1054,6 +1049,7 @@ renderActionsSection();
 }
 
         function normalizeTrackerRecord(record, type) {
+
     if ((record.recordType || type) === 'invoice') {
         return {
             id: record.id,
@@ -1073,10 +1069,8 @@ renderActionsSection();
         return {
             id: record.id,
             recordType: 'contract',
-            cName: record.cName,
-            fName: record.fName,
-            items: Array.isArray(record.items) ? JSON.parse(JSON.stringify(record.items)) : [],
-            total: Number(record.total || 0),
+            contractClient: record.contractClient,
+            contractAmount: record.contractAmount,
             contractStart: record.contractStart,
             contractEnd: record.contractEnd,
             savedAt: record.savedAt
@@ -1103,6 +1097,12 @@ function getFinalInvoiceTotal() {
     return Number(subtotal.toFixed(2));
 }
     function saveInvoiceToTracker() {
+    console.log("🔴 [SAVE_INVOICE] state keys:", Object.keys(state));
+    console.log("🔴 [SAVE_INVOICE] has contract fields?",
+        'contractAmount' in state,
+        'contractClient' in state,
+        'contractDesc' in state
+    );
 
     console.trace("🚨 SAVE CALLED");
 
@@ -1135,7 +1135,7 @@ function getFinalInvoiceTotal() {
             paymentStatus: state.paymentStatus,
             paidAmount: state.paidAmount || 0,
             dueDate: state.dueDate,
-            
+            contractId: state.contractId || null,
             savedAt: Date.now()
         };
 
@@ -1395,7 +1395,7 @@ if (createInvoice.length || followUp.length) {
         
         createInvoice.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-800 truncate">${r.cName || 'Client'}</span>
+                <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
                 <button onclick="generateInvoiceFromContract(${r.id})"
                     class="text-xs bg-brand-600 text-white px-3 py-1 rounded-lg">
                     Generate
@@ -1441,7 +1441,7 @@ else if (intel.daysOverdue === 0) {
                     </div>
 
                     <div class="text-lg font-bold text-gray-800 mt-1">
-    ₹${Number(total || 0).toLocaleString()}
+    ₹${Number(r.total || 0).toLocaleString()}
 </div>
                     <div class="text-xs font-semibold mt-1 ${isOverdue ? 'text-red-500' : 'text-orange-500'}">
                         ${isOverdue ? 'OVERDUE' : 'PENDING'}
@@ -1504,7 +1504,7 @@ container.innerHTML = html;
         }
 
         function generateInvoiceFromContract(id) {
-  const contract = getContractRecords().find(r => r.id === id)
+    const contract = getContractRecords().find(r => r.id == id);
 if (!contract) return;
 
 // Switch to invoice mode FIRST
@@ -1512,29 +1512,41 @@ setMode('invoice');
 
 // 🔥 CRITICAL: REMOVE CONTRACT FIELDS FROM STATE
 delete state.contractFreelancer;
+delete state.contractClient;
 delete state.contractDesc;
+delete state.contractAmount;
 delete state.contractStart;
 delete state.contractEnd;
 
 // 🔥 CLEAN INVOICE FIELDS
-state.paymentStatus = 'unpaid'
+state.cName = '';
+state.fName = '';
+state.items = [];
+state.paymentStatus = 'unpaid';
 state.paidAmount = 0;
 
 // 🔥 NOW LINK CONTRACT
-
+state.contractId = contract.id;
     // Prefill invoice from contract
-    state.cName = contract.cName || '';
-    
-    state.items = Array.isArray(contract.items) && contract.items.length
-    ? JSON.parse(JSON.stringify(contract.items))
-    : [{ id: Date.now(), desc: 'Project Work', amount: Number(contract.total || 0) }];
+    state.cName = contract.contractClient || '';
+    state.fName = contract.contractFreelancer || '';
+    state.items = [{
+        id: Date.now(),
+        desc: contract.contractDesc || 'Project Work',
+        amount: contract.contractAmount || 0
+    }];
 
     state.paymentTerms = state.paymentTerms || 'receipt';
 
     // Reset payment state
     state.paymentStatus = 'unpaid';
     state.paidAmount = 0;
-      
+            console.log("🟡 [GEN] state keys:", Object.keys(state));
+console.log("🟡 [GEN] has contract fields?",
+  'contractAmount' in state,
+  'contractClient' in state,
+  'contractDesc' in state
+);
     // Save + render
     saveState();
     populateForm();
@@ -1589,9 +1601,9 @@ if (trackerFilter === 'invoices') {
                 const type = record.recordType || 'invoice';
 
                 if (type === 'contract') {
-                    const client = record.cName || 'Unnamed';
-                    const freelancer = record.fName || state.fName || 'Freelancer';
-                    const amount = formatINR(record.total || 0);
+                    const client = record.contractClient || 'Unnamed';
+                    const freelancer = record.contractFreelancer || 'Freelancer';
+                    const amount = formatINR(record.contractAmount || 0);
                     const start = record.contractStart ? formatDate(record.contractStart) : '';
                     const end = record.contractEnd ? formatDate(record.contractEnd) : '';
 
@@ -1861,10 +1873,10 @@ refreshInvoiceStatuses();
                 bb: src.bankBranch || state.bankBranch || '',
                 lf: src.lateFee || state.lateFee || 0,
                 pt: src.paymentTerms || state.paymentTerms || 'receipt',
-                cc: src.cName || '',
-                cf: state.fName || '',
-cd: src.items?.[0]?.desc || '',                
-                ca_amt: src.amount || src.total || 0,
+                cc: src.contractClient || '',
+                cf: src.contractFreelancer || '',
+                cd: src.contractDesc || '',
+                ca_amt: src.amount || src.contractAmount || 0,
                 cs_dt: src.contractStart || '',
                 ce_dt: src.contractEnd || '',
                 pa: src.paidAmount || 0
@@ -1887,9 +1899,9 @@ cd: src.items?.[0]?.desc || '',
 
         // --- 3. MESSAGE GENERATOR (ACTION-FOCUSED) ---
         function buildMessage(intel, record, docLink) {
-    const client = record.cName || record.cName|| "Client";
+    const client = record.cName || record.contractClient || "Client";
     const firstName = client ? client.split(' ')[0] : "Client";
-    const total = formatINR(Number(record.total || record.total || 0));
+    const total = formatINR(Number(record.total || record.contractAmount || 0));
     const paid = formatINR(Number(record.paidAmount || 0));
     const balance = formatINR(Math.max(Number(record.total || 0) - Number(record.paidAmount || 0), 0));
 // 🔥 PAYMENT CONTEXT (CRITICAL FIX)
@@ -1939,15 +1951,17 @@ const amountContext = isPartial ? `${balance} remaining` : total;
         dueDate: state.dueDate,
 
         ...(type === 'contract' ? {
-       fName: state.fName,
-       
+    contractClient: state.contractClient,
+    contractFreelancer: state.fName,
+    contractDesc: state.contractDesc,
+    contractAmount: Number(state.contractAmount || 0),
     contractStart: state.contractStart,
     contractEnd: state.contractEnd,
 } : {}),
 };
 
 if (type === 'contract') {
-        snapshot.total = getFinalInvoiceTotal();
+        snapshot.total = Number(state.contractAmount || 0);
         snapshot.paymentStatus = 'unpaid';
         snapshot.paymentStatus = 'unpaid';
     } else {
@@ -2055,7 +2069,7 @@ if (!record) {
         ...state,
         recordType: type,   // 🔥 CRITICAL FIX
         total: type === 'contract'
-            ? (getFinalInvoiceTotal() || 0)
+            ? (state.contractAmount || 0)
             : getFinalInvoiceTotal()
     };
 }
@@ -2069,20 +2083,20 @@ if (type === 'invoice') {
     ctx.message = buildMessage(ctx.intel, {...record, recordType: 'invoice', total: getFinalInvoiceTotal()}, ctx.docLink);
 }
 else if (type === 'contract') {
-    ctx.client = state.cName || 'Client';
-    ctx.amount = getFinalInvoiceTotal() || 0;
+    ctx.client = state.contractClient || 'Client';
+    ctx.amount = state.contractAmount || 0;
     ctx.contextText = `Contract ready for ${ctx.client}`;
     ctx.docLink = buildDocumentLink(type, record, ctx.amount);
     ctx.intel = getAssistantIntelligence(record);
     const finalTotal = type === 'contract'
-    ? (getFinalInvoiceTotal() || 0)
+    ? (state.contractAmount || 0)
     : getFinalInvoiceTotal();
 
 // 🔥 ADD THIS DEBUG BLOCK RIGHT HERE
 console.log("SEND DEBUG →", {
     type,
     stateMode: state.mode,
-    total: getFinalInvoiceTotal(),
+    contractAmount: state.contractAmount,
     invoiceTotal: getFinalInvoiceTotal(),
     finalTotal,
     recordType: record?.recordType,
@@ -2286,7 +2300,7 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
                     currentSendContext.savedAlready = true;
                 }
             } else if (currentSendContext.type === 'contract') {
-                if (state.cName && state.cName.trim() !== '' && getFinalInvoiceTotal() > 0) {
+                if (state.contractClient && state.contractClient.trim() !== '' && state.contractAmount > 0) {
                     if (typeof saveToHistory === 'function') saveToHistory();
                     currentSendContext.savedAlready = true;
                 }
@@ -2399,11 +2413,12 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
                 record = {
                     id: now,
                     recordType: 'contract',
-                    fName: state.fName,
-                    cName: state.cName || 'Client',
-                                        contractStart: state.contractStart || '',
+                    contractFreelancer: state.fName,
+                    contractClient: state.contractClient || state.cName || 'Client',
+                    contractDesc: state.contractDesc || '',
+                    contractStart: state.contractStart || '',
                     contractEnd: state.contractEnd || '',
-                   
+                    contractAmount: Number(state.contractAmount || 0),
                     savedAt: now
                 };
             } else {
@@ -2488,20 +2503,12 @@ if (pt) pt.value = state.paymentTerms;
             if(exportCheck) exportCheck.checked = state.isExport;
             if(state.userType !== 'registered') document.getElementById('gst-extra-settings').classList.add('hidden');
 
-            [
-  'invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState',
-  'cName', 'cPhone', 'cAddress', 'clientState',
-  'upiId', 'bankName', 'bankAccountName', 'bankAccountNo',
-  'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue',
-  'lateFee', 'paymentStatus', 'paidAmount',
-  'contractStart', 'contractEnd'
-].forEach(key => {
-  const el = document.getElementById(key);
-  if (el) el.value = state[key];
-});
-
-const termsSelect = document.getElementById('paymentTerms');
-if (termsSelect) termsSelect.value = state.paymentTerms || 'net7';
+            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue', 'lateFee', 'paymentStatus', 'paidAmount', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
+                const el = document.getElementById(key);
+                if(el) el.value = state[key] || '';
+            });
+            const termsSelect = document.getElementById('paymentTerms');
+            if(termsSelect) termsSelect.value = state.paymentTerms || 'net7';
             if (state.qrImage) {
     const img = document.getElementById('qr-preview-img');
     const container = document.getElementById('qr-preview-container');
@@ -2530,49 +2537,19 @@ if (termsSelect) termsSelect.value = state.paymentTerms || 'net7';
         }
 
         function renderItems() {
-    let container;
-
-    if (state.mode === 'contract') {
-        container = document.getElementById('contract-items-container');
-    } else {
-        container = document.getElementById('items-container');
-    }
-
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    (state.items || []).forEach((item, index) => {
-
-        const row = document.createElement('div');
-        row.className = 'flex gap-2 items-start fade-in';
-
-        row.innerHTML = `
-            <div class="flex-1">
-                <input type="text"
-                    placeholder="Service Name"
-                    value="${item.desc || ''}"
-                    class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-                    oninput="updateItem(${item.id}, 'desc', this.value)">
-            </div>
-
-            <div class="w-32 relative">
-                <span class="absolute left-3 top-2.5 text-gray-500 font-bold">₹</span>
-                <input type="number"
-                    value="${item.amount || ''}"
-                    class="w-full text-sm font-bold pl-7 border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-                    oninput="updateItem(${item.id}, 'amount', parseFloat(this.value) || 0)">
-            </div>
-
-            <button onclick="removeItem(${item.id})"
-                class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg">
-                ✕
-            </button>
-        `;
-
-        container.appendChild(row);
-    });
-}
+            const container = document.getElementById('items-container');
+            container.innerHTML = '';
+            state.items.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'flex gap-2 items-start fade-in';
+                row.innerHTML = `
+                    <div class="flex-1"><input type="text" placeholder="Service Name" value="${item.desc}" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateItem(${item.id}, 'desc', this.value)"></div>
+                    <div class="w-32 relative"><span class="absolute left-3 top-2.5 text-gray-500 font-bold">₹</span><input type="number" value="${item.amount || ''}" class="w-full text-sm font-bold pl-7 border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateItem(${item.id}, 'amount', parseFloat(this.value) || 0)"></div>
+                    <button onclick="removeItem(${item.id})" class="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors bg-gray-50 rounded-lg border border-transparent"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                `;
+                container.appendChild(row);
+            });
+        }
 
         function addItem() {
             state.items.push({ id: Date.now(), desc: '', amount: 0 });
@@ -3028,9 +3005,9 @@ ${state.otherPaymentType && state.otherPaymentValue ? `
     const prev = wrapper.style.transform;
     wrapper.style.transform = 'scale(1)';
 
-    const fileName = state.mode === 'invoice'
-    ? `Inv_${state.invNum}.pdf`
-    : ` Contract_${state.cName || 'Client'}.pdf`;
+    const fileName = state.mode === 'invoice' 
+        ? `Inv_${state.invNum}.pdf` 
+        : `Contract_${state.contractClient || 'Client'}.pdf`;
 
     setTimeout(() => {
 
@@ -3114,16 +3091,16 @@ if (state.dueDate) {
 }
 
 if (reminderType === 'friendly') {
-    msg = `Hi ${name}, just a quick reminder 😊\n\nInvoice #${state.invNum} of ₹${Number(total || 0).toLocaleString()} is pending. Please check when convenient.`;
+    msg = `Hi ${name}, just a quick reminder 😊\n\nInvoice #${state.invNum} of ₹${Number(r.total || 0).toLocaleString()} is pending. Please check when convenient.`;
 }
 else if (reminderType === 'today') {
-    msg = `Hi ${name}, this is a gentle reminder that Invoice #${state.invNum} of ₹${Number(total || 0).toLocaleString()} is due today.\n\nWould appreciate your support on this.`;
+    msg = `Hi ${name}, this is a gentle reminder that Invoice #${state.invNum} of ₹${Number(r.total || 0).toLocaleString()} is due today.\n\nWould appreciate your support on this.`;
 }
 else if (reminderType === 'urgent') {
-    msg = `Hi ${name}, this invoice is now overdue.\n\nInvoice #${state.invNum} of ₹${Number(total || 0).toLocaleString()} is still pending. Please arrange payment at the earliest.`;
+    msg = `Hi ${name}, this invoice is now overdue.\n\nInvoice #${state.invNum} of ₹${Number(r.total || 0).toLocaleString()} is still pending. Please arrange payment at the earliest.`;
 }
 else if (reminderType === 'final') {
-    msg = `Hi ${name}, this is a final notice regarding the pending payment.\n\nInvoice #${state.invNum} of ₹${Number(total || 0).toLocaleString()} is long overdue. Please clear this immediately to avoid further action.`;
+    msg = `Hi ${name}, this is a final notice regarding the pending payment.\n\nInvoice #${state.invNum} of ₹${Number(r.total || 0).toLocaleString()} is long overdue. Please clear this immediately to avoid further action.`;
 }
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
@@ -3133,8 +3110,8 @@ if (state.userTier !== 'Pro') {
     openUpgradeModal("send custom contracts via WhatsApp");
     return;
 }
-const client = state.cName || 'Client';
-const msg = `Hi ${client}, sharing our freelance agreement. Please review and confirm. Amount: ${formatINR(getFinalInvoiceTotal())}`;
+const client = state.contractClient || 'Client';
+const msg = `Hi ${client}, sharing our freelance agreement. Please review and confirm. Amount: ${formatINR(state.contractAmount)}`;
 window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 }
         
@@ -3201,13 +3178,13 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
             container.innerHTML = '';
 
             const baseUrl = window.location.href.split('?')[0];
-            const msg = `Hi ${state.cName || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
+            const msg = `Hi ${state.contractClient || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
             
             const url = new URL(baseUrl);
             url.searchParams.set('mobile', '1');
             url.searchParams.set('mode', 'contract');
-            url.searchParams.set('client', state.cName);
-            url.searchParams.set('amount', getFinalInvoiceTotal());
+            url.searchParams.set('client', state.contractClient);
+            url.searchParams.set('amount', state.contractAmount);
             url.searchParams.set('msg', msg);
             
             contractQRInstance = new QRCode(container, {
@@ -3254,42 +3231,39 @@ function initApp() {
                         const dec = JSON.parse(decodeURIComponent(atob(dParam)));
                         // Reconstruct 1:1 exact state
                         state = {
-    ...defaultState,
-    mode: dec.m === 'c' ? 'contract' : 'invoice',
-    style: dec.sty || defaultState.style,
-    invNum: dec.in || defaultState.invNum,
-    invDate: dec.idt || defaultState.invDate,
-    dueDate: dec.dd || defaultState.dueDate,
-    cName: dec.cName || '',
-    cAddress: dec.cAddress || '',
-    cPhone: dec.cPhone || '',
-    clientState: dec.clientState || '',
-    fName: dec.fName || '',
-    fEmail: dec.fEmail || '',
-    fAddress: dec.fAddress || '',
-    myState: dec.myState || '',
-    userType: dec.userType || defaultState.userType,
-    isExport: Boolean(dec.isExport),
-    items: Array.isArray(dec.items) && dec.items.length
-        ? dec.items.map((item, index) => ({
-            id: item.id || index + 1,
-            desc: item.desc || 'Service',
-            amount: Number(item.amount || 0)
-        }))
-        : [{ id: Date.now(), desc: 'Service', amount: 0 }],
-    upiId: dec.upiId || '',
-    bankName: dec.bankName || '',
-    bankAccountName: dec.bankAccountName || '',
-    bankAccountNo: dec.bankAccountNo || '',
-    bankIfsc: dec.bankIfsc || '',
-    bankBranch: dec.bankBranch || '',
-    lateFee: Number(dec.lateFee || 0),
-    paymentTerms: dec.paymentTerms || 'receipt',
-    contractStart: dec.contractStart || '',
-    contractEnd: dec.contractEnd || '',
-    paidAmount: Number(dec.paidAmount || 0)
-};
-            
+                            ...defaultState,
+                            mode: dec.m === 'c' ? 'contract' : 'invoice',
+                            style: dec.sty || 'basic',
+                            invNum: dec.in || '',
+                            invDate: dec.id || '',
+                            dueDate: dec.dd || '',
+                            cName: dec.cn || '',
+                            cAddress: dec.ca || '',
+                            cPhone: dec.cp || '',
+                            clientState: dec.cs || '',
+                            fName: dec.fn || '',
+                            fEmail: dec.fe || '',
+                            fAddress: dec.fa || '',
+                            myState: dec.ms || '',
+                            userType: dec.ut || 'not_registered',
+                            isExport: dec.ex === 1,
+                            items: dec.it ? dec.it.map((i, idx) => ({ id: idx, desc: i.d, amount: i.a })) : [],
+                            upiId: dec.ui || '',
+                            bankName: dec.bn || '',
+                            bankAccountName: dec.ban || '',
+                            bankAccountNo: dec.bno || '',
+                            bankIfsc: dec.bif || '',
+                            bankBranch: dec.bb || '',
+                            lateFee: dec.lf || 0,
+                            paymentTerms: dec.pt || 'receipt',
+                            contractClient: dec.cc || '',
+                            contractFreelancer: dec.cf || '',
+                            contractDesc: dec.cd || '',
+                            contractAmount: dec.ca_amt || 0,
+                            contractStart: dec.cs_dt || '',
+                            contractEnd: dec.ce_dt || '',
+                            paidAmount: dec.pa || 0
+                        };
                     } catch(e) { 
                         // SAFETY NET: Clean Error UI if payload is corrupted by WhatsApp
                         document.body.innerHTML = `
@@ -3311,18 +3285,7 @@ function initApp() {
             const mTotal = parseFloat(params.get('t')) || 0;
             const mInv = params.get('inv') || '';
             if (mMode === 'contract') {
-                state = {
-  ...defaultState,
-  mode: 'contract',
-  cName: mcname,
-  items: [
-    {
-      id: Date.now(),
-      desc: 'Freelance Services',
-      amount: Number(mTotal || 0)
-    }
-  ]
-};
+                state = { ...defaultState, mode: 'contract', contractClient: mCname, contractAmount: mTotal, contractDesc: 'Freelance Services Agreement' };
             } else {
                 state = { ...defaultState, mode: 'invoice', invNum: mInv, cName: mCname, items: [{ id: 1, desc: 'Freelance Services (Summary)', amount: mTotal }] };
             }
@@ -3344,7 +3307,7 @@ function initApp() {
         else renderPreview();
 
         // 4. Safely extract totals (prevents double GST math)
-        const mTotal = state.mode === 'contract' ? getFinalInvoiceTotal() : grandTotalToExport;
+        const mTotal = state.mode === 'contract' ? state.contractAmount : grandTotalToExport;
         const mPaid = state.paidAmount || 0;
         const balance = Math.max(mTotal - mPaid, 0);
 
@@ -3431,15 +3394,11 @@ function initApp() {
     if (conAct) conAct.classList.toggle('hidden', mode !== 'contract');
 
     // RENDER
-if (mode === 'contract') {
-    renderContractPreview();
-} else if (mode === 'invoice') {
-    renderPreview();
-} else {
-    // ACCOUNT TAB FIX (your bug)
-    const preview = document.getElementById('preview-container');
-    if (preview) preview.innerHTML = '';
-}
+    if (mode === 'contract') {
+        renderContractPreview();
+    } else if (mode === 'invoice') {
+        renderPreview();
+    }
 
     saveState();
 }
@@ -3454,8 +3413,9 @@ if (mode === 'contract') {
             else if (state.paymentTerms === 'net15') termsDays = 15;
 
             const freelancer = state.fName || '[Freelancer Name]';
-            const client = state.cName || '[Client Name]';
-                        const amount = getFinalInvoiceTotal();
+            const client = state.contractClient || state.cName || '[Client Name]';
+            const desc = state.contractDesc || '[Project description goes here...]';
+            const amount = state.contractAmount || 0;
             const start = formatDate(state.contractStart) || '[Start Date]';
             const end = formatDate(state.contractEnd) || '[Delivery Date]';
 
@@ -3475,7 +3435,7 @@ if (mode === 'contract') {
                         <section>
                             <p class="font-bold uppercase text-xs text-gray-400 tracking-widest mb-2">Scope of Work</p>
                             <div class="bg-gray-50 p-6 rounded-xl border border-gray-100 italic">
-                                ${(state.items?.[0]?.desc || '').replace(/\n/g, '<br>')}
+                                ${desc.replace(/\n/g, '<br>')}
                             </div>
                         </section>
 
