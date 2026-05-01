@@ -524,12 +524,10 @@ Logged in as: —
                                 <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </summary>
                             <div class="p-5 space-y-3 border-t border-gray-100">
-                                <input type="text" id=“contract-cName” placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value)">
-                                <input type="tel" id=“contract-cPhone” placeholder="Client Phone (for WhatsApp)" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cPhone', this.value)">
-                                <textarea id=“contract-cAddress” placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cAddress', this.value)"></textarea>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">Client State (For GST)</label>
-                                    <input type="text" id=“contract-clientState” placeholder="e.g., Delhi" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 bg-gray-50 text-gray-900" oninput="updateState('clientState', this.value)">
+                                <input type="text" id="contract-cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value)">
+<input type="tel" id="contract-cPhone" placeholder="Client Phone (for WhatsApp)" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cPhone', this.value)">
+<textarea id="contract-cAddress" placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cAddress', this.value)"></textarea>
+<input type="text" id="contract-clientState" placeholder="e.g., Delhi" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 bg-gray-50 text-gray-900" oninput="updateState('clientState', this.value)">
                                 </div>
                             </div>
                         </details>
@@ -641,30 +639,21 @@ Save Payment Setup
             <div class="space-y-4">
     <div>
         <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-        <input type="text" id=“contract-cName” placeholder="Client Name"
-        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-        oninput="updateState('cName', this.value)">
-    </div>
+        <input type="text" id="contract-cName" placeholder="Client Name"
+class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+oninput="updateState('cName', this.value)">
 
-    <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Phone</label>
-        <input type="text" id=“contract-cPhone” placeholder="Phone"
-        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-        oninput="updateState('cPhone', this.value)">
-    </div>
+<input type="text" id="contract-cPhone" placeholder="Phone"
+class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+oninput="updateState('cPhone', this.value)">
 
-    <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Address</label>
-        <textarea id=“contract-cAddress”
-        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-        oninput="updateState('cAddress', this.value)"></textarea>
-    </div>
+<textarea id="contract-cAddress"
+class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+oninput="updateState('cAddress', this.value)"></textarea>
 
-    <div>
-        <label class="block text-xs font-bold text-gray-600 mb-1.5">Client State</label>
-        <input type="text" id=“contract-clientState”
-        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
-        oninput="updateState('clientState', this.value)">
+<input type="text" id="contract-clientState"
+class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+oninput="updateState('clientState', this.value)">
     </div>
 </div>
                     
@@ -1065,7 +1054,6 @@ renderActionsSection();
 }
 
         function normalizeTrackerRecord(record, type) {
-
     if ((record.recordType || type) === 'invoice') {
         return {
             id: record.id,
@@ -1081,17 +1069,18 @@ renderActionsSection();
         };
     }
 
-    if (record.recordType === 'contract') return {
-    id: record.id,
-    recordType: 'contract',
-    cName: record.cName,
-    fName: record.fName,
-    items: Array.isArray(record.items) ? JSON.parse(JSON.stringify(record.items)) : [],
-    total: record.total || getFinalInvoiceTotal(),
-    contractStart: record.contractStart,
-    contractEnd: record.contractEnd,
-    savedAt: record.savedAt
-};
+    if ((record.recordType || type) === 'contract') {
+        return {
+            id: record.id,
+            recordType: 'contract',
+            cName: record.cName,
+            fName: record.fName,
+            items: Array.isArray(record.items) ? JSON.parse(JSON.stringify(record.items)) : [],
+            total: Number(record.total || 0),
+            contractStart: record.contractStart,
+            contractEnd: record.contractEnd,
+            savedAt: record.savedAt
+        };
     }
 
     return record;
@@ -3265,38 +3254,41 @@ function initApp() {
                         const dec = JSON.parse(decodeURIComponent(atob(dParam)));
                         // Reconstruct 1:1 exact state
                         state = {
-                            ...defaultState,
-                            mode: dec.m === 'c' ? 'contract' : 'invoice',
-                            style: dec.sty || 'basic',
-                            invNum: dec.in || '',
-                            invDate: dec.id || '',
-                            dueDate: dec.dd || '',
-                            cName: dec.cn || '',
-                            cAddress: dec.ca || '',
-                            cPhone: dec.cp || '',
-                            clientState: dec.cs || '',
-                            fName: dec.fn || '',
-                            fEmail: dec.fe || '',
-                            fAddress: dec.fa || '',
-                            myState: dec.ms || '',
-                            userType: dec.ut || 'not_registered',
-                            isExport: dec.ex === 1,
-                            items: dec.it ? dec.it.map((i, idx) => ({ id: idx, desc: i.d, amount: i.a })) : [],
-                            upiId: dec.ui || '',
-                            bankName: dec.bn || '',
-                            bankAccountName: dec.ban || '',
-                            bankAccountNo: dec.bno || '',
-                            bankIfsc: dec.bif || '',
-                            bankBranch: dec.bb || '',
-                            lateFee: dec.lf || 0,
-                            paymentTerms: dec.pt || 'receipt',
-                            cName: dec.cc || "",
-                            fName: dec.cf || "",
-                            items: [{ id: Date.now(), desc: dec.cd || 'Service', amount: dec.ca_amt || 0 }],
-                            
-                            contractStart: dec.cs_dt || '',
-                            contractEnd: dec.ce_dt || '',
-                            paidAmount: dec.pa || 0
+    ...defaultState,
+    mode: dec.m === 'c' ? 'contract' : 'invoice',
+    style: dec.sty || defaultState.style,
+    invNum: dec.in || defaultState.invNum,
+    invDate: dec.idt || defaultState.invDate,
+    dueDate: dec.dd || defaultState.dueDate,
+    cName: dec.cName || '',
+    cAddress: dec.cAddress || '',
+    cPhone: dec.cPhone || '',
+    clientState: dec.clientState || '',
+    fName: dec.fName || '',
+    fEmail: dec.fEmail || '',
+    fAddress: dec.fAddress || '',
+    myState: dec.myState || '',
+    userType: dec.userType || defaultState.userType,
+    isExport: Boolean(dec.isExport),
+    items: Array.isArray(dec.items) && dec.items.length
+        ? dec.items.map((item, index) => ({
+            id: item.id || index + 1,
+            desc: item.desc || 'Service',
+            amount: Number(item.amount || 0)
+        }))
+        : [{ id: Date.now(), desc: 'Service', amount: 0 }],
+    upiId: dec.upiId || '',
+    bankName: dec.bankName || '',
+    bankAccountName: dec.bankAccountName || '',
+    bankAccountNo: dec.bankAccountNo || '',
+    bankIfsc: dec.bankIfsc || '',
+    bankBranch: dec.bankBranch || '',
+    lateFee: Number(dec.lateFee || 0),
+    paymentTerms: dec.paymentTerms || 'receipt',
+    contractStart: dec.contractStart || '',
+    contractEnd: dec.contractEnd || '',
+    paidAmount: Number(dec.paidAmount || 0)
+};
                         };
                     } catch(e) { 
                         // SAFETY NET: Clean Error UI if payload is corrupted by WhatsApp
