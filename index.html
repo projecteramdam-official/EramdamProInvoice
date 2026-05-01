@@ -2631,10 +2631,27 @@ if (pt) pt.value = state.paymentTerms;
 
         // --- 4. PREVIEW RENDER ---
         function renderPreview() {
+// 🚫 BLOCK ACCOUNT PREVIEW COMPLETELY
+if (state.mode === 'account') {
+const target = document.getElementById('invoice-target');
+if (target) {
+target.innerHTML = `
+<div class="flex items-center justify-center h-full text-gray-400 font-bold text-sm">
+No preview available in Account tab
+</div>
+`;
+}
+return;
+}
             const target = document.getElementById('invoice-target');
-            
-            const subtotal = state.items.reduce((sum, item) => sum + (item.amount || 0), 0);
-            let taxAmount = 0;
+
+// 🚫 CONTRACT MODE → NO FINANCIAL CALCULATION
+if (state.mode === 'contract') {
+const subtotal = 0;
+const taxAmount = 0;
+} else {
+const subtotal = state.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+            let taxAmount = (state.mode === 'contract') ? 0 : 0;
             let taxBreakdownArray = [];
             let invoiceLabel = 'INVOICE';
             let taxNote = '';
@@ -3475,7 +3492,9 @@ function initApp() {
                         <section class="grid grid-cols-2 gap-8">
                             <div>
                                 <p class="font-bold uppercase text-xs text-gray-400 tracking-widest mb-2">Payment Details</p>
-                                <p class="text-xl font-black">Total: ${formatINR(amount)}</p>
+                                ${state.mode === 'contract' ? '' : `
+<p class="text-xl font-black">Total: ${formatINR(amount)}</p>
+`}
                                 <p class="text-sm mt-1">Payment is due within <strong>${termsDays} days</strong> of invoicing.</p>
                             </div>
                             <div>
