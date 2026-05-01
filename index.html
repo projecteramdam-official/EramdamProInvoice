@@ -33,7 +33,7 @@
 bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
 otherPaymentType: '', otherPaymentValue: '',
             savedInvoices: [], savedContracts: [], paymentStatus: 'unpaid', paidAmount: 0, mode: 'invoice',
-            contractFreelancer: '', contractClient: '', contractDesc: '', contractAmount: 0, contractStart: '', contractEnd: ''
+            contractStart: '', contractEnd: ''
         };
         let state = { ...defaultState };
 
@@ -629,11 +629,18 @@ Save Payment Setup
             <div class="space-y-4">
                                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-                    <input type="text" id="contractClient" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractClient', this.value)">
+                    <input type="text" id="cName" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('cName', this.value)">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
-                    <textarea id="contractDesc" placeholder="Scope of Work / Deliverables" rows="4" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white resize-none" oninput="updateState('contractDesc', this.value)"></textarea>
+                    <!-- Contract now uses Line Items (same as invoice) -->
+<div class="pt-2">
+    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Work Items</h2>
+    <div id="items-container" class="space-y-3 mb-3"></div>
+    <button onclick="addItem()" class="w-full py-3 border-2 border-dashed border-gray-300 text-brand-600 bg-brand-50/50 rounded-lg text-sm font-bold">
+        Add Line Item
+    </button>
+</div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Total Project Value (₹)</label>
@@ -647,7 +654,8 @@ Save Payment Setup
     <option value="net15">Net 15 Days</option>
 </select>
 </div>
-                    <input type="number" id="contractAmount" placeholder="e.g. 50000" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractAmount', parseFloat(this.value) || 0)">
+                    <!-- Total auto-calculated from line items -->
+<p class="text-xs text-gray-400 italic">Total will be calculated from line items</p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -839,10 +847,16 @@ function renderByMode() {
         } else {
             renderPreview();
         }
+    } else if (state.mode === 'account') {
+        document.getElementById('invoice-target').innerHTML = `
+            <div class="flex items-center justify-center h-full text-gray-400 font-bold text-sm">
+                No preview available in Account tab
+            </div>
+        `;
     } else {
         renderPreview();
     }
-}         
+}        
             // Performance: Skip heavy render for background fields
             const visualFields = [
   // CORE
@@ -1002,8 +1016,16 @@ state = {
 // 🔥 SAFE MERGE (CONTROLLED)
 if (parsed && typeof parsed === 'object') {
     Object.keys(parsed).forEach(key => {
-        state[key] = parsed[key];
-    });
+    // 🚫 BLOCK LEGACY CONTRACT FIELDS
+    if (
+        key === 'contractClient' ||
+        key === 'contractDesc' ||
+        key === 'contractAmount' ||
+        key === 'contractFreelancer'
+    ) return;
+
+    state[key] = parsed[key];
+});
 }
 
 // 🔥 SAFE RESTORE (NO OVERWRITE)
@@ -1097,12 +1119,7 @@ function getFinalInvoiceTotal() {
     return Number(subtotal.toFixed(2));
 }
     function saveInvoiceToTracker() {
-    console.log("🔴 [SAVE_INVOICE] state keys:", Object.keys(state));
-    console.log("🔴 [SAVE_INVOICE] has contract fields?",
-        'contractAmount' in state,
-        'contractClient' in state,
-        'contractDesc' in state
-    );
+    
 
     console.trace("🚨 SAVE CALLED");
 
