@@ -18,7 +18,7 @@
         const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyueDHAoCdL42O9zOwfA7FAwY7NninmnPLDVdjGnPFjA1t2LiCC65jNkG8mQF1lanFr/exec";
 
         // --- GLOBAL PERMANENT FIELDS (THE VAULT) ---
-        const GLOBAL_KEYS = ['fName', 'fEmail', 'fAddress', 'myState', 'upiId', 'qrImage', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch'];
+        const GLOBAL_KEYS = ['fName', 'fEmail', 'fAddress', 'myState', 'upiId', 'qrImage', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue'];
 
         // --- 1. GLOBAL STATE MANAGEMENT ---
         const defaultState = {
@@ -30,7 +30,8 @@
             cName: '', cPhone: '', cAddress: '', clientState: '',
             items: [{ id: Date.now(), desc: 'Premium Web Development', amount: 25000 }],
             upiId: '', qrImage: null,
-            bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
+bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
+otherPaymentType: '', otherPaymentValue: '',
             savedInvoices: [], savedContracts: [], paymentStatus: 'unpaid', paidAmount: 0, mode: 'invoice',
             contractFreelancer: '', contractClient: '', contractDesc: '', contractAmount: 0, contractStart: '', contractEnd: ''
         };
@@ -466,7 +467,8 @@ Logged in as: —
                         </div>
 
                         <!-- Tax & GST -->
-                                                    <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
+                        <details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                            <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
                                 Tax & GST Registration
                                 <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </summary>
@@ -497,7 +499,6 @@ Logged in as: —
            value="unregistered"
            class="text-brand-600 focus:ring-brand-500 w-4 h-4"
            onchange="updateState('userType', this.value)">
-
     <div class="ml-3">
         <span class="block text-sm font-bold text-gray-900">Not Registered</span>
         <span class="block text-xs text-gray-500 mt-0.5">Standard Invoice without tax</span>
@@ -563,11 +564,50 @@ Logged in as: —
 <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Payment Setup</h2>
 
 <input id="upiId" placeholder="UPI ID" class="w-full border p-2.5 mb-2" oninput="updateState('upiId', this.value)">
+
+<div class="mb-4 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+    <div class="flex items-center justify-between gap-3 mb-3">
+        <p class="text-xs font-bold uppercase tracking-widest text-gray-500">UPI QR Upload</p>
+        <button id="remove-qr-btn" type="button" onclick="removeQR()" class="hidden text-xs font-bold text-red-500 hover:text-red-600">
+            Remove QR
+        </button>
+    </div>
+
+    <label for="qrUpload" class="block w-full cursor-pointer">
+        <div id="qr-placeholder" class="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center hover:border-brand-400 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-gray-400 mb-2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p class="text-sm font-bold text-gray-700">Upload UPI QR image</p>
+            <p class="text-xs text-gray-500 mt-1">PNG, JPG or WebP</p>
+        </div>
+    </label>
+
+    <input type="file" id="qrUpload" accept="image/*" class="hidden" onchange="handleQRUpload(event)">
+
+    <div id="qr-preview-container" class="hidden mt-3">
+        <img id="qr-preview-img" alt="UPI QR Preview" class="w-32 h-32 object-contain rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
+    </div>
+</div>
+
 <input id="bankName" placeholder="Bank Name" class="w-full border p-2.5 mb-2" oninput="updateState('bankName', this.value)">
 <input id="bankAccountName" placeholder="Account Name" class="w-full border p-2.5 mb-2" oninput="updateState('bankAccountName', this.value)">
 <input id="bankAccountNo" placeholder="Account No" class="w-full border p-2.5 mb-2" oninput="updateState('bankAccountNo', this.value)">
 <input id="bankIfsc" placeholder="IFSC" class="w-full border p-2.5 mb-2" oninput="updateState('bankIfsc', this.value)">
 <input id="bankBranch" placeholder="Branch" class="w-full border p-2.5 mb-2" oninput="updateState('bankBranch', this.value)">
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+    <select id="otherPaymentType" class="w-full border p-2.5 bg-white" onchange="updateState('otherPaymentType', this.value)">
+        <option value="">Other Payment Method</option>
+        <option value="PayPal">PayPal</option>
+        <option value="Wise">Wise</option>
+        <option value="Crypto">Crypto</option>
+        <option value="Other">Other</option>
+    </select>
+    <input id="otherPaymentValue" placeholder="Email / wallet / username / custom detail" class="w-full border p-2.5" oninput="updateState('otherPaymentValue', this.value)">
+</div>
 
 <button onclick="manualSavePaymentSetup()" class="w-full bg-brand-600 text-white py-3 rounded-xl font-bold">
 Save Payment Setup
@@ -2508,7 +2548,7 @@ if (pt) pt.value = state.paymentTerms;
             if(exportCheck) exportCheck.checked = state.isExport;
             if(state.userType !== 'registered') document.getElementById('gst-extra-settings').classList.add('hidden');
 
-            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'lateFee', 'paymentStatus', 'paidAmount', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
+            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue', 'lateFee', 'paymentStatus', 'paidAmount', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
                 const el = document.getElementById(key);
                 if(el) el.value = state[key] || '';
             });
