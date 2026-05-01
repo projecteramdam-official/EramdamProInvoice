@@ -1081,16 +1081,17 @@ renderActionsSection();
         };
     }
 
-    if ((record.recordType || type) === 'contract') {
-        return {
-            id: record.id,
-            recordType: 'contract',
-            cName: record.cName,
-            total: record.total || getFinalInvoiceTotal(),
-            contractStart: record.contractStart,
-            contractEnd: record.contractEnd,
-            savedAt: record.savedAt
-        };
+    if (record.recordType === 'contract') return {
+    id: record.id,
+    recordType: 'contract',
+    cName: record.cName,
+    fName: record.fName,
+    items: Array.isArray(record.items) ? JSON.parse(JSON.stringify(record.items)) : [],
+    total: record.total || getFinalInvoiceTotal(),
+    contractStart: record.contractStart,
+    contractEnd: record.contractEnd,
+    savedAt: record.savedAt
+};
     }
 
     return record;
@@ -1514,7 +1515,7 @@ container.innerHTML = html;
         }
 
         function generateInvoiceFromContract(id) {
-    const contract = getContractRecords().find(r => r.id == id);
+  const contract = getContractRecords().find(r => r.id === id)
 if (!contract) return;
 
 // Switch to invoice mode FIRST
@@ -2498,12 +2499,20 @@ if (pt) pt.value = state.paymentTerms;
             if(exportCheck) exportCheck.checked = state.isExport;
             if(state.userType !== 'registered') document.getElementById('gst-extra-settings').classList.add('hidden');
 
-            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue', 'lateFee', 'paymentStatus', 'paidAmount', ['contractStart', 'contractEnd'].forEach(key => {
-                const el = document.getElementById(key);
-                if(el) el.value = state[key] || '';
-            });
-            const termsSelect = document.getElementById('paymentTerms');
-            if(termsSelect) termsSelect.value = state.paymentTerms || 'net7';
+            [
+  'invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState',
+  'cName', 'cPhone', 'cAddress', 'clientState',
+  'upiId', 'bankName', 'bankAccountName', 'bankAccountNo',
+  'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue',
+  'lateFee', 'paymentStatus', 'paidAmount',
+  'contractStart', 'contractEnd'
+].forEach(key => {
+  const el = document.getElementById(key);
+  if (el) el.value = state[key];
+});
+
+const termsSelect = document.getElementById('paymentTerms');
+if (termsSelect) termsSelect.value = state.paymentTerms || 'net7';
             if (state.qrImage) {
     const img = document.getElementById('qr-preview-img');
     const container = document.getElementById('qr-preview-container');
