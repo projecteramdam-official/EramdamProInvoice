@@ -516,24 +516,7 @@ Logged in as: —
                             </div>
                         </details>
 
-                        <!-- Your Identity -->
-                        <details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                            <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
-                                Your Identity
-                                <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </summary>
-                            <div class="p-5 space-y-3 border-t border-gray-100">
-                                <input type="text" id="fName" placeholder="Brand Name / Your Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('fName', this.value)">
-                                <input type="text" id="fEmail" placeholder="Email Address" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('fEmail', this.value)">
-                                <textarea id="fAddress" placeholder="Your Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('fAddress', this.value)"></textarea>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">Your State (For GST)</label>
-                                    <input type="text" id="myState" placeholder="e.g., Maharashtra" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 bg-gray-50 text-gray-900" oninput="updateState('myState', this.value)">
-                                </div>
-                            </div>
-                        </details>
-
-                        <!-- Client Details -->
+                                                <!-- Client Details -->
                         <details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                             <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
                                 Billed To (Client)
@@ -881,24 +864,44 @@ function renderByMode() {
     }
 }
 function setMode(mode) {
-state.mode = mode;
+    state.mode = mode;
 
-const inv = document.getElementById('invoice-form-section');
-const con = document.getElementById('contract-form-section');
-const acc = document.getElementById('account-form-section');
+    const inv = document.getElementById('invoice-form-section');
+    const con = document.getElementById('contract-form-section');
+    const acc = document.getElementById('account-form-section');
 
-const invAct = document.getElementById('invoice-actions');
-const conAct = document.getElementById('contract-actions');
+    const invAct = document.getElementById('invoice-actions');
+    const conAct = document.getElementById('contract-actions');
 
-if (inv) inv.classList.toggle('hidden', mode !== 'invoice');
-if (con) con.classList.toggle('hidden', mode !== 'contract');
-if (acc) acc.classList.toggle('hidden', mode !== 'account');
+    const invTab = document.getElementById('btn-tab-invoice');
+    const conTab = document.getElementById('btn-tab-contract');
+    const accTab = document.getElementById('btn-tab-account');
 
-if (invAct) invAct.classList.toggle('hidden', mode !== 'invoice');
-if (conAct) conAct.classList.toggle('hidden', mode !== 'contract');
+    const active = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all";
+    const inactive = "flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all";
 
-renderByMode();
-saveState();
+    // TAB STYLE
+    if (invTab) invTab.className = mode === 'invoice' ? active : inactive;
+    if (conTab) conTab.className = mode === 'contract' ? active : inactive;
+    if (accTab) accTab.className = mode === 'account' ? active : inactive;
+
+    // FORM VISIBILITY
+    if (inv) inv.classList.toggle('hidden', mode !== 'invoice');
+    if (con) con.classList.toggle('hidden', mode !== 'contract');
+    if (acc) acc.classList.toggle('hidden', mode !== 'account');
+
+    // ACTION BUTTONS
+    if (invAct) invAct.classList.toggle('hidden', mode !== 'invoice');
+    if (conAct) conAct.classList.toggle('hidden', mode !== 'contract');
+
+    // RENDER
+    if (mode === 'contract') {
+        renderContractPreview();
+    } else if (mode === 'invoice') {
+        renderPreview();
+    }
+
+    saveState();
 }
             
             // Performance: Skip heavy render for background fields
