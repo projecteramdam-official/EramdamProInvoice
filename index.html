@@ -344,7 +344,10 @@ setTimeout(() => {
                     <span id="notif-badge" class="hidden absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">0</span>
                 </button>
 
-                <span class="text-xs text-gray-500 mr-2 hidden sm:flex items-center gap-1.5 font-medium bg-gray-100 px-3 py-1.5 rounded-full">
+                <span id="nav-user-email" class="text-xs text-gray-500 mr-2 hidden lg:flex items-center gap-1.5 font-medium bg-gray-100 px-3 py-1.5 rounded-full">
+Logged in as: —
+</span>
+<span class="text-xs text-gray-500 mr-2 hidden sm:flex items-center gap-1.5 font-medium bg-gray-100 px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Auto-saved
                 </span>
                <button onclick="clearData()" class="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors">Reset Data</button>
@@ -362,6 +365,7 @@ setTimeout(() => {
                 <div id="tab-switcher" class="flex border-b border-gray-100 shrink-0 bg-white">
                     <button id="btn-tab-invoice" onclick="setMode('invoice')" class="flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-brand-600 text-brand-600 transition-all">Invoice</button>
                     <button id="btn-tab-contract" onclick="setMode('contract')" class="hidden flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all">Contract Generator</button>
+                    <button id="btn-tab-account" onclick="setMode('account')" class="flex-1 py-4 text-xs font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all">Account</button>
                 </div>
 
                 <!-- Scrollable Form Area -->
@@ -462,8 +466,7 @@ setTimeout(() => {
                         </div>
 
                         <!-- Tax & GST -->
-                        <details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                            <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
+                                                    <summary class="p-4 bg-gray-50 text-sm font-bold uppercase tracking-wider cursor-pointer flex justify-between items-center outline-none hover:bg-gray-100 transition-colors text-gray-800">
                                 Tax & GST Registration
                                 <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </summary>
@@ -558,8 +561,7 @@ setTimeout(() => {
                         </div>
 
                         <!-- Payment Details -->
-                        <div class="bg-brand-50/50 border border-brand-100 rounded-xl p-5 shadow-sm mt-4">
-<h2 class="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-brand-700">
+                        <h2 class="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 text-brand-700">
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
 Global Payment Setup
 
@@ -614,7 +616,41 @@ Global Payment Setup
 
     </div>
     </div>
-    </div> <div id="contract-form-section" class="hidden space-y-5">
+    <div id="account-form-section" class="hidden space-y-5">
+
+<div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+<h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Account</h2>
+<p class="text-sm font-bold text-gray-900">Logged in as: <span id="account-user-email-display"></span></p>
+</div>
+
+<div class="bg-white p-5 rounded-xl border border-gray-200">
+<h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Global Identity</h2>
+
+<input id="fName" placeholder="Name" class="w-full border p-2.5 mb-2" oninput="updateState('fName', this.value)">
+<input id="fEmail" placeholder="Email" class="w-full border p-2.5 mb-2" oninput="updateState('fEmail', this.value)">
+<textarea id="fAddress" placeholder="Address" class="w-full border p-2.5 mb-2" oninput="updateState('fAddress', this.value)"></textarea>
+<input id="myState" placeholder="State" class="w-full border p-2.5" oninput="updateState('myState', this.value)">
+</div>
+
+<div class="bg-white p-5 rounded-xl border border-gray-200">
+<h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Payment Setup</h2>
+
+<input id="upiId" placeholder="UPI ID" class="w-full border p-2.5 mb-2" oninput="updateState('upiId', this.value)">
+<input id="bankName" placeholder="Bank Name" class="w-full border p-2.5 mb-2" oninput="updateState('bankName', this.value)">
+<input id="bankAccountName" placeholder="Account Name" class="w-full border p-2.5 mb-2" oninput="updateState('bankAccountName', this.value)">
+<input id="bankAccountNo" placeholder="Account No" class="w-full border p-2.5 mb-2" oninput="updateState('bankAccountNo', this.value)">
+<input id="bankIfsc" placeholder="IFSC" class="w-full border p-2.5 mb-2" oninput="updateState('bankIfsc', this.value)">
+<input id="bankBranch" placeholder="Branch" class="w-full border p-2.5 mb-2" oninput="updateState('bankBranch', this.value)">
+
+<button onclick="manualSavePaymentSetup()" class="w-full bg-brand-600 text-white py-3 rounded-xl font-bold">
+Save Payment Setup
+</button>
+
+</div>
+
+</div>
+
+<div id="contract-form-section" class="hidden space-y-5">
         <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
             <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Contract Details</h2>
             <div class="flex justify-end mb-3">
@@ -845,16 +881,24 @@ function renderByMode() {
     }
 }
 function setMode(mode) {
-    state.mode = mode;
-    saveState();
+state.mode = mode;
 
-    document.getElementById('invoice-form-section').classList.toggle('hidden', mode !== 'invoice');
-    document.getElementById('contract-form-section').classList.toggle('hidden', mode !== 'contract');
+const inv = document.getElementById('invoice-form-section');
+const con = document.getElementById('contract-form-section');
+const acc = document.getElementById('account-form-section');
 
-    document.getElementById('invoice-actions').classList.toggle('hidden', mode !== 'invoice');
-    document.getElementById('contract-actions').classList.toggle('hidden', mode !== 'contract');
+const invAct = document.getElementById('invoice-actions');
+const conAct = document.getElementById('contract-actions');
 
-    renderByMode();
+if (inv) inv.classList.toggle('hidden', mode !== 'invoice');
+if (con) con.classList.toggle('hidden', mode !== 'contract');
+if (acc) acc.classList.toggle('hidden', mode !== 'account');
+
+if (invAct) invAct.classList.toggle('hidden', mode !== 'invoice');
+if (conAct) conAct.classList.toggle('hidden', mode !== 'contract');
+
+renderByMode();
+saveState();
 }
             
             // Performance: Skip heavy render for background fields
@@ -2502,6 +2546,11 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
                   }
  // --- 3. DOM & PREVIEW ---
         function populateForm() {
+            const navEmail = document.getElementById('nav-user-email');
+if (navEmail) navEmail.innerText = "Logged in as: " + (state.userEmail || '-');
+
+const accEmail = document.getElementById('account-user-email-display');
+if (accEmail) accEmail.innerText = state.userEmail || '-';
             const pt = document.getElementById('paymentTerms');
 if (pt) pt.value = state.paymentTerms;
             const styleRadio = document.querySelector(`input[name="style"][value="${state.style}"]`);
