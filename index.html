@@ -217,7 +217,7 @@ setTimeout(() => {
             }
         }
 
-        tailwind.config = {
+        if (typeof tailwind !== ‘undefined’) tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'], poppins: ['Poppins', 'sans-serif'], roboto: ['Roboto', 'sans-serif'], meitei: ['"Noto Sans Meetei Mayek"', 'sans-serif'] },
@@ -2630,21 +2630,12 @@ if (pt) pt.value = state.paymentTerms;
         const formatDate = (ds) => ds ? new Date(ds).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
         // --- 4. PREVIEW RENDER ---
-            function renderPreview() { 
+            function renderPreview() {
 
-    // 🚫 BLOCK CONTRACT MODE FROM USING INVOICE ENGINE
+    // 🚫 BLOCK CONTRACT MODE
     if (state.mode === 'contract') {
         if (typeof renderContractPreview === 'function') {
             renderContractPreview();
-        } else {
-            const target = document.getElementById('invoice-target');
-            if (target) {
-                target.innerHTML = `
-                    <div class="flex items-center justify-center h-full text-gray-400 font-bold text-sm">
-                        Contract preview unavailable
-                    </div>
-                `;
-            }
         }
         return;
     }
@@ -3693,5 +3684,6 @@ Get paid faster. Track everything in one place.
     </div>
 </div>
     
-           </body>
+</script>
+</body>
 </html>	
