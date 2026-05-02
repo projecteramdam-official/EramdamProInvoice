@@ -33,7 +33,7 @@
 bankName: '', bankAccountName: '', bankAccountNo: '', bankIfsc: '', bankBranch: '',
 otherPaymentType: '', otherPaymentValue: '',
             savedInvoices: [], savedContracts: [], paymentStatus: 'unpaid', paidAmount: 0, mode: 'invoice',
-            contractStart: '', contractEnd: ''
+            contractFreelancer: '', contractClient: '', contractDesc: '', contractAmount: 0, contractStart: '', contractEnd: ''
         };
         let state = { ...defaultState };
 
@@ -217,30 +217,13 @@ setTimeout(() => {
             }
         }
 
-                if (typeof tailwind !== 'undefined') {
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        fontFamily: {
-                            sans: ['Inter', 'sans-serif'],
-                            poppins: ['Poppins', 'sans-serif'],
-                            roboto: ['Roboto', 'sans-serif'],
-                            meitei: ['"Noto Sans Meetei Mayek"', 'sans-serif']
-                        },
-                        colors: {
-                            brand: {
-                                50: '#eff6ff',
-                                100: '#dbeafe',
-                                200: '#bfdbfe',
-                                500: '#3b82f6',
-                                600: '#2563eb',
-                                800: '#1e40af',
-                                900: '#1e3a8a'
-                            }
-                        }
-                    }
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], poppins: ['Poppins', 'sans-serif'], roboto: ['Roboto', 'sans-serif'], meitei: ['"Noto Sans Meetei Mayek"', 'sans-serif'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 500: '#3b82f6', 600: '#2563eb', 800: '#1e40af', 900: '#1e3a8a' } }
                 }
-            };
+            }
         }
     </script>
 
@@ -646,26 +629,14 @@ Save Payment Setup
             <div class="space-y-4">
                                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-                    <div class="space-y-3">
-    <input type="text" id="contract-cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('cName', this.value)">
-<input type="tel" id="contract-cPhone" placeholder="Client Phone" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('cPhone', this.value)">
-<textarea id="contract-cAddress" placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('cAddress', this.value)"></textarea>
-<input type="text" id="contract-clientState" placeholder="Client State" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('clientState', this.value)">
-
-</div>
+                    <input type="text" id="contractClient" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractClient', this.value)">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
-                    <!-- Contract now uses Line Items (same as invoice) -->
-<div>
-    <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
-    <textarea id="contractDesc" placeholder="Scope of Work / Deliverables" rows="4"
-        class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white resize-none"
-        oninput="updateState('contractDesc', this.value)">
-    </textarea>
-</div>                </div>
+                    <textarea id="contractDesc" placeholder="Scope of Work / Deliverables" rows="4" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white resize-none" oninput="updateState('contractDesc', this.value)"></textarea>
+                </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">Total Project Value (₹)</label>
                     <div>
 <label class="block text-xs font-bold text-gray-600 mb-1.5">Payment Terms</label>
 <select class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
@@ -676,8 +647,7 @@ Save Payment Setup
     <option value="net15">Net 15 Days</option>
 </select>
 </div>
-                    <!-- Total auto-calculated from line items -->
-<p class="text-xs text-gray-400 italic">Invoice will define final billing amount</p>
+                    <input type="number" id="contractAmount" placeholder="e.g. 50000" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractAmount', parseFloat(this.value) || 0)">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -700,7 +670,7 @@ Save Payment Setup
 <button onclick="handleDownloadPDF()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PDF
 </button>
-<button onclick="openSendSystem('invoice', state.id)" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
+<button onclick="openSendSystem('invoice', state._id)" class="bg-gray-100 hover:bg-brand-50 text-gray-700 hover:text-brand-600 border border-gray-200 hover:border-brand-200 px-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg> Send to Client
 </button>
 </div>
@@ -869,16 +839,10 @@ function renderByMode() {
         } else {
             renderPreview();
         }
-    } else if (state.mode === 'account') {
-        document.getElementById('invoice-target').innerHTML = `
-            <div class="flex items-center justify-center h-full text-gray-400 font-bold text-sm">
-                No preview available in Account tab
-            </div>
-        `;
     } else {
         renderPreview();
     }
-}        
+}         
             // Performance: Skip heavy render for background fields
             const visualFields = [
   // CORE
@@ -1038,16 +1002,8 @@ state = {
 // 🔥 SAFE MERGE (CONTROLLED)
 if (parsed && typeof parsed === 'object') {
     Object.keys(parsed).forEach(key => {
-    // 🚫 BLOCK LEGACY CONTRACT FIELDS
-    if (
-        key === 'contractClient' ||
-        key === 'contractDesc' ||
-        key === 'contractAmount' ||
-        key === 'contractFreelancer'
-    ) return;
-
-    state[key] = parsed[key];
-});
+        state[key] = parsed[key];
+    });
 }
 
 // 🔥 SAFE RESTORE (NO OVERWRITE)
@@ -1093,19 +1049,18 @@ renderActionsSection();
 }
 
         function normalizeTrackerRecord(record, type) {
+
     if ((record.recordType || type) === 'invoice') {
         return {
             id: record.id,
             recordType: 'invoice',
             invNum: record.invNum,
             cName: record.cName,
-            cPhone: record.cPhone,
-            total: Number(record.total || 0),
+            total: record.total,
             paymentStatus: record.paymentStatus,
-            paidAmount: Number(record.paidAmount || 0),
+            paidAmount: record.paidAmount,
             dueDate: record.dueDate,
             contractId: record.contractId || null,
-            items: Array.isArray(record.items) ? JSON.parse(JSON.stringify(record.items)) : [],
             savedAt: record.savedAt
         };
     }
@@ -1114,15 +1069,8 @@ renderActionsSection();
         return {
             id: record.id,
             recordType: 'contract',
-            cName: record.cName || '',
-            fName: record.fName || '',
-            items: Array.isArray(record.items) ? JSON.parse(JSON.stringify(record.items)) : [],
-            total: Number(
-                record.total ||
-                ((Array.isArray(record.items) ? record.items : []).reduce((sum, item) => {
-                    return sum + Number(item.amount || 0);
-                }, 0))
-            ),
+            contractClient: record.contractClient,
+            contractAmount: record.contractAmount,
             contractStart: record.contractStart,
             contractEnd: record.contractEnd,
             savedAt: record.savedAt
@@ -1131,7 +1079,6 @@ renderActionsSection();
 
     return record;
 }
-
    
 
 function getFinalInvoiceTotal() {
@@ -1150,7 +1097,12 @@ function getFinalInvoiceTotal() {
     return Number(subtotal.toFixed(2));
 }
     function saveInvoiceToTracker() {
-    
+    console.log("🔴 [SAVE_INVOICE] state keys:", Object.keys(state));
+    console.log("🔴 [SAVE_INVOICE] has contract fields?",
+        'contractAmount' in state,
+        'contractClient' in state,
+        'contractDesc' in state
+    );
 
     console.trace("🚨 SAVE CALLED");
 
@@ -1443,7 +1395,7 @@ if (createInvoice.length || followUp.length) {
         
         createInvoice.slice(0, 2).forEach(r => {
             html += `<div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-800 truncate">${r.cName || 'Unnamed Client'}</span>
+                <span class="text-sm font-medium text-gray-800 truncate">${r.contractClient}</span>
                 <button onclick="generateInvoiceFromContract(${r.id})"
                     class="text-xs bg-brand-600 text-white px-3 py-1 rounded-lg">
                     Generate
@@ -1553,39 +1505,54 @@ container.innerHTML = html;
 
         function generateInvoiceFromContract(id) {
     const contract = getContractRecords().find(r => r.id == id);
-    if (!contract) return;
+if (!contract) return;
 
-    setMode('invoice');
+// Switch to invoice mode FIRST
+setMode('invoice');
 
-    delete state.contractFreelancer;
-    delete state.contractClient;
-    delete state.contractDesc;
-    delete state.contractAmount;
-    delete state.contractStart;
-    delete state.contractEnd;
+// 🔥 CRITICAL: REMOVE CONTRACT FIELDS FROM STATE
+delete state.contractFreelancer;
+delete state.contractClient;
+delete state.contractDesc;
+delete state.contractAmount;
+delete state.contractStart;
+delete state.contractEnd;
 
-    state.cName = contract.cName || '';
-    state.fName = contract.fName || state.fName || '';
-    state.items = Array.isArray(contract.items) && contract.items.length
-        ? contract.items.map((item, index) => ({
-            id: item.id || Date.now() + index,
-            desc: item.desc || 'Project Work',
-            amount: Number(item.amount || 0)
-        }))
-        : [{ id: Date.now(), desc: 'Project Work', amount: Number(contract.total || 0) }];
+// 🔥 CLEAN INVOICE FIELDS
+state.cName = '';
+state.fName = '';
+state.items = [];
+state.paymentStatus = 'unpaid';
+state.paidAmount = 0;
 
-    state.contractId = contract.id;
-    state.paymentStatus = 'unpaid';
-    state.paidAmount = 0;
+// 🔥 NOW LINK CONTRACT
+state.contractId = contract.id;
+    // Prefill invoice from contract
+    state.cName = contract.contractClient || '';
+    state.fName = contract.contractFreelancer || '';
+    state.items = [{
+        id: Date.now(),
+        desc: contract.contractDesc || 'Project Work',
+        amount: contract.contractAmount || 0
+    }];
+
     state.paymentTerms = state.paymentTerms || 'receipt';
 
+    // Reset payment state
+    state.paymentStatus = 'unpaid';
+    state.paidAmount = 0;
+            console.log("🟡 [GEN] state keys:", Object.keys(state));
+console.log("🟡 [GEN] has contract fields?",
+  'contractAmount' in state,
+  'contractClient' in state,
+  'contractDesc' in state
+);
+    // Save + render
     saveState();
     populateForm();
     renderItems();
     renderPreview();
 }
-
-
     function renderTrackerList() {
     renderActionsSection();
 
@@ -1634,47 +1601,40 @@ if (trackerFilter === 'invoices') {
                 const type = record.recordType || 'invoice';
 
                 if (type === 'contract') {
-    const client = record.cName || 'Unnamed';
-    const freelancer = record.fName || 'Freelancer';
-    const amount = formatINR(
-        Number(
-            record.total ||
-            ((Array.isArray(record.items) ? record.items : []).reduce((sum, item) => {
-                return sum + Number(item.amount || 0);
-            }, 0))
-        )
-    );
-    const start = record.contractStart ? formatDate(record.contractStart) : '';
-    const end = record.contractEnd ? formatDate(record.contractEnd) : '';
+                    const client = record.contractClient || 'Unnamed';
+                    const freelancer = record.contractFreelancer || 'Freelancer';
+                    const amount = formatINR(record.contractAmount || 0);
+                    const start = record.contractStart ? formatDate(record.contractStart) : '';
+                    const end = record.contractEnd ? formatDate(record.contractEnd) : '';
 
-    return `
-        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
-            <div class="flex justify-between items-start mb-2">
-                <div>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Contract</p>
-                    <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${client}</h4>
-                    <p class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[180px]">${freelancer}</p>
-                </div>
-                <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest bg-slate-100 text-slate-700">
-                    Contract
-                </span>
-            </div>
+                    return `
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:border-brand-200 transition-all fade-in">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Contract</p>
+                                    <h4 class="font-bold text-gray-900 truncate max-w-[150px]">${client}</h4>
+                                    <p class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[180px]">${freelancer}</p>
+                                </div>
+                                <span class="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest bg-slate-100 text-slate-700">
+                                    Contract
+                                </span>
+                            </div>
 
-            <div class="mt-3 text-sm font-black text-gray-900">${amount}</div>
-            <div class="mt-2 text-[10px] text-gray-400 font-bold uppercase leading-relaxed">
-                ${start ? `Start: ${start}` : ''}
-                ${start && end ? '<br>' : ''}
-                ${end ? `Delivery: ${end}` : ''}
-            </div>
+                            <div class="mt-3 text-sm font-black text-gray-900">${amount}</div>
+                            <div class="mt-2 text-[10px] text-gray-400 font-bold uppercase leading-relaxed">
+                                ${start ? `Start: ${start}` : ''}
+                                ${start && end ? '<br>' : ''}
+                                ${end ? `Delivery: ${end}` : ''}
+                            </div>
 
-            <div class="flex justify-end mt-4">
-                <button onclick="deleteTrackerRecord(${record.id}, 'contract')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Contract">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                </button>
-            </div>
-        </div>
-    `;
-}
+                            <div class="flex justify-end mt-4">
+                                <button onclick="deleteTrackerRecord(${record.id}, 'contract')" class="p-2 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors" title="Delete Contract">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
 
                 const paidAmount = Number(record.paidAmount || 0);
                 const totalAmount = Number(record.total || 0);
@@ -1880,82 +1840,80 @@ refreshInvoiceStatuses();
 
         // --- 2. SECURE LINK BUILDER (COMPRESSED) ---
         function buildDocumentLink(type, record = null, amount = 0) {
-    const baseUrl = window.location.href.split('?')[0];
-    const url = new URL(baseUrl);
-    url.searchParams.set('view', 'doc');
+            const baseUrl = window.location.href.split('?')[0];
+            const url = new URL(baseUrl);
+            url.searchParams.set('view', 'doc');
 
-    const src = record || state;
-    const payloadItems = Array.isArray(src.items) && src.items.length
-        ? src.items.map((item, index) => ({
-            id: item.id || index + 1,
-            desc: item.desc || 'Services',
-            amount: Number(item.amount || 0)
-        }))
-        : [{ id: 1, desc: 'Services', amount: Number(amount || src.total || 0) }];
+            const src = record || state;
+            const payloadItems = (src.items && src.items.length > 0) ? src.items : [{ id: 1, desc: 'Services', amount: amount || src.total || 0 }];
 
-    const rawPayload = {
-        m: type === 'contract' ? 'c' : 'i',
-        sty: src.style || state.style || 'basic',
-        in: src.invNum || '',
-        idt: src.invDate || src.date || '',
-        dd: src.dueDate || '',
-        cName: src.cName || '',
-        cAddress: src.cAddress || '',
-        cPhone: src.cPhone || '',
-        clientState: src.clientState || '',
-        fName: src.fName || state.fName || '',
-        fEmail: src.fEmail || state.fEmail || '',
-        fAddress: src.fAddress || state.fAddress || '',
-        myState: src.myState || state.myState || '',
-        userType: src.userType || state.userType || 'notregistered',
-        isExport: src.isExport ? 1 : 0,
-        items: payloadItems,
-        upiId: src.upiId || state.upiId || '',
-        bankName: src.bankName || state.bankName || '',
-        bankAccountName: src.bankAccountName || state.bankAccountName || '',
-        bankAccountNo: src.bankAccountNo || state.bankAccountNo || '',
-        bankIfsc: src.bankIfsc || state.bankIfsc || '',
-        bankBranch: src.bankBranch || state.bankBranch || '',
-        lateFee: Number(src.lateFee || state.lateFee || 0),
-        paymentTerms: src.paymentTerms || state.paymentTerms || 'receipt',
-        contractStart: src.contractStart || '',
-        contractEnd: src.contractEnd || '',
-        paidAmount: Number(src.paidAmount || 0)
-    };
+            // Minify keys to shrink URL and prevent mismatches
+            const rawPayload = {
+                m: type === 'contract' ? 'c' : 'i',
+                sty: src.style || state.style || 'basic',
+                in: src.invNum || '',
+                id: src.invDate || src.date || '',
+                dd: src.dueDate || '',
+                cn: src.cName || '',
+                ca: src.cAddress || '',
+                cp: src.cPhone || '',
+                cs: src.clientState || '',
+                fn: src.fName || state.fName || '',
+                fe: src.fEmail || state.fEmail || '',
+                fa: src.fAddress || state.fAddress || '',
+                ms: src.myState || state.myState || '',
+                ut: src.userType || state.userType || 'not_registered',
+                ex: src.isExport ? 1 : 0,
+                it: payloadItems.map(i => ({ d: i.desc, a: i.amount })),
+                ui: src.upiId || state.upiId || '',
+                bn: src.bankName || state.bankName || '',
+                ban: src.bankAccountName || state.bankAccountName || '',
+                bno: src.bankAccountNo || state.bankAccountNo || '',
+                bif: src.bankIfsc || state.bankIfsc || '',
+                bb: src.bankBranch || state.bankBranch || '',
+                lf: src.lateFee || state.lateFee || 0,
+                pt: src.paymentTerms || state.paymentTerms || 'receipt',
+                cc: src.contractClient || '',
+                cf: src.contractFreelancer || '',
+                cd: src.contractDesc || '',
+                ca_amt: src.amount || src.contractAmount || 0,
+                cs_dt: src.contractStart || '',
+                ce_dt: src.contractEnd || '',
+                pa: src.paidAmount || 0
+            };
 
-    const cleanPayload = {};
-    for (const key in rawPayload) {
-        const value = rawPayload[key];
-        if (value === '' || value === null || value === undefined || value === false) continue;
-        if (Array.isArray(value) && value.length === 0) continue;
-        cleanPayload[key] = value;
-    }
+            // Strip all empty values to shrink URL by 70%
+            const cleanPayload = {};
+            for (const key in rawPayload) {
+                if (rawPayload[key] !== '' && rawPayload[key] !== null && rawPayload[key] !== 0 && rawPayload[key] !== undefined && rawPayload[key] !== false) {
+                    if (Array.isArray(rawPayload[key]) && rawPayload[key].length === 0) continue;
+                    cleanPayload[key] = rawPayload[key];
+                }
+            }
 
-    url.searchParams.set('d', btoa(encodeURIComponent(JSON.stringify(cleanPayload))));
-    return url.toString();
-}
+            url.searchParams.set('d', btoa(encodeURIComponent(JSON.stringify(cleanPayload))));
+            return url.toString();
+        }
+
+
+
         // --- 3. MESSAGE GENERATOR (ACTION-FOCUSED) ---
         function buildMessage(intel, record, docLink) {
-    const client = record.cName || "Client";
+    const client = record.cName || record.contractClient || "Client";
     const firstName = client ? client.split(' ')[0] : "Client";
-    const totalValue = Number(
-        record.total ||
-        ((Array.isArray(record.items) ? record.items : []).reduce((sum, item) => {
-            return sum + Number(item.amount || 0);
-        }, 0))
-    );
-    const total = formatINR(totalValue);
+    const total = formatINR(Number(record.total || record.contractAmount || 0));
     const paid = formatINR(Number(record.paidAmount || 0));
-    const balance = formatINR(Math.max(totalValue - Number(record.paidAmount || 0), 0));
-    const isPartial = Number(record.paidAmount || 0) > 0 && Number(record.paidAmount || 0) < totalValue;
-    const amountContext = isPartial ? `${balance} remaining` : total;
+    const balance = formatINR(Math.max(Number(record.total || 0) - Number(record.paidAmount || 0), 0));
+// 🔥 PAYMENT CONTEXT (CRITICAL FIX)
+const isPartial = Number(record.paidAmount || 0) > 0 && Number(record.paidAmount || 0) < Number(record.total || 0);
+const amountContext = isPartial ? `${balance} remaining` : total;
     const linkAction = docLink ? `\n\n👉 View secure document below:\n${docLink}` : "";
 
     if (record.recordType === 'contract') {
         return `Hi ${firstName},\n\nI've prepared our freelance agreement for ${total}.${linkAction}\n\nKindly review and confirm.`;
     }
 
-    if (record.paymentStatus === 'paid') {
+    if (paymentStatus === 'paid' || record.paymentStatus === 'paid') {
         return `Hi ${firstName},\n\nPayment of ${total} received. Thank you!`;
     }
 
@@ -1976,344 +1934,351 @@ refreshInvoiceStatuses();
 
     return `Hi ${firstName},\n\nYour invoice for ${total} is ready.${linkAction}\n\nKindly review and let me know if everything is in order.\n\nThank you.`;
 }
-
         // --- 4. THE CLEAN CONTEXT BUILDER ---
         function openSendSystem(type, id = null) {
-    injectGlobalSetup();
-
+             // 🔥 ENSURE GLOBAL DATA ALWAYS PRESENT BEFORE SEND
+    injectGlobalSetup();  
+    // 🔥 STEP 1: FORCE COMMIT (SEND = ONLY COMMIT POINT)
     const snapshot = {
-        id: state.id || (state.id = Date.now() + Math.floor(Math.random() * 1000)),
-        recordType: type === 'contract' ? 'contract' : 'invoice',
+        id: state._id || (state._id = Date.now() + Math.floor(Math.random() * 1000)),
+        recordType: (type === 'contract') ? 'contract' : 'invoice',
         savedAt: Date.now(),
         invNum: state.invNum,
         cName: state.cName,
         cPhone: state.cPhone,
-        items: JSON.parse(JSON.stringify(Array.isArray(state.items) ? state.items : [])),
+        items: JSON.parse(JSON.stringify(state.items || [])),
         paidAmount: Number(state.paidAmount || 0),
         dueDate: state.dueDate,
-        contractStart: state.contractStart,
-        contractEnd: state.contractEnd,
-        fName: state.fName
-    };
 
-    if (type === 'contract') {
-        snapshot.total = Number(
-            (Array.isArray(state.items) ? state.items : []).reduce((sum, item) => {
-                return sum + Number(item.amount || 0);
-            }, 0)
-        );
+        ...(type === 'contract' ? {
+    contractClient: state.contractClient,
+    contractFreelancer: state.fName,
+    contractDesc: state.contractDesc,
+    contractAmount: Number(state.contractAmount || 0),
+    contractStart: state.contractStart,
+    contractEnd: state.contractEnd,
+} : {}),
+};
+
+if (type === 'contract') {
+        snapshot.total = Number(state.contractAmount || 0);
+        snapshot.paymentStatus = 'unpaid';
         snapshot.paymentStatus = 'unpaid';
     } else {
-        const total = getFinalInvoiceTotal();
-        snapshot.total = total;
+    const total = getFinalInvoiceTotal();
+    snapshot.total = total;
 
         const paid = Number(state.paidAmount || 0);
         if (paid <= 0) snapshot.paymentStatus = 'unpaid';
         else if (paid >= total) snapshot.paymentStatus = 'paid';
         else snapshot.paymentStatus = 'partial';
+
+        if (snapshot.paymentStatus === 'paid') snapshot.paymentStatus = 'paid';
+        else if (snapshot.paymentStatus === 'partial') snapshot.paymentStatus = 'partial';
+        else snapshot.paymentStatus = 'unpaid';
     }
 
-    const targetArray = type === 'contract' ? state.savedContracts : state.savedInvoices;
+    const targetArray = (type === 'contract') ? state.savedContracts : state.savedInvoices;
 
-    let existingIndex = -1;
-    if (id != null) {
-        existingIndex = targetArray.findIndex(rec => rec.id === id);
-    }
+// 🔐 ID-FIRST RESOLUTION (TRACKER → SEND)
+let existingIndex = -1;
 
-    if (existingIndex === -1) {
-        if (type === 'invoice') {
-            existingIndex = targetArray.findIndex(rec => rec.invNum === snapshot.invNum);
-        } else {
-            existingIndex = targetArray.findIndex(rec => rec.id === snapshot.id);
-        }
-    }
-
-    const existing = existingIndex > -1 ? targetArray[existingIndex] : null;
-
-    if (existing) {
-        snapshot.id = existing.id;
-        if (type === 'invoice' && existing.invNum) {
-            snapshot.invNum = existing.invNum;
-        }
-    }
-
-    if (existingIndex > -1) {
-        targetArray[existingIndex] = {
-            ...existing,
-            ...snapshot
-        };
-    } else {
-        targetArray.unshift(snapshot);
-    }
-
-    if (type === 'reminder' && id) {
-        const index = state.savedInvoices.findIndex(inv => inv.id == id);
-
-        if (index !== -1) {
-            const now = Date.now();
-            const existingInvoice = state.savedInvoices[index];
-            const count = (existingInvoice.reminderCount || 0) + 1;
-
-            let tone = 'gentle';
-            if (count >= 3) tone = 'final';
-            else if (count === 2) tone = 'firm';
-
-            state.savedInvoices[index] = {
-                ...existingInvoice,
-                reminderCount: count,
-                lastReminderSent: now,
-                reminderTone: tone,
-                nextAction: 'call'
-            };
-        }
-    }
-
-    saveState();
-    refreshInvoiceStatuses();
-
-    let ctx = {
-        type,
-        id,
-        title: 'Send to Client',
-        client: '',
-        amount: getFinalInvoiceTotal(),
-        contextText: '',
-        message: '',
-        docLink: '',
-        intel: null,
-        savedAlready: true
-    };
-
-    let record = null;
-
-    if (id != null) {
-        record = getTrackerRecords().find(r => r.id === id);
-    }
-
-    if (!record && type === 'invoice') {
-        record = getTrackerRecords().find(r => r.invNum === state.invNum);
-    }
-
-    if (!record) {
-        record = {
-            ...state,
-            recordType: type,
-            total: type === 'contract'
-                ? Number((Array.isArray(state.items) ? state.items : []).reduce((sum, item) => sum + Number(item.amount || 0), 0))
-                : getFinalInvoiceTotal()
-        };
-    }
-
-    if (type === 'invoice') {
-        ctx.client = record.cName || state.cName || 'Client';
-        ctx.amount = Number(record.total || getFinalInvoiceTotal());
-        ctx.contextText = `Invoice ready for ${ctx.client}`;
-        ctx.docLink = buildDocumentLink(type, record, ctx.amount);
-        ctx.intel = getAssistantIntelligence(record);
-        ctx.message = buildMessage(ctx.intel, { ...record, recordType: 'invoice', total: ctx.amount }, ctx.docLink);
-    } else if (type === 'contract') {
-        ctx.client = record.cName || state.cName || 'Client';
-        ctx.amount = Number(
-            record.total ||
-            ((Array.isArray(record.items) ? record.items : []).reduce((sum, item) => sum + Number(item.amount || 0), 0))
-        );
-        ctx.contextText = `Contract ready for ${ctx.client}`;
-        ctx.docLink = buildDocumentLink(type, record, ctx.amount);
-        ctx.intel = getAssistantIntelligence(record);
-        ctx.message = buildMessage(ctx.intel, { ...record, recordType: 'contract', total: ctx.amount }, ctx.docLink);
-    } else if (type === 'reminder') {
-        ctx.title = 'Payment Reminder';
-        ctx.invoiceRecord = state.savedInvoices.find(i => i.id == id);
-        if (!ctx.invoiceRecord) return;
-
-        ctx.client = ctx.invoiceRecord.cName || 'Client';
-        ctx.amount = Math.max(Number(ctx.invoiceRecord.total || 0) - Number(ctx.invoiceRecord.paidAmount || 0), 0);
-        ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
-        ctx.contextText = ctx.intel.daysOverdue > 0
-            ? `Invoice overdue by ${ctx.intel.daysOverdue} days`
-            : 'Invoice due today';
-        currentActiveTone = ctx.intel.suggestedTone;
-        ctx.docLink = buildDocumentLink('invoice', ctx.invoiceRecord, ctx.amount);
-        ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, ctx.docLink);
-    } else if (type === 'thankyou') {
-        ctx.title = 'Payment Received';
-        ctx.invoiceRecord = state.savedInvoices.find(i => i.id == id);
-        if (!ctx.invoiceRecord) return;
-
-        ctx.client = ctx.invoiceRecord.cName || 'Client';
-        ctx.amount = Number(ctx.invoiceRecord.total || 0);
-        ctx.contextText = 'Transaction successfully closed.';
-        ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
-        ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, '');
-    }
-
-    currentSendContext = ctx;
-
-    document.getElementById('send-modal-title').innerHTML = `
-        <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M22 2L11 13"></path>
-            <path d="M22 2L15 22L11 13L2 9L22 2"></path>
-        </svg>
-        ${ctx.title}
-    `;
-
-    renderSendSystem();
-
-    const modal = document.getElementById('send-modal');
-    modal.classList.remove('hidden');
-
-    requestAnimationFrame(() => {
-        modal.classList.remove('opacity-0');
-    });
+// 1) If an explicit id is passed (tracker / follow-up flows), use it
+if (id != null) {
+    existingIndex = targetArray.findIndex(rec => rec.id === id);
 }
+
+// 2) Fallback: use existing behavior
+//    - invoices: match by invNum (form-driven send)
+//    - contracts/others: match by snapshot.id
+if (existingIndex === -1) {
+    if (type === 'invoice') {
+        existingIndex = targetArray.findIndex(rec => rec.invNum === snapshot.invNum);
+    } else {
+        existingIndex = targetArray.findIndex(rec => rec.id === snapshot.id);
+    }
+}
+
+// 🔥 PRESERVE OLD DATA FIRST
+let existing = existingIndex > -1 ? targetArray[existingIndex] : null;
+
+// Align snapshot identity with resolved record so we update, not duplicate
+if (existing) {
+    snapshot.id = existing.id;
+    if (type === 'invoice' && existing.invNum) {
+        snapshot.invNum = existing.invNum;
+    }
+}
+
+if (existingIndex > -1) {
+    targetArray[existingIndex] = {
+        ...existing,   // KEEP OLD (reminder, etc)
+        ...snapshot    // APPLY NEW
+    };
+} else {
+    targetArray.unshift(snapshot);
+}
+
+// 🔥 SAVE REMINDER STATE (SYNC BELL + ORANGE)
+if (type === 'reminder' && id) {
+    const index = state.savedInvoices.findIndex(inv => inv.id == id);
+
+    if (index !== -1) {
+        const now = Date.now();
+
+        const existing = state.savedInvoices[index];
+
+        const count = (existing.reminderCount || 0) + 1;
+
+        let tone = 'gentle';
+        if (count >= 3) tone = 'final';
+        else if (count === 2) tone = 'firm';
+
+        state.savedInvoices[index] = {
+            ...existing,
+            reminderCount: count,
+            lastReminderSent: now,
+            reminderTone: tone,
+            nextAction: 'call'
+        };
+    }
+}
+
+saveState();
+refreshInvoiceStatuses();
+
+// 2. Build Base Data (NOW SAFE)
+let ctx = { type, id, title: "Send to Client", client: "", amount: getFinalInvoiceTotal(), contextText: "", message: "", docLink: "", intel: null, savedAlready: true };
+
+// 🔥 SAFE RECORD RESOLUTION (PREFER ID → THEN INVNUM → THEN STATE)
+let record = null;
+
+// Prefer id when available (tracker / follow-up sends)
+if (id != null) {
+    record = getTrackerRecords().find(r => r.id === id);
+}
+
+// Fallback for invoice send from editor (no id passed)
+if (!record && type === 'invoice') {
+    record = getTrackerRecords().find(r => r.invNum === state.invNum);
+}
+
+// Final fallback: use current state snapshot
+if (!record) {
+    record = {
+        ...state,
+        recordType: type,   // 🔥 CRITICAL FIX
+        total: type === 'contract'
+            ? (state.contractAmount || 0)
+            : getFinalInvoiceTotal()
+    };
+}
+
+if (type === 'invoice') {
+    ctx.client = state.cName || "Client";
+    ctx.amount = getFinalInvoiceTotal();
+    ctx.contextText = `Invoice ready for ${ctx.client}`;
+    ctx.docLink = buildDocumentLink(type, record, ctx.amount);
+    ctx.intel = getAssistantIntelligence(record);
+    ctx.message = buildMessage(ctx.intel, {...record, recordType: 'invoice', total: getFinalInvoiceTotal()}, ctx.docLink);
+}
+else if (type === 'contract') {
+    ctx.client = state.contractClient || 'Client';
+    ctx.amount = state.contractAmount || 0;
+    ctx.contextText = `Contract ready for ${ctx.client}`;
+    ctx.docLink = buildDocumentLink(type, record, ctx.amount);
+    ctx.intel = getAssistantIntelligence(record);
+    const finalTotal = type === 'contract'
+    ? (state.contractAmount || 0)
+    : getFinalInvoiceTotal();
+
+// 🔥 ADD THIS DEBUG BLOCK RIGHT HERE
+console.log("SEND DEBUG →", {
+    type,
+    stateMode: state.mode,
+    contractAmount: state.contractAmount,
+    invoiceTotal: getFinalInvoiceTotal(),
+    finalTotal,
+    recordType: record?.recordType,
+    record
+});
+
+// EXISTING LINE (DO NOT REMOVE)
+ctx.message = buildMessage(ctx.intel, { ...record, total: finalTotal }, ctx.docLink);
+}
+else if (type === 'reminder') {
+    ctx.title = "Payment Reminder";
+    ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
+    if (!ctx.invoiceRecord) return;
+
+    ctx.client = ctx.invoiceRecord.cName || "Client";
+    ctx.amount = Math.max((Number(ctx.invoiceRecord.total) || 0) - (Number(ctx.invoiceRecord.paidAmount) || 0), 0);
+    ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+    ctx.contextText = ctx.intel.daysOverdue > 0 ? `Invoice overdue by ${ctx.intel.daysOverdue} days` : "Invoice due today";
+    currentActiveTone = ctx.intel.suggestedTone;
+    ctx.docLink = buildDocumentLink(type, ctx.invoiceRecord, ctx.amount);
+    ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, ctx.docLink);
+}
+else if (type === 'thankyou') {
+    ctx.title = "Payment Received";
+    ctx.invoiceRecord = (state.savedInvoices || []).find(i => i.id === id);
+    if (!ctx.invoiceRecord) return;
+
+    ctx.client = ctx.invoiceRecord.cName || "Client";
+    ctx.amount = ctx.invoiceRecord.total;
+    ctx.contextText = "Transaction successfully closed.";
+    ctx.intel = getAssistantIntelligence(ctx.invoiceRecord);
+    ctx.message = buildMessage(ctx.intel, ctx.invoiceRecord, "");
+}
+// 2. Store Clean Context Globally
+currentSendContext = ctx;
+
+// 3. Render UI
+document.getElementById('send-modal-title').innerHTML = `
+    <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
+    ${ctx.title}
+`;
+renderSendSystem();
+
+const modal = document.getElementById('send-modal');
+modal.classList.remove('hidden');
+requestAnimationFrame(() => modal.classList.remove('opacity-0'));
+        }
+
 
         function renderSendSystem() {
-    const area = document.getElementById('send-dynamic-area');
-    const ctx = currentSendContext;
-    const isPro = state.userTier === 'Pro';
+            const area = document.getElementById('send-dynamic-area');
+            const ctx = currentSendContext;
+            const isPro = state.userTier === 'Pro';
 
-    let isLocked = false;
-    if (!isPro && (ctx.type === 'contract' || ctx.type === 'reminder')) {
-        isLocked = true;
-    }
+            let isLocked = false;
+            if (!isPro && (ctx.type === 'contract' || ctx.type === 'reminder')) {
+                isLocked = true;
+            }
+            let toneSection = '';
+            let assistantLine = '';
 
-    let toneSection = '';
-    let assistantLine = '';
+            if (ctx.type === 'reminder') {
+                let toneDesc = "";
+                let activeToneIdx = 0;
+                
+                // Fetch the system's static intelligence (Declared ONLY ONCE)
+                const intel = ctx.intel || { lastRemText: "Never", nextStepText: "Wait until due", suggestedTone: "Polite" };
 
-    if (ctx.type === 'reminder') {
-        let toneDesc = '';
-        let activeToneIdx = 0;
+                // Track the user's manual selection
+                if (currentActiveTone === "Polite") {
+                    toneDesc = "A gentle nudge. Perfect for clients who just forgot.";
+                    activeToneIdx = 0;
+                } else if (currentActiveTone === "Firm") {
+                    toneDesc = "Polite enough to keep the relationship. Clear enough to ask for payment.";
+                    activeToneIdx = 1;
+                } else if (currentActiveTone === "Final") {
+                    toneDesc = "Direct and uncompromising. Use when payment is severely delayed.";
+                    activeToneIdx = 2;
+                }
 
-        const intel = ctx.intel || {
-            lastRemText: 'Never',
-            nextStepText: 'Wait until due',
-            suggestedTone: 'Polite'
-        };
+                const sentLog = ctx.invoiceRecord.lastReminderSent ? `<div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 mb-3"><div class="w-1.5 h-1.5 rounded-full bg-green-500"></div> Previously sent: ${intel.lastRemText}</div>` : '';
+                
+                toneSection = `
+                    <div class="mb-6 bg-brand-50 border border-brand-100 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-brand-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-lg">System Guided</div>
+                        ${sentLog}
+                        <div class="flex items-center gap-2 text-sm font-black text-gray-900 mb-1">
+                            <div class="w-2 h-2 rounded-full bg-brand-600 animate-pulse"></div>
+                            Next Action: Send ${currentActiveTone} Reminder
+                        </div>
+                        <p class="text-xs text-gray-600 font-medium ml-4 mb-4 leading-relaxed">${toneDesc}</p>
+                        
+                        <details class="group mt-2">
+                            <summary class="text-[10px] font-bold text-brand-600 uppercase tracking-widest cursor-pointer outline-none ml-4 hover:text-brand-800 transition-colors w-fit">Change Tone</summary>
+                            <div class="flex gap-2 mt-3 ml-4 ${isLocked ? 'opacity-60 pointer-events-none' : ''}">
+                                <button onclick="changeSendTone('Polite')" class="flex-1 py-2 text-center text-[10px] font-bold rounded-lg border ${activeToneIdx === 0 ? 'border-brand-500 bg-white text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50/50 hover:bg-gray-100'} transition-colors">Polite</button>
+                                <button onclick="changeSendTone('Firm')" class="flex-1 py-2 text-center text-[10px] font-bold rounded-lg border ${activeToneIdx === 1 ? 'border-brand-500 bg-white text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50/50 hover:bg-gray-100'} transition-colors">Firm</button>
+                                <button onclick="changeSendTone('Final')" class="flex-1 py-2 text-center text-[10px] font-bold rounded-lg border ${activeToneIdx === 2 ? 'border-brand-500 bg-white text-brand-600 shadow-sm' : 'border-gray-200 text-gray-500 bg-gray-50/50 hover:bg-gray-100'} transition-colors">Final</button>
+                            </div>
+                        </details>
+                    </div>
+                `;
+                assistantLine = ``; 
+            } else if (ctx.type === 'thankyou') {
+                toneSection = `
+                    <div class="mb-6 bg-green-50 border border-green-100 rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center gap-2 text-sm font-black text-green-900 mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Payment Received
+                        </div>
+                        <p class="text-xs text-green-700 font-medium ml-6">Send a professional receipt and close the loop.</p>
+                    </div>
+                `;
+                assistantLine = ``;
+            }
 
-        if (currentActiveTone === 'Polite') {
-            toneDesc = 'A gentle nudge. Perfect for clients who just forgot.';
-            activeToneIdx = 0;
-        } else if (currentActiveTone === 'Firm') {
-            toneDesc = 'Polite enough to keep the relationship. Clear enough to ask for payment.';
-            activeToneIdx = 1;
-        } else if (currentActiveTone === 'Final') {
-            toneDesc = 'Direct and uncompromising. Use when payment is severely delayed.';
-            activeToneIdx = 2;
+
+            const sendOptionsHTML = `
+                <div class="mt-6 border-t border-gray-100 pt-5">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">Choose how to send:</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="executeSend('pc')" class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 text-gray-700 hover:text-brand-600 transition-all gap-2 bg-white shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            <span class="text-[10px] font-bold text-center leading-tight">Send on this device</span>
+                        </button>
+                        <button onclick="toggleSendQR()" class="flex flex-col items-center justify-center p-3 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-100 text-brand-700 transition-all gap-2 shadow-sm relative overflow-hidden group">
+                            <div class="absolute top-0 w-full bg-brand-500 text-white text-[8px] font-black uppercase tracking-widest py-[2px] text-center">Recommended</div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="mt-2 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                            <span class="text-[10px] font-bold text-center leading-tight text-brand-700">Send to phone</span>
+                        </button>
+                        <button onclick="executeSend('email')" class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 text-gray-700 hover:text-brand-600 transition-all gap-2 bg-white shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            <span class="text-[10px] font-bold text-center leading-tight">Send via Email</span>
+                        </button>
+                    </div>
+                    <div id="send-qr-panel" class="hidden mt-4 p-5 border border-gray-200 rounded-xl bg-gray-50 flex-col items-center justify-center fade-in shadow-inner">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Scan → Review → Send</p>
+                        <div id="send-qr-canvas" class="bg-white p-2 rounded-lg shadow-sm border border-gray-100"></div>
+                    </div>
+                </div>
+            `;
+
+            area.innerHTML = `
+                <div class="p-8 overflow-y-auto max-h-[85vh] bg-white relative">
+                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-5 shadow-sm mb-6 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">${ctx.contextText}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">Amount: <span class="font-black text-gray-900">${formatINR(ctx.amount)}</span></p>
+                        </div>
+                        <div class="bg-brand-100 text-brand-700 p-2 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2"></path></svg>
+                        </div>
+                    </div>
+
+                    ${toneSection}
+
+                    <div class="bg-white p-5 rounded-2xl border border-gray-200 relative overflow-hidden shadow-sm">
+                        ${isLocked ? `
+                            <p class="text-[13px] text-gray-800 font-bold leading-relaxed mb-4">${ctx.message.replace(/\n/g, '<br>')}</p>
+                            <div class="absolute inset-0 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-5 pt-12 z-10">
+                                <button onclick="triggerSendCheckout('${ctx.type}')" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-4 rounded-xl font-black text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2 w-full max-w-[280px] justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    Unlock to Send – ₹49
+                                </button>
+                                <p class="text-[10px] font-bold text-gray-500 mt-2 uppercase tracking-widest">One-time unlock. No subscription.</p>
+                            </div>
+                        ` : `
+                            <div class="flex justify-between items-center mb-3">
+                                <p class="text-[10px] font-black text-brand-600 uppercase tracking-widest">Message Preview</p>
+                                <p class="text-[10px] font-bold text-gray-400 italic">Editable</p>
+                            </div>
+                            <textarea id="send-message-editor" class="w-full text-[13px] text-gray-800 font-medium leading-relaxed bg-gray-50 border border-gray-200 rounded-lg p-3 min-h-[140px] focus:ring-brand-500 focus:border-brand-500 transition-all resize-none shadow-inner" oninput="currentSendContext.message=this.value;" onchange="if(document.getElementById('send-qr-panel').classList.contains('flex')) generateSendQR();">${ctx.message}</textarea>
+                            
+                            ${sendOptionsHTML}
+                        `}
+                    </div>
+
+                    ${assistantLine}
+                </div>
+            `;
         }
 
-        const sentLog = ctx.invoiceRecord && ctx.invoiceRecord.lastReminderSent ? `
-            <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 mb-3">
-                <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                Previously sent ${intel.lastRemText}
-            </div>
-        ` : '';
-
-        toneSection = `
-            <div class="mb-6 bg-brand-50 border border-brand-100 rounded-2xl p-5 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-brand-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-lg">System Guided</div>
-                ${sentLog}
-                <div class="mb-3">
-                    <div class="text-sm font-black text-gray-900 mb-1">Reminder tone</div>
-                    <p class="text-xs text-gray-600 leading-relaxed">${toneDesc}</p>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="changeSendTone('Polite')" class="${activeToneIdx === 0 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-200'} border rounded-xl px-3 py-2 text-xs font-bold transition-all">Polite</button>
-                    <button onclick="changeSendTone('Firm')" class="${activeToneIdx === 1 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-200'} border rounded-xl px-3 py-2 text-xs font-bold transition-all">Firm</button>
-                    <button onclick="changeSendTone('Final')" class="${activeToneIdx === 2 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-200'} border rounded-xl px-3 py-2 text-xs font-bold transition-all">Final</button>
-                </div>
-            </div>
-        `;
-
-        assistantLine = `
-            <div class="mb-5 px-1">
-                <p class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">Assistant Insight</p>
-                <p class="text-sm text-gray-700 leading-relaxed">
-                    ${intel.daysOverdue > 0 ? `Overdue by ${intel.daysOverdue} day(s).` : 'Due today or upcoming.'}
-                    Next step: <span class="font-bold text-brand-600">${intel.nextStepText}</span>
-                </p>
-            </div>
-        `;
-    } else if (ctx.type === 'thankyou') {
-        toneSection = `
-            <div class="mb-6 bg-green-50 border border-green-100 rounded-2xl p-5 shadow-sm">
-                <div class="flex items-center gap-2 text-sm font-black text-green-900 mb-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Payment Received
-                </div>
-                <p class="text-xs text-green-700 font-medium ml-6">Send a professional receipt and close the loop.</p>
-            </div>
-        `;
-    } else if (ctx.type === 'contract') {
-        toneSection = `
-            <div class="mb-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm">
-                <div class="text-sm font-black text-slate-900 mb-1">Agreement Ready</div>
-                <p class="text-xs text-slate-600 leading-relaxed">Share the contract link so the client can review the agreement details.</p>
-            </div>
-        `;
-    } else {
-        toneSection = `
-            <div class="mb-6 bg-brand-50 border border-brand-100 rounded-2xl p-5 shadow-sm">
-                <div class="text-sm font-black text-gray-900 mb-1">Invoice Ready</div>
-                <p class="text-xs text-gray-600 leading-relaxed">Share the invoice link directly with the client using your preferred send option.</p>
-            </div>
-        `;
-    }
-
-    const sendOptionsHTML = `
-        <div class="mt-6 border-t border-gray-100 pt-5">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">Choose how to send</p>
-            <div class="grid grid-cols-3 gap-3">
-                <button onclick="executeSend('pc')" class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 text-gray-700 hover:text-brand-600 transition-all gap-2 bg-white shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                    <span class="text-[10px] font-bold text-center leading-tight">Send on this device</span>
-                </button>
-                <button onclick="executeSend('email')" class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 text-gray-700 hover:text-brand-600 transition-all gap-2 bg-white shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><path d="M22 6l-10 7L2 6"></path></svg>
-                    <span class="text-[10px] font-bold text-center leading-tight">Email</span>
-                </button>
-                <button onclick="toggleSendQR()" class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 text-gray-700 hover:text-brand-600 transition-all gap-2 bg-white shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3h7v7H3z"></path><path d="M14 3h7v7h-7z"></path><path d="M3 14h7v7H3z"></path><path d="M14 14h1"></path><path d="M19 14h2"></path><path d="M14 19h2"></path><path d="M19 17h2"></path><path d="M17 21v-4h4"></path></svg>
-                    <span class="text-[10px] font-bold text-center leading-tight">QR</span>
-                </button>
-            </div>
-        </div>
-        <div id="send-qr-panel" class="hidden mt-4 flex-col items-center justify-center bg-gray-50 rounded-2xl border border-gray-100 p-4">
-            <div id="send-qr-canvas" class="bg-white p-3 rounded-xl shadow-sm"></div>
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-3">Scan to open</p>
-        </div>
-    `;
-
-    area.innerHTML = `
-        <div class="p-6">
-            <div class="mb-5">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Client</p>
-                <div class="text-lg font-black text-gray-900">${ctx.client || 'Client'}</div>
-                <p class="text-sm text-gray-500 mt-1">${ctx.contextText || ''}</p>
-            </div>
-
-            <div class="mb-5 rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-                <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Message Preview</p>
-                </div>
-                <div class="p-4">
-                    <textarea id="send-message-box" class="w-full min-h-[180px] text-sm text-gray-700 leading-relaxed outline-none resize-none">${ctx.message || ''}</textarea>
-                </div>
-            </div>
-
-            ${assistantLine}
-            ${toneSection}
-
-            ${isLocked ? `
-                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center">
-                    <p class="text-xs font-bold text-amber-700">This send mode is locked on your current tier.</p>
-                </div>
-            ` : sendOptionsHTML}
-        </div>
-    `;
-}
 
         function changeSendTone(tone) {
             if (state.userTier !== 'Pro') return;
@@ -2335,15 +2300,12 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
                     currentSendContext.savedAlready = true;
                 }
             } else if (currentSendContext.type === 'contract') {
-    const contractTotal = (Array.isArray(state.items) ? state.items : []).reduce((sum, item) => {
-        return sum + Number(item.amount || 0);
-    }, 0);
-
-    if (state.cName && state.cName.trim() !== '' && contractTotal > 0) {
-        if (typeof saveToHistory === 'function') saveToHistory();
-        currentSendContext.savedAlready = true;
-    }
-}
+                if (state.contractClient && state.contractClient.trim() !== '' && state.contractAmount > 0) {
+                    if (typeof saveToHistory === 'function') saveToHistory();
+                    currentSendContext.savedAlready = true;
+                }
+            }
+        }
 
         function markReminderSent(id) {
             const inv = (state.savedInvoices || []).find(i => i.id === id);
@@ -2438,161 +2400,141 @@ currentSendContext.message = buildMessage(currentSendContext.intel, currentSendC
             });
         }
 
-async function saveToHistory() {
-    if (state.userTier !== 'Pro') {
-        openUpgradeModal('save invoices to tracker');
-        return;
-    }
 
-    const now = Date.now();
-    let record;
+              async function saveToHistory() {
+            if (state.userTier !== 'Pro') {
+                openUpgradeModal("save invoices to tracker");
+                return;
+            }
+            const now = Date.now();
+            let record;
 
-    if (state.mode === 'contract') {
-        const items = Array.isArray(state.items) && state.items.length
-            ? state.items.map((item, index) => ({
-                id: item.id || now + index,
-                desc: item.desc || 'Service',
-                amount: Number(item.amount || 0)
-            }))
-            : [{ id: now, desc: 'Service', amount: 0 }];
-
-        record = {
-            id: now,
-            recordType: 'contract',
-            cName: state.cName || 'Client',
-            fName: state.fName || '',
-            items,
-            total: items.reduce((sum, item) => sum + Number(item.amount || 0), 0),
-            contractStart: state.contractStart || '',
-            contractEnd: state.contractEnd || '',
-            savedAt: now
-        };
-
-        state.savedContracts = Array.isArray(state.savedContracts) ? state.savedContracts : [];
-        state.savedContracts.unshift(record);
-    } else {
+            if (state.mode === 'contract') {
+                record = {
+                    id: now,
+                    recordType: 'contract',
+                    contractFreelancer: state.fName,
+                    contractClient: state.contractClient || state.cName || 'Client',
+                    contractDesc: state.contractDesc || '',
+                    contractStart: state.contractStart || '',
+                    contractEnd: state.contractEnd || '',
+                    contractAmount: Number(state.contractAmount || 0),
+                    savedAt: now
+                };
+            } else {
+        syncPaymentStatus();
         record = {
             id: now,
             recordType: 'invoice',
             invNum: state.invNum,
-            cName: state.cName || 'Client',
-            cPhone: state.cPhone || '',
-            items: JSON.parse(JSON.stringify(Array.isArray(state.items) ? state.items : [])),
+            cName: state.cName,
+            cPhone: state.cPhone,
             total: getFinalInvoiceTotal(),
+            date: state.invDate,
             dueDate: state.dueDate,
             paymentStatus: state.paymentStatus || 'unpaid',
             paidAmount: Number(state.paidAmount || 0),
-            contractId: state.contractId || null,
-            savedAt: now
+            lastReminderSent: null,
+            daysOverdue: 0,
+            savedAt: now,
+            // Captured Blueprint (Fixes Mismatch)
+            items: JSON.parse(JSON.stringify(state.items || [])),
+            userType: state.userType,
+            isExport: state.isExport,
+            myState: state.myState,
+            clientState: state.clientState,
+            cAddress: state.cAddress,
+            fName: state.fName,
+            fEmail: state.fEmail,
+            fAddress: state.fAddress,
+            upiId: state.upiId,
+            bankName: state.bankName,
+            bankAccountName: state.bankAccountName,
+            bankAccountNo: state.bankAccountNo,
+            bankIfsc: state.bankIfsc,
+            bankBranch: state.bankBranch,
+            lateFee: state.lateFee,
+            paymentTerms: state.paymentTerms,
+            style: state.style
         };
-
-        state.savedInvoices = Array.isArray(state.savedInvoices) ? state.savedInvoices : [];
-        const existingIndex = state.savedInvoices.findIndex(inv => inv.invNum === record.invNum);
-
-        if (existingIndex !== -1) {
-            state.savedInvoices[existingIndex] = {
-                ...state.savedInvoices[existingIndex],
-                ...record
-            };
-        } else {
-            state.savedInvoices.unshift(record);
-        }
     }
 
+
+            const result = await apiRequest('SAVE_INVOICE', record);
+
+            if (result.success) {
+
+    // 🔥 SINGLE SOURCE OF TRUTH
     saveState();
-    renderTrackerList();
-    refreshInvoiceStatuses();
+
+    if (state.mode !== 'contract') {
+        refreshInvoiceStatuses();
+    } else {
+        renderTrackerList();
+    }
 
     const toast = document.getElementById('save-toast');
-    if (toast) {
-        toast.classList.remove('-translate-y-24', 'opacity-0');
-        toast.classList.add('translate-y-0', 'opacity-100');
+    toast.classList.remove('-translate-y-24', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
 
-        setTimeout(() => {
-            toast.classList.remove('translate-y-0', 'opacity-100');
-            toast.classList.add('-translate-y-24', 'opacity-0');
-        }, 3000);
-    }
+    setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-24', 'opacity-0');
+    }, 3000);
+
+} else {
+    alert("Pro Feature Blocked: Activate Your Workspace to save unlimited records!");
 }
-              
+                  }
  // --- 3. DOM & PREVIEW ---
         function populateForm() {
-    const navEmail = document.getElementById('nav-user-email');
-    if (navEmail) navEmail.innerText = `Logged in as: ${state.userEmail || '—'}`;
+            const navEmail = document.getElementById('nav-user-email');
+if (navEmail) navEmail.innerText = "Logged in as: " + (state.userEmail || '-');
 
-    const accEmail = document.getElementById('account-user-email-display');
-    if (accEmail) accEmail.innerText = state.userEmail || '—';
+const accEmail = document.getElementById('account-user-email-display');
+if (accEmail) accEmail.innerText = state.userEmail || '-';
+            const pt = document.getElementById('paymentTerms');
+if (pt) pt.value = state.paymentTerms;
+            const styleRadio = document.querySelector(`input[name="style"][value="${state.style}"]`);
+            if(styleRadio) styleRadio.checked = true;
+            const userTypeRadio = document.querySelector(`input[name="userType"][value="${state.userType}"]`);
+            if(userTypeRadio) userTypeRadio.checked = true;
+            const exportCheck = document.getElementById('isExport');
+            if(exportCheck) exportCheck.checked = state.isExport;
+            if(state.userType !== 'registered') document.getElementById('gst-extra-settings').classList.add('hidden');
 
-    const pt = document.getElementById('paymentTerms');
-    if (pt) pt.value = state.paymentTerms;
+            ['invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState', 'cName', 'cPhone', 'cAddress', 'clientState', 'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch', 'otherPaymentType', 'otherPaymentValue', 'lateFee', 'paymentStatus', 'paidAmount', 'contractFreelancer', 'contractClient', 'contractDesc', 'contractStart', 'contractEnd', 'contractAmount'].forEach(key => {
+                const el = document.getElementById(key);
+                if(el) el.value = state[key] || '';
+            });
+            const termsSelect = document.getElementById('paymentTerms');
+            if(termsSelect) termsSelect.value = state.paymentTerms || 'net7';
+            if (state.qrImage) {
+    const img = document.getElementById('qr-preview-img');
+    const container = document.getElementById('qr-preview-container');
+    const placeholder = document.getElementById('qr-placeholder');
+    const removeBtn = document.getElementById('remove-qr-btn');
 
-    const styleRadio = document.querySelector(`input[name="style"][value="${state.style}"]`);
-    if (styleRadio) styleRadio.checked = true;
-
-    const userTypeRadio = document.querySelector(`input[name="userType"][value="${state.userType}"]`);
-    if (userTypeRadio) userTypeRadio.checked = true;
-
-    const exportCheck = document.getElementById('isExport');
-    if (exportCheck) exportCheck.checked = !!state.isExport;
-
-    const gstExtra = document.getElementById('gst-extra-settings');
-    if (gstExtra) {
-        if (state.userType !== 'registered') gstExtra.classList.add('hidden');
-        else gstExtra.classList.remove('hidden');
+    if (img && container && placeholder) {
+        img.src = state.qrImage;
+        container.classList.remove('hidden');
+        placeholder.classList.add('hidden');
     }
 
-    [
-        'invNum', 'invDate', 'fName', 'fEmail', 'fAddress', 'myState',
-        'cName', 'cPhone', 'cAddress', 'clientState',
-        'contract-cName', 'contract-cPhone', 'contract-cAddress', 'contract-clientState',
-        'upiId', 'bankName', 'bankAccountName', 'bankAccountNo', 'bankIfsc', 'bankBranch',
-        'otherPaymentType', 'otherPaymentValue', 'lateFee', 'paymentStatus', 'paidAmount',
-        'contractDesc', 'contractStart', 'contractEnd'
-    ].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
+    if (removeBtn) removeBtn.classList.remove('hidden');
+} else {
+    const container = document.getElementById('qr-preview-container');
+    const placeholder = document.getElementById('qr-placeholder');
+    const removeBtn = document.getElementById('remove-qr-btn');
 
-        const stateKeyMap = {
-            'contract-cName': 'cName',
-            'contract-cPhone': 'cPhone',
-            'contract-cAddress': 'cAddress',
-            'contract-clientState': 'clientState'
-        };
-
-        const stateKey = stateKeyMap[id] || id;
-        el.value = state[stateKey] || '';
-    });
-
-    const termsSelect = document.getElementById('paymentTerms');
-    if (termsSelect) termsSelect.value = state.paymentTerms || 'net7';
-
-    if (state.qrImage) {
-        const img = document.getElementById('qr-preview-img');
-        const container = document.getElementById('qr-preview-container');
-        const placeholder = document.getElementById('qr-placeholder');
-        const removeBtn = document.getElementById('remove-qr-btn');
-
-        if (img && container && placeholder) {
-            img.src = state.qrImage;
-            container.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-        }
-        if (removeBtn) removeBtn.classList.remove('hidden');
-    } else {
-        const container = document.getElementById('qr-preview-container');
-        const placeholder = document.getElementById('qr-placeholder');
-        const removeBtn = document.getElementById('remove-qr-btn');
-
-        if (container) container.classList.add('hidden');
-        if (placeholder) placeholder.classList.remove('hidden');
-        if (removeBtn) removeBtn.classList.add('hidden');
-    }
-
-    if (FEATURES.contract) {
-        const contractBtn = document.getElementById('btn-tab-contract');
-        if (contractBtn) contractBtn.classList.remove('hidden');
-    }
+    if (container) container.classList.add('hidden');
+    if (placeholder) placeholder.classList.remove('hidden');
+    if (removeBtn) removeBtn.classList.add('hidden');
 }
+            if (FEATURES.contract) {
+                document.getElementById('btn-tab-contract').classList.remove('hidden');
+            }
+        }
 
         function renderItems() {
             const container = document.getElementById('items-container');
@@ -2655,38 +2597,11 @@ async function saveToHistory() {
         const formatDate = (ds) => ds ? new Date(ds).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
         // --- 4. PREVIEW RENDER ---
-            function renderPreview() {
-
-    // 🚫 BLOCK CONTRACT MODE
-    if (state.mode === 'contract') {
-        if (typeof renderContractPreview === 'function') {
-            renderContractPreview();
-        }
-        return;
-    }
-
-    // 🚫 BLOCK ACCOUNT MODE
-    if (state.mode === 'account') {
-        const target = document.getElementById('invoice-target');
-        if (target) {
-            target.innerHTML = `
-                <div class="flex items-center justify-center h-full text-gray-400 font-bold text-sm">
-                    No preview available in Account tab
-                </div>
-            `;
-        }
-        return;
-    }
-
-    const target = document.getElementById('invoice-target');
-
-// 🚫 CONTRACT MODE → NO FINANCIAL CALCULATION
-if (state.mode === 'contract') {
-const subtotal = 0;
-const taxAmount = 0;
-} else {
-const subtotal = state.items.reduce((sum, item) => sum + (item.amount || 0), 0);
-            let taxAmount = (state.mode === 'contract') ? 0 : 0;
+        function renderPreview() {
+            const target = document.getElementById('invoice-target');
+            
+            const subtotal = state.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+            let taxAmount = 0;
             let taxBreakdownArray = [];
             let invoiceLabel = 'INVOICE';
             let taxNote = '';
@@ -3263,17 +3178,15 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
             container.innerHTML = '';
 
             const baseUrl = window.location.href.split('?')[0];
-            const contractTotal = (Array.isArray(state.items) ? state.items : []).reduce((sum, item) => {
-    return sum + Number(item.amount || 0);
-}, 0);
-
-const msg = `Hi ${state.cName || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
-const url = new URL(baseUrl);
-url.searchParams.set('mobile', '1');
-url.searchParams.set('mode', 'contract');
-url.searchParams.set('client', state.cName || '');
-url.searchParams.set('amount', String(contractTotal));
-url.searchParams.set('msg', msg);            
+            const msg = `Hi ${state.contractClient || 'Client'}, sharing our freelance agreement. Please review and confirm.`;
+            
+            const url = new URL(baseUrl);
+            url.searchParams.set('mobile', '1');
+            url.searchParams.set('mode', 'contract');
+            url.searchParams.set('client', state.contractClient);
+            url.searchParams.set('amount', state.contractAmount);
+            url.searchParams.set('msg', msg);
+            
             contractQRInstance = new QRCode(container, {
                 text: url.toString(),
                 width: 140,
@@ -3309,81 +3222,71 @@ function initApp() {
     const params = new URLSearchParams(window.location.search);
     // --- SAFE CLIENT READ-ONLY DOCUMENT MODE ---
     if (params.get('view') === 'doc') {
-    isMobileFlow = true;
+        isMobileFlow = true;
 
-    const dParam = params.get('d');
-    if (dParam) {
-        try {
-            const dec = JSON.parse(decodeURIComponent(atob(dParam)));
+        // 1. Unpack Compressed Blueprint
+                const dParam = params.get('d');
+                if (dParam) {
+                    try {
+                        const dec = JSON.parse(decodeURIComponent(atob(dParam)));
+                        // Reconstruct 1:1 exact state
+                        state = {
+                            ...defaultState,
+                            mode: dec.m === 'c' ? 'contract' : 'invoice',
+                            style: dec.sty || 'basic',
+                            invNum: dec.in || '',
+                            invDate: dec.id || '',
+                            dueDate: dec.dd || '',
+                            cName: dec.cn || '',
+                            cAddress: dec.ca || '',
+                            cPhone: dec.cp || '',
+                            clientState: dec.cs || '',
+                            fName: dec.fn || '',
+                            fEmail: dec.fe || '',
+                            fAddress: dec.fa || '',
+                            myState: dec.ms || '',
+                            userType: dec.ut || 'not_registered',
+                            isExport: dec.ex === 1,
+                            items: dec.it ? dec.it.map((i, idx) => ({ id: idx, desc: i.d, amount: i.a })) : [],
+                            upiId: dec.ui || '',
+                            bankName: dec.bn || '',
+                            bankAccountName: dec.ban || '',
+                            bankAccountNo: dec.bno || '',
+                            bankIfsc: dec.bif || '',
+                            bankBranch: dec.bb || '',
+                            lateFee: dec.lf || 0,
+                            paymentTerms: dec.pt || 'receipt',
+                            contractClient: dec.cc || '',
+                            contractFreelancer: dec.cf || '',
+                            contractDesc: dec.cd || '',
+                            contractAmount: dec.ca_amt || 0,
+                            contractStart: dec.cs_dt || '',
+                            contractEnd: dec.ce_dt || '',
+                            paidAmount: dec.pa || 0
+                        };
+                    } catch(e) { 
+                        // SAFETY NET: Clean Error UI if payload is corrupted by WhatsApp
+                        document.body.innerHTML = `
+                            <div class="h-screen w-full flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+                                <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4 shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                </div>
+                                <h2 class="text-xl font-black text-gray-900 mb-2 tracking-tight">Document Unavailable</h2>
+                                <p class="text-sm text-gray-500 font-medium">This secure link is invalid, corrupted, or has expired.<br>Please contact the sender for a new link.</p>
+                            </div>
+                        `;
+                        return; 
+                    }
+                } else {
 
-            state = {
-                ...defaultState,
-                mode: dec.m === 'c' ? 'contract' : 'invoice',
-                style: dec.sty || 'basic',
-                invNum: dec.in || '',
-                invDate: dec.idt || '',
-                dueDate: dec.dd || '',
-                cName: dec.cName || '',
-                cAddress: dec.cAddress || '',
-                cPhone: dec.cPhone || '',
-                clientState: dec.clientState || '',
-                fName: dec.fName || '',
-                fEmail: dec.fEmail || '',
-                fAddress: dec.fAddress || '',
-                myState: dec.myState || '',
-                userType: dec.userType || 'notregistered',
-                isExport: Boolean(dec.isExport),
-                items: Array.isArray(dec.items) && dec.items.length
-                    ? dec.items.map((item, idx) => ({
-                        id: item.id || idx + 1,
-                        desc: item.desc || 'Service',
-                        amount: Number(item.amount || 0)
-                    }))
-                    : [{ id: 1, desc: 'Service', amount: 0 }],
-                upiId: dec.upiId || '',
-                bankName: dec.bankName || '',
-                bankAccountName: dec.bankAccountName || '',
-                bankAccountNo: dec.bankAccountNo || '',
-                bankIfsc: dec.bankIfsc || '',
-                bankBranch: dec.bankBranch || '',
-                lateFee: Number(dec.lateFee || 0),
-                paymentTerms: dec.paymentTerms || 'receipt',
-                contractStart: dec.contractStart || '',
-                contractEnd: dec.contractEnd || '',
-                paidAmount: Number(dec.paidAmount || 0)
-            };
-        } catch (e) {
-            document.body.innerHTML = `
-                <div class="h-screen w-full flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-                    <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-black text-gray-900 mb-2 tracking-tight">Document Unavailable</h2>
-                    <p class="text-sm text-gray-500 font-medium">This secure link is invalid, corrupted, or has expired.<br>Please contact the sender for a new link.</p>
-                </div>
-            `;
-           return;
-        }
-   if (!params) {
-
-// Fallback for old links
-const mMode = 'invoice';
-const mCName = 'Client';
-const mTotal = 0;
+            // Fallback for old links
+            const mMode = params.get('mode') || 'invoice';
+            const mCname = params.get('c') || 'Client';
+            const mTotal = parseFloat(params.get('t')) || 0;
             const mInv = params.get('inv') || '';
             if (mMode === 'contract') {
-    state = {
-        ...defaultState,
-        mode: 'contract',
-        cName: mCname,
-        items: [{ id: 1, desc: 'Freelance Services Agreement', amount: Number(mTotal || 0) }]
-    };
-} else {
-
+                state = { ...defaultState, mode: 'contract', contractClient: mCname, contractAmount: mTotal, contractDesc: 'Freelance Services Agreement' };
+            } else {
                 state = { ...defaultState, mode: 'invoice', invNum: mInv, cName: mCname, items: [{ id: 1, desc: 'Freelance Services (Summary)', amount: mTotal }] };
             }
         }
@@ -3500,24 +3403,21 @@ const mTotal = 0;
     saveState();
 }
 
-                function renderContractPreview() {
+        function renderContractPreview() {
             const target = document.getElementById('invoice-target');
-
+            
             let termsDays = 7;
             if (state.paymentTerms === 'receipt') termsDays = 0;
             else if (state.paymentTerms === 'net3') termsDays = 3;
             else if (state.paymentTerms === 'net7') termsDays = 7;
             else if (state.paymentTerms === 'net15') termsDays = 15;
 
-            const freelancer = state.fName || 'Freelancer Name';
-            const client = state.cName || 'Client Name';
-            const items = Array.isArray(state.items) && state.items.length
-                ? state.items
-                : [{ id: 1, desc: state.contractDesc || 'Project Work', amount: 0 }];
-            const desc = items.map(item => item.desc || 'Project Work').join(', ');
-            const amount = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-            const start = formatDate(state.contractStart) || 'Start Date';
-            const end = formatDate(state.contractEnd) || 'Delivery Date';
+            const freelancer = state.fName || '[Freelancer Name]';
+            const client = state.contractClient || state.cName || '[Client Name]';
+            const desc = state.contractDesc || '[Project description goes here...]';
+            const amount = state.contractAmount || 0;
+            const start = formatDate(state.contractStart) || '[Start Date]';
+            const end = formatDate(state.contractEnd) || '[Delivery Date]';
 
             const html = `
                 <div class="p-16 font-serif flex flex-col min-h-full w-full text-gray-900 leading-relaxed">
@@ -3542,9 +3442,7 @@ const mTotal = 0;
                         <section class="grid grid-cols-2 gap-8">
                             <div>
                                 <p class="font-bold uppercase text-xs text-gray-400 tracking-widest mb-2">Payment Details</p>
-                                ${state.mode === 'contract' ? '' : `
-                                    <p class="text-xl font-black">Total: ${formatINR(amount)}</p>
-                                `}
+                                <p class="text-xl font-black">Total: ${formatINR(amount)}</p>
                                 <p class="text-sm mt-1">Payment is due within <strong>${termsDays} days</strong> of invoicing.</p>
                             </div>
                             <div>
@@ -3558,46 +3456,44 @@ const mTotal = 0;
                             <div>
                                 <section class="space-y-3">
 
-                                    <div>
-                                        <h4 class="font-bold text-sm uppercase">1. Payment Terms</h4>
-                                        <p class="text-sm text-gray-600">
-                                            Payment is expected within ${state.termsDays === 0 ? 'immediately upon invoicing' : state.termsDays + ' days from invoice date'}.
-                                        </p>
-                                    </div>
+<div>
+<h4 class="font-bold text-sm uppercase">1. Payment Terms</h4>
+<p class="text-sm text-gray-600">
+Payment is expected within ${state.termsDays === 0 ? 'immediately upon invoicing' : state.termsDays + ' days from invoice date'}.
+</p>
+</div>
 
-                                    <div>
-                                        <h4 class="font-bold text-sm uppercase">2. Late Payment</h4>
-                                        <p class="text-sm text-gray-600">
-                                            ${state.lateFee > 0 
-                                                ? `A late fee of ${state.lateFee}% may apply if payment is not completed after the due date.` 
-                                                : `Delays in payment may affect delivery timelines.`}
-                                        </p>
-                                    </div>
+<div>
+<h4 class="font-bold text-sm uppercase">2. Late Payment</h4>
+<p class="text-sm text-gray-600">
+${state.lateFee > 0 
+? `A late fee of ${state.lateFee}% may apply if payment is not completed after the due date.` 
+: `Delays in payment may affect delivery timelines.`}
+</p>
+</div>
 
-                                    <div>
-                                        <h4 class="font-bold text-sm uppercase">3. Delivery Condition</h4>
-                                        <p class="text-sm text-gray-600">
-                                            Final files or deliverables will be shared only after full payment is received.
-                                        </p>
-                                    </div>
+<div>
+<h4 class="font-bold text-sm uppercase">3. Delivery Condition</h4>
+<p class="text-sm text-gray-600">
+Final files or deliverables will be shared only after full payment is received.
+</p>
+</div>
 
-                                    <div>
-                                        <h4 class="font-bold text-sm uppercase">4. Scope & Changes</h4>
-                                        <p class="text-sm text-gray-600">
-                                            Work includes only the agreed scope. Additional requests will be treated as new work and charged separately.
-                                        </p>
-                                    </div>
+<div>
+<h4 class="font-bold text-sm uppercase">4. Scope & Changes</h4>
+<p class="text-sm text-gray-600">
+Work includes only the agreed scope. Additional requests will be treated as new work and charged separately.
+</p>
+</div>
 
-                                    <div>
-                                        <h4 class="font-bold text-sm uppercase">5. Termination</h4>
-                                        <p class="text-sm text-gray-600">
-                                            If the project is terminated, payment for completed work up to that point is required.
-                                        </p>
-                                    </div>
+<div>
+<h4 class="font-bold text-sm uppercase">5. Termination</h4>
+<p class="text-sm text-gray-600">
+If the project is terminated, payment for completed work up to that point is required.
+</p>
+</div>
 
-                                </section>
-                            </div>
-                        </section>
+</section>
 
                         <div class="pt-16 grid grid-cols-2 gap-12">
                             <div class="border-t border-gray-300 pt-4">
@@ -3612,10 +3508,10 @@ const mTotal = 0;
                     </div>
 
                     <div class="mt-auto pt-16 pb-4 flex justify-center items-center opacity-[0.20] pointer-events-none select-none text-[10px] text-gray-900 font-medium w-full text-center">
-                        Contract generated using 
-                        <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> 
-                        Eramdam PayFlow Workspace
-                    </div>
+    Contract generated using 
+    <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> 
+    Eramdam PayFlow Workspace
+</div>
                 </div>
             `;
             target.innerHTML = html;
@@ -3674,12 +3570,14 @@ document.getElementById('payment-modal').classList.add('flex');
             const name = state.userName || "User";
             const email = state.userEmail || "Not provided";
 
-            const message =
-  "Hi, I’ve just completed the payment to unlock Eramdam PayFlow Workspace.\n\n" +
-  "Name: " + name + "\n" +
-  "Email: " + email + "\n" +
-  "Amount: ₹49\n\n" +
-  "Please activate my access. I’ve attached the payment screenshot if needed.";
+            const message = 
+`Hi, I’ve just completed the payment to unlock Eramdam PayFlow Workspace.
+
+Name: ${name}
+Email: ${email}
+Amount: ₹49
+
+Please activate my access. I’ve attached the payment screenshot if needed.`;
 
             const encodedMessage = encodeURIComponent(message);
             const phoneNumber = "919366659414"; 
@@ -3687,9 +3585,7 @@ document.getElementById('payment-modal').classList.add('flex');
             const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
             window.open(url, '_blank');
         }
-                
 </script>
-    
 <div id="payment-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[110] backdrop-blur-sm">
     <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl text-center transform transition-all fade-in">
         <h2 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">Unlock My Invoice System – ₹49</h2>
@@ -3726,6 +3622,5 @@ Get paid faster. Track everything in one place.
     </div>
 </div>
     
-</script>
-</body>
+           </body>
 </html>	
