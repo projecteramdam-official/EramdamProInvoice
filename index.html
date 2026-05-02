@@ -524,7 +524,7 @@ Logged in as: —
                                 <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </summary>
                             <div class="p-5 space-y-3 border-t border-gray-100">
-                                <input type="text" id="cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value); syncContractToInvoice();">
+                                <input type="text" id="cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value)">
                                 <input type="tel" id="cPhone" placeholder="Client Phone (for WhatsApp)" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cPhone', this.value)">
                                 <textarea id="cAddress" placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cAddress', this.value)"></textarea>
                                 <div>
@@ -826,11 +826,20 @@ function handleDownloadPDF() {
     }
 }        
 function updateState(key, value) {
-    console.log("🔵 [UPDATE] state keys:", Object.keys(state));
+    console.log("UPDATE state keys", Object.keys(state));
     state[key] = value;
+
+    if (key === 'cName') {
+        const invoiceNameEl = document.querySelector('#invoice-form-section #cName');
+        const contractNameEl = document.querySelector('#contract-form-section #cName');
+
+        if (invoiceNameEl && invoiceNameEl.value !== value) invoiceNameEl.value = value;
+        if (contractNameEl && contractNameEl.value !== value) contractNameEl.value = value;
+    }
+
     if (['items', 'userType', 'isExport'].includes(key)) {
-    grandTotalToExport = getFinalInvoiceTotal();
-}
+        grandTotalToExport = getFinalInvoiceTotal();
+    }
 
     // --- CORE CALCULATIONS ---
     if (key === 'invDate' || key === 'paymentTerms') {
@@ -840,8 +849,7 @@ function updateState(key, value) {
     if (key === 'paymentStatus' || key === 'paidAmount') {
         if (key === 'paymentStatus') {
             const total = grandTotalToExport;
-            state.paidAmount = (value === 'paid') ? total : 0;
-
+            state.paidAmount = value === 'paid' ? total : 0;
             const el = document.getElementById('paidAmount');
             if (el) el.value = state.paidAmount;
         }
@@ -849,32 +857,13 @@ function updateState(key, value) {
     }
 
     // --- GLOBAL SAVE ---
-    if (GLOBAL_KEYS.includes(key)) persistGlobalSetup();
+    if (GLOBALKEYS.includes(key)) persistGlobalSetup();
     saveState();
     renderByMode();
 }
 
     function syncContractToInvoice() {
-    const nameEl = document.getElementById("cName");
-    const descEl = document.getElementById("contractDesc");
-    const amountEl = document.getElementById("contractAmount");
-
-    if (!nameEl || !amountEl) return;
-
-    state.cName = nameEl.value || "";
-
-    const desc = descEl ? descEl.value : "Project Work";
-    const amount = parseFloat(amountEl.value) || 0;
-
-    state.items = [{
-        id: Date.now(),
-        desc: desc || "Project Work",
-        amount: amount
-    }];
-
-    renderItems();
-    renderPreview();
-    saveState();
+    updateState('cName', state.cName);
 }
 
 function renderByMode() {
