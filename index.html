@@ -629,11 +629,23 @@ Save Payment Setup
             <div class="space-y-4">
                                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-                    <input type="text" id="contractClient" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractClient', this.value)">
+                    <input type="text" id="cName" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('cName', this.value)">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
-                    <textarea id="contractDesc" placeholder="Scope of Work / Deliverables" rows="4" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white resize-none" oninput="updateState('contractDesc', this.value)"></textarea>
+                    <textarea id="contractDesc" placeholder="Scope of work..."
+class="w-full text-sm border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+oninput="
+updateState('contractDesc', this.value);
+
+if (state.items && state.items.length) {
+    state.items[0].desc = this.value || 'Project Work';
+}
+
+renderItems();
+renderByMode();
+saveState();
+"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Total Project Value (₹)</label>
@@ -647,7 +659,17 @@ Save Payment Setup
     <option value="net15">Net 15 Days</option>
 </select>
 </div>
-                    <input type="number" id="contractAmount" placeholder="e.g. 50000" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('contractAmount', parseFloat(this.value) || 0)">
+                    <input type="number" id="contractAmount" placeholder="e.g. 50000" class="w-full text-sm font-bold border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white"
+oninput="
+state.items = [{
+    id: Date.now(),
+    desc: state.contractDesc || 'Project Work',
+    amount: parseFloat(this.value) || 0
+}];
+renderItems();
+renderByMode();
+saveState();
+">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
