@@ -3672,8 +3672,7 @@ document.getElementById('payment-modal').classList.add('flex');
             const name = state.userName || "User";
             const email = state.userEmail || "Not provided";
 
-            const message = 
-`Hi, I’ve just completed the payment to unlock Eramdam PayFlow Workspace.
+            const message = `Hi, I’ve just completed the payment to unlock Eramdam PayFlow Workspace.
 
 Name: ${name}
 Email: ${email}
@@ -3687,6 +3686,7 @@ Please activate my access. I’ve attached the payment screenshot if needed.`;
             const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
             window.open(url, '_blank');
         }
+                
 </script>
 <div id="payment-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[110] backdrop-blur-sm">
     <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl text-center transform transition-all fade-in">
