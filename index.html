@@ -3368,12 +3368,12 @@ function initApp() {
             `;
            return;
         }
-    } else {
+   if (!params) {
 
-            // Fallback for old links
-            const mMode = params.get('mode') || 'invoice';
-            const mCname = params.get('c') || 'Client';
-            const mTotal = parseFloat(params.get('t')) || 0;
+// Fallback for old links
+const mMode = 'invoice';
+const mCName = 'Client';
+const mTotal = 0;
             const mInv = params.get('inv') || '';
             if (mMode === 'contract') {
     state = {
@@ -3688,6 +3688,7 @@ Please activate my access. I’ve attached the payment screenshot if needed.`;
         }
                 
 </script>
+    
 <div id="payment-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[110] backdrop-blur-sm">
     <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl text-center transform transition-all fade-in">
         <h2 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">Unlock My Invoice System – ₹49</h2>
