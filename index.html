@@ -3500,9 +3500,9 @@ const mTotal = 0;
     saveState();
 }
 
-        function renderContractPreview() {
+                function renderContractPreview() {
             const target = document.getElementById('invoice-target');
-            
+
             let termsDays = 7;
             if (state.paymentTerms === 'receipt') termsDays = 0;
             else if (state.paymentTerms === 'net3') termsDays = 3;
@@ -3510,14 +3510,14 @@ const mTotal = 0;
             else if (state.paymentTerms === 'net15') termsDays = 15;
 
             const freelancer = state.fName || 'Freelancer Name';
-const client = state.cName || 'Client Name';
-const items = Array.isArray(state.items) && state.items.length
-    ? state.items
-    : [{ id: 1, desc: state.contractDesc || 'Project Work', amount: 0 }];
-const desc = items.map(item => item.desc || 'Project Work').join(', ');
-const amount = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-const start = formatDate(state.contractStart) || 'Start Date';
-const end = formatDate(state.contractEnd) || 'Delivery Date';
+            const client = state.cName || 'Client Name';
+            const items = Array.isArray(state.items) && state.items.length
+                ? state.items
+                : [{ id: 1, desc: state.contractDesc || 'Project Work', amount: 0 }];
+            const desc = items.map(item => item.desc || 'Project Work').join(', ');
+            const amount = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+            const start = formatDate(state.contractStart) || 'Start Date';
+            const end = formatDate(state.contractEnd) || 'Delivery Date';
 
             const html = `
                 <div class="p-16 font-serif flex flex-col min-h-full w-full text-gray-900 leading-relaxed">
@@ -3543,8 +3543,8 @@ const end = formatDate(state.contractEnd) || 'Delivery Date';
                             <div>
                                 <p class="font-bold uppercase text-xs text-gray-400 tracking-widest mb-2">Payment Details</p>
                                 ${state.mode === 'contract' ? '' : `
-<p class="text-xl font-black">Total: ${formatINR(amount)}</p>
-`}
+                                    <p class="text-xl font-black">Total: ${formatINR(amount)}</p>
+                                `}
                                 <p class="text-sm mt-1">Payment is due within <strong>${termsDays} days</strong> of invoicing.</p>
                             </div>
                             <div>
@@ -3558,44 +3558,46 @@ const end = formatDate(state.contractEnd) || 'Delivery Date';
                             <div>
                                 <section class="space-y-3">
 
-<div>
-<h4 class="font-bold text-sm uppercase">1. Payment Terms</h4>
-<p class="text-sm text-gray-600">
-Payment is expected within ${state.termsDays === 0 ? 'immediately upon invoicing' : state.termsDays + ' days from invoice date'}.
-</p>
-</div>
+                                    <div>
+                                        <h4 class="font-bold text-sm uppercase">1. Payment Terms</h4>
+                                        <p class="text-sm text-gray-600">
+                                            Payment is expected within ${state.termsDays === 0 ? 'immediately upon invoicing' : state.termsDays + ' days from invoice date'}.
+                                        </p>
+                                    </div>
 
-<div>
-<h4 class="font-bold text-sm uppercase">2. Late Payment</h4>
-<p class="text-sm text-gray-600">
-${state.lateFee > 0 
-? `A late fee of ${state.lateFee}% may apply if payment is not completed after the due date.` 
-: `Delays in payment may affect delivery timelines.`}
-</p>
-</div>
+                                    <div>
+                                        <h4 class="font-bold text-sm uppercase">2. Late Payment</h4>
+                                        <p class="text-sm text-gray-600">
+                                            ${state.lateFee > 0 
+                                                ? `A late fee of ${state.lateFee}% may apply if payment is not completed after the due date.` 
+                                                : `Delays in payment may affect delivery timelines.`}
+                                        </p>
+                                    </div>
 
-<div>
-<h4 class="font-bold text-sm uppercase">3. Delivery Condition</h4>
-<p class="text-sm text-gray-600">
-Final files or deliverables will be shared only after full payment is received.
-</p>
-</div>
+                                    <div>
+                                        <h4 class="font-bold text-sm uppercase">3. Delivery Condition</h4>
+                                        <p class="text-sm text-gray-600">
+                                            Final files or deliverables will be shared only after full payment is received.
+                                        </p>
+                                    </div>
 
-<div>
-<h4 class="font-bold text-sm uppercase">4. Scope & Changes</h4>
-<p class="text-sm text-gray-600">
-Work includes only the agreed scope. Additional requests will be treated as new work and charged separately.
-</p>
-</div>
+                                    <div>
+                                        <h4 class="font-bold text-sm uppercase">4. Scope & Changes</h4>
+                                        <p class="text-sm text-gray-600">
+                                            Work includes only the agreed scope. Additional requests will be treated as new work and charged separately.
+                                        </p>
+                                    </div>
 
-<div>
-<h4 class="font-bold text-sm uppercase">5. Termination</h4>
-<p class="text-sm text-gray-600">
-If the project is terminated, payment for completed work up to that point is required.
-</p>
-</div>
+                                    <div>
+                                        <h4 class="font-bold text-sm uppercase">5. Termination</h4>
+                                        <p class="text-sm text-gray-600">
+                                            If the project is terminated, payment for completed work up to that point is required.
+                                        </p>
+                                    </div>
 
-</section>
+                                </section>
+                            </div>
+                        </section>
 
                         <div class="pt-16 grid grid-cols-2 gap-12">
                             <div class="border-t border-gray-300 pt-4">
@@ -3610,10 +3612,10 @@ If the project is terminated, payment for completed work up to that point is req
                     </div>
 
                     <div class="mt-auto pt-16 pb-4 flex justify-center items-center opacity-[0.20] pointer-events-none select-none text-[10px] text-gray-900 font-medium w-full text-center">
-    Contract generated using 
-    <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> 
-    Eramdam PayFlow Workspace
-</div>
+                        Contract generated using 
+                        <span class="font-meitei mx-1.5 text-[12px]">ꯄ꯭ꯔꯣꯖꯦꯛꯠ ꯏꯔꯝꯗꯝ</span> 
+                        Eramdam PayFlow Workspace
+                    </div>
                 </div>
             `;
             target.innerHTML = html;
