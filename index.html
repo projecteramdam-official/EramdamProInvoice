@@ -3674,13 +3674,12 @@ document.getElementById('payment-modal').classList.add('flex');
             const name = state.userName || "User";
             const email = state.userEmail || "Not provided";
 
-            const message = `Hi, I’ve just completed the payment to unlock Eramdam PayFlow Workspace.
-
-Name: ${name}
-Email: ${email}
-Amount: ₹49
-
-Please activate my access. I’ve attached the payment screenshot if needed.`;
+            const message =
+  "Hi, I’ve just completed the payment to unlock Eramdam PayFlow Workspace.\n\n" +
+  "Name: " + name + "\n" +
+  "Email: " + email + "\n" +
+  "Amount: ₹49\n\n" +
+  "Please activate my access. I’ve attached the payment screenshot if needed.";
 
             const encodedMessage = encodeURIComponent(message);
             const phoneNumber = "919366659414"; 
