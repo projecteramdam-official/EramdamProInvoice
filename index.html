@@ -850,8 +850,15 @@ function updateState(key, value) {
 
     // --- GLOBAL SAVE ---
     if (GLOBAL_KEYS.includes(key)) persistGlobalSetup();
-    saveState();
-    renderByMode();
+
+// 🔥 FULL SAFE REFRESH PIPELINE
+try {
+    if (typeof renderItems === "function") renderItems();
+    if (typeof renderPreview === "function") renderPreview();
+    if (typeof renderByMode === "function") renderByMode();
+    if (typeof saveState === "function") saveState();
+} catch (e) {
+    console.warn("UI refresh error:", e);
 }
 
 function renderByMode() {
