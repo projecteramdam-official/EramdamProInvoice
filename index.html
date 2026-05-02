@@ -524,7 +524,11 @@ Logged in as: —
                                 <svg class="chevron w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </summary>
                             <div class="p-5 space-y-3 border-t border-gray-100">
-                                <input type="text" id="cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cName', this.value)">
+                                <input type="text" id="cName" placeholder="Client Name / Company" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="
+updateState('cName', this.value);
+renderByMode();
+saveState();
+">
                                 <input type="tel" id="cPhone" placeholder="Client Phone (for WhatsApp)" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cPhone', this.value)">
                                 <textarea id="cAddress" placeholder="Client Address" rows="2" class="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:ring-brand-500 border p-2.5 text-gray-900" oninput="updateState('cAddress', this.value)"></textarea>
                                 <div>
@@ -629,7 +633,11 @@ Save Payment Setup
             <div class="space-y-4">
                                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Client Name</label>
-                    <input type="text" id="cName" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="updateState('cName', this.value)">
+                    <input type="text" id="cName" placeholder="Client Name" class="w-full text-sm font-medium border-gray-200 rounded-lg shadow-sm border p-2.5 bg-white" oninput="
+updateState('cName', this.value);
+renderByMode();
+saveState();
+">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">Scope of Work</label>
