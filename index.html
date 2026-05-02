@@ -3366,11 +3366,9 @@ function initApp() {
                     <p class="text-sm text-gray-500 font-medium">This secure link is invalid, corrupted, or has expired.<br>Please contact the sender for a new link.</p>
                 </div>
             `;
-            return;
+           return;
         }
-    }
-}
-                } else {
+    } else {
 
             // Fallback for old links
             const mMode = params.get('mode') || 'invoice';
